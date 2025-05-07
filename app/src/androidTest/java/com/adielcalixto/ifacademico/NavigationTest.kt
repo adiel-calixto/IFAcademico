@@ -152,8 +152,8 @@ class NavigationTest {
             viewModel = MainViewModel(
                 logoutUseCase,
                 verifySessionUseCase,
-                refreshSessionUseCase,
                 getStudentUseCase,
+                refreshSessionUseCase,
                 unauthorizedApiErrorObserver
             )
         )

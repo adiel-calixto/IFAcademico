@@ -32,23 +32,23 @@ class MainViewModel @Inject constructor(
     unauthorizedApiErrorObserver: UnauthorizedApiErrorObserver
 ) : ViewModel(), UnauthorizedApiErrorSubscriber, DefaultLifecycleObserver {
 
-    private val _state = MutableStateFlow(MainState(isLoading = true, isFirstLoad = true))
+    private val _state = MutableStateFlow(MainState(isFirstLoad = true))
     val state = _state.asStateFlow()
 
     init {
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         unauthorizedApiErrorObserver.subscribe(this)
 
-        runSuspendWithLoading(::loadSession)
+        viewModelScope.launch { loadSession() }
         _state.update { it.copy(isFirstLoad = false) }
     }
 
     fun retryLoadingData() {
-        runSuspendWithLoading(::loadSession)
+        viewModelScope.launch { loadSession() }
     }
 
     fun onLogin() {
-        runSuspendWithLoading { login() }
+        viewModelScope.launch { login() }
     }
 
     fun onLogout() {
@@ -57,7 +57,7 @@ class MainViewModel @Inject constructor(
 
     override fun onResume(owner: LifecycleOwner) {
         if (_state.value.isFirstLoad) return
-        runSuspendWithLoading { loadSession() }
+        viewModelScope.launch { loadSession() }
     }
 
     override fun onCleared() {
@@ -113,18 +113,6 @@ class MainViewModel @Inject constructor(
             is Result.Error -> _state.update { it.copy(error = result.error) }
             is Result.Success -> {
                 _state.update { it.copy(student = result.data, error = null) }
-            }
-        }
-    }
-
-    private fun runSuspendWithLoading(action: suspend () -> Unit) {
-        _state.update { it.copy(isLoading = true) }
-
-        viewModelScope.launch {
-            try {
-                action()
-            } finally {
-                _state.update { it.copy(isLoading = false) }
             }
         }
     }

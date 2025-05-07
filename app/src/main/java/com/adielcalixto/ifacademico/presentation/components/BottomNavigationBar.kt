@@ -23,7 +23,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.adielcalixto.ifacademico.R
-import com.adielcalixto.ifacademico.presentation.Screen
+import com.adielcalixto.ifacademico.Screen
 import com.adielcalixto.ifacademico.presentation.UiText
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)

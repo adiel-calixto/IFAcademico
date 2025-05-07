@@ -2,7 +2,9 @@ package com.adielcalixto.ifacademico.data.remote.dto
 
 import com.adielcalixto.ifacademico.domain.entities.PerformanceCoefficients
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PerformanceGraphDTO(
     @SerializedName("coeficienteRendimento") val studentPerformance: Float,
     @SerializedName("coeficienteRendimentoTurma") val classPerformance: Float,

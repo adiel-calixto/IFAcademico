@@ -2,7 +2,9 @@ package com.adielcalixto.ifacademico.data.remote.dto
 
 import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TimeTableClassDTO(
     @SerializedName("idAulaMinistrada") val id: Int,
     @SerializedName("descDisciplina") val className: String,

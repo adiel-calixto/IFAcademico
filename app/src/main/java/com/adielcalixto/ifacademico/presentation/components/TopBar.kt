@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.adielcalixto.ifacademico.presentation.Screen
+import com.adielcalixto.ifacademico.Screen
 
 @Composable
 fun TopBar(navController: NavController) {
