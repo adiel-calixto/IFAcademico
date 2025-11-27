@@ -1,5 +1,6 @@
 package com.adielcalixto.ifacademico.presentation.calendar
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adielcalixto.ifacademico.domain.Result
@@ -13,7 +14,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: GetSpecialDatesUseCase): ViewModel() {
+class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: GetSpecialDatesUseCase) :
+    ViewModel() {
     private val _monthOptions = computeMonthOptions()
 
     private val _state = MutableStateFlow(CalendarState(_monthOptions[1]))
@@ -28,7 +30,11 @@ class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: 
         val currentYear = LocalDate.now().year
 
         return (currentMonth - 1..currentMonth + 3).map {
-            LocalDate.of(if (it == 0) currentYear.dec() else currentYear, if(it == 0) 12 else it, 1)
+            LocalDate.of(
+                if (it == 0) currentYear.dec() else if (it > 12) currentYear.inc() else currentYear,
+                if (it == 0 || it == 12) 12 else (it % 12),
+                1
+            )
         }
     }
 
@@ -47,10 +53,13 @@ class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: 
                 selectedDate.withDayOfMonth(selectedDate.lengthOfMonth())
             )
 
-            when(result) {
-                is Result.Error -> { _state.update { it.copy(error=result.error) } }
+            when (result) {
+                is Result.Error -> {
+                    _state.update { it.copy(error = result.error) }
+                }
+
                 is Result.Success -> {
-                    val filteredDates =  result.data.filter { it.type != "Aula" }
+                    val filteredDates = result.data.filter { it.type != "Aula" }
                     _state.update { it.copy(specialDates = filteredDates, error = null) }
                 }
             }
@@ -60,7 +69,7 @@ class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: 
     }
 
     fun onAction(action: CalendarAction) {
-        when(action) {
+        when (action) {
             is CalendarAction.OnMonthChanged -> {
                 _state.update { it.copy(selectedDate = action.date) }
                 loadSpecialDates()

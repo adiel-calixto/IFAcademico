@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.domain.entities.SpecialDate
 import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.calendar.components.DropdownSelect
@@ -60,15 +61,32 @@ private fun parseColor(color: String): Color {
     return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
+private fun computeSpecialDatesMap(specialDates: List<SpecialDate>): Map<Int, SpecialDate> {
+    val sdMap = HashMap<Int, SpecialDate>()
+
+    specialDates.forEach { specialDate ->
+        val startDay = specialDate.startDate.dayOfMonth
+        val endDay = if (specialDate.startDate.month <= specialDate.endDate.month) {
+            specialDate.endDate.dayOfMonth
+        } else {
+            31
+        }
+
+        (startDay..endDay).forEach { day ->
+            sdMap[day] = specialDate
+        }
+    }
+
+    return sdMap
+}
+
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
     val state by viewModel.state.collectAsState()
     val monthOptions = viewModel.getMonthOptions()
 
     Column(
-        modifier = Modifier
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DropdownSelect(
             monthOptions,
@@ -95,8 +113,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
 
         // Calendar grid
         Surface(
-            tonalElevation = 1.dp,
-            shape = RoundedCornerShape(12.dp)
+            tonalElevation = 1.dp, shape = RoundedCornerShape(12.dp)
         ) {
             val firstDayOfMonth = state.selectedDate.withDayOfMonth(1)
             val daysInMonth = state.selectedDate.lengthOfMonth()
@@ -123,7 +140,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
 
                 Column {
                     var dayIndex = 0
-                    var specialDateIndex = 0
+                    val specialDatesMap = computeSpecialDatesMap(state.specialDates)
 
                     for (week in 0..5) {
                         Row(
@@ -136,20 +153,9 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                 } else {
                                     val day = dayIndex + 1
 
-                                    val date = LocalDate.of(
-                                        state.selectedDate.year,
-                                        state.selectedDate.month,
-                                        day
-                                    )
-                                    val specialDate =
-                                        state.specialDates.getOrNull(specialDateIndex)?.let {
-                                            if (date >= it.startDate.toLocalDate() && date <= it.endDate.toLocalDate()) it else null
-                                        }
+                                    val specialDate = specialDatesMap[day]
                                     val bgColor = specialDate?.color?.let { parseColor(it) }
                                         ?: Color.Transparent
-
-                                    if (specialDate?.endDate?.toLocalDate() == date)
-                                        specialDateIndex++
 
                                     Column(
                                         modifier = Modifier
@@ -160,8 +166,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                             modifier = Modifier
                                                 .aspectRatio(1f)
                                                 .background(bgColor, RoundedCornerShape(12.dp))
-                                                .padding(2.dp),
-                                            contentAlignment = Alignment.Center
+                                                .padding(2.dp), contentAlignment = Alignment.Center
                                         ) {
                                             Text(
                                                 day.toString(),
@@ -181,8 +186,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                         Row(modifier = Modifier.padding(1.dp)) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .weight(.3f)
+                                modifier = Modifier.weight(.3f)
                             ) {
                                 if (specialDate.startDate.toLocalDate() == specialDate.endDate.toLocalDate()) {
                                     Text(
