@@ -1,9 +1,9 @@
 package com.adielcalixto.ifacademico.presentation.student_info
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +18,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
@@ -39,16 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ComponentActivity
-import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adielcalixto.ifacademico.MainActivity
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Student
 import com.adielcalixto.ifacademico.presentation.Theme
@@ -219,6 +216,39 @@ fun StudentInfoScreen(
                         }
                     )
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        val uriHandler = LocalUriHandler.current
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = UiText.StringResource(R.string.app_name).asString(),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            TextButton(
+                onClick = { uriHandler.openUri("https://github.com/adiel-calixto/IFAcademico") },
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Code,
+                    contentDescription = "GitHub",
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = UiText.StringResource(R.string.view_on_github).asString(),
+                    style= MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
