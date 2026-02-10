@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DiaryDTO(
-    val id: Int,
+    @SerializedName("id") val id: Int,
     @SerializedName("disciplina") val name: String,
     @SerializedName("cargaHoraria") val hours: Int,
     @SerializedName("anoLetivo") val year: String,
-    @SerializedName("professores") val professor: String,
+    @SerializedName("professores") val professor: String?,
     @SerializedName("faltas") val absences: Int,
     @SerializedName("maxNFaltas") val maxAbsences: Int,
     @SerializedName("faltasRestante") val remainingAbsences: Int,
@@ -24,7 +24,7 @@ data class DiaryDTO(
             name = name,
             hours = hours,
             year = year,
-            professor = professor,
+            professor = professor ?: "",
             absences = absences,
             maxAbsences = maxAbsences,
             remainingAbsences = remainingAbsences,

@@ -33,7 +33,7 @@ class GetDiariesUseCaseImpl @Inject constructor(
                 return Result.Success(data.map { it.toDomain() })
             }
 
-            val response = api.getDiaries(periodNumber, periodYear, registrationId = registrationId)
+            val response = api.getDiaries(periodNumber, periodYear, registrationId = registrationId, null)
 
             if (response.isSuccessful) {
                 val body = response.body()

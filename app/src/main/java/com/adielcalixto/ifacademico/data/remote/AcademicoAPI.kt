@@ -34,7 +34,7 @@ interface AcademicoAPI {
         @Query("periodoLetivo") periodNumber: Int,
         @Query("anoLetivo") periodYear: Int,
         @Query("idMatricula") registrationId: Int,
-        @Query("ativosNaData") dateTime: LocalDateTime = LocalDateTime.now()
+        @Query("ativosNaData") dateTime: LocalDateTime?
     ): Response<List<DiaryDTO>>
 
     @GET("diarios/aluno/diarios/{id}/avaliacoes")
