@@ -36,6 +36,7 @@ import com.adielcalixto.ifacademico.domain.entities.Exam
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.diary_list.components.AbsencesSection
+import com.adielcalixto.ifacademico.presentation.diary_list.components.ClassesSummary
 import com.adielcalixto.ifacademico.presentation.diary_list.components.ExamsSection
 import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
 
@@ -128,6 +129,12 @@ private fun DiaryItem(diary: Diary, exams: List<Exam>, onDiaryClick: (diaryId: I
                 } else {
                     Column {
                         AbsencesSection(diary.absences, diary.maxAbsences, diary.excusedAbsences)
+                        ClassesSummary(
+                            modifier = Modifier.padding(vertical = 24.dp),
+                            diary.plannedClasses,
+                            diary.taughtClasses,
+                            diary.pendingClasses
+                        )
                         ExamsSection(exams)
                     }
                 }

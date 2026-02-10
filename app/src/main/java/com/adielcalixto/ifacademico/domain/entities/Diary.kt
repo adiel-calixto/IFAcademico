@@ -11,4 +11,7 @@ data class Diary(
     val remainingAbsences: Int,
     val excusedAbsences: Int,
     val academicPeriod: Int,
+    val plannedClasses: Int,
+    val taughtClasses: Int,
+    val pendingClasses: Int,
 )

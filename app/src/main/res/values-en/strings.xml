@@ -39,4 +39,7 @@
     <string name="privacy_policy_details">This app respects your privacy.\n\n- No personal data is collected or shared with third parties.\n- The credentials provided (registration number and password) are stored locally on the device, with encryption.\n- No information is sent to external servers or captured for analysis.\n\nThe app exclusively works as an alternative interface for the academic system Q-Academico, accessing student data locally, securely, and with the user\'s consent.</string>
     <string name="terms_of_service">Terms of Service</string>
     <string name="terms_of_service_details">By using this app, you accept the following terms:\n\n1. This app is an independent, open-source project and has no official affiliation with Q-Academico.\n\n2. The app uses public interfaces of the academic system to display information accessible to the student. Access is done using the credentials provided by the user, who is solely responsible for their use.\n\n3. The institution may change the Q-Academico system at any time, which could cause instability or partial/total malfunction of the app.\n\n4. The developer is not responsible for downtimes, system changes, or misuse of credentials by the user.</string>
+    <string name="classes_summary">Classes Summary</string>
+    <string name="taught_classes">Taught Classes</string>
+    <string name="pending_classes">Pending Classes</string>
 </resources>

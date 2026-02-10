@@ -17,6 +17,8 @@ data class DiaryDTO(
     @SerializedName("faltasAbonadas") val excusedAbsences: Int,
     @SerializedName("periodoLetivo") val academicPeriod: Int,
     @SerializedName("aulasPendentes") val pendingClasses: Int,
+    @SerializedName("aulasPlanejadas") val plannedClasses: Int,
+    @SerializedName("aulasRealizadas") val taughtClasses: Int,
 ) {
     fun toDomain(): Diary {
         return Diary(
@@ -29,7 +31,10 @@ data class DiaryDTO(
             maxAbsences = maxAbsences,
             remainingAbsences = remainingAbsences,
             excusedAbsences = excusedAbsences,
-            academicPeriod = academicPeriod
+            academicPeriod = academicPeriod,
+            taughtClasses= taughtClasses,
+            pendingClasses = pendingClasses,
+            plannedClasses = plannedClasses
         )
     }
 }
