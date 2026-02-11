@@ -9,7 +9,7 @@ data class TimeTableClassDTO(
     @SerializedName("idAulaMinistrada") val id: Int,
     @SerializedName("descDisciplina") val className: String,
     @SerializedName("periodo") val academicPeriod: UByte,
-    @SerializedName("professor") val professorName: String,
+    @SerializedName("professor") val professorName: String?,
     @SerializedName("horarioInicio") val startTime: String,
     @SerializedName("horarioFim") val endTime: String,
     @SerializedName("descSala") val classRoomName: String,
@@ -19,7 +19,7 @@ data class TimeTableClassDTO(
         return TimeTableClass(
             id,
             className,
-            professorName,
+            professorName ?: "",
             academicPeriod,
             startTime,
             endTime,
