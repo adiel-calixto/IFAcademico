@@ -3,6 +3,7 @@ package com.adielcalixto.ifacademico.presentation.diary_list
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,12 +15,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,14 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Diary
 import com.adielcalixto.ifacademico.domain.entities.Exam
+import com.adielcalixto.ifacademico.domain.entities.IndividualTimeTable
+import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.diary_list.components.AbsencesSection
 import com.adielcalixto.ifacademico.presentation.diary_list.components.ClassesSummary
 import com.adielcalixto.ifacademico.presentation.diary_list.components.ExamsSection
 import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
+import com.adielcalixto.ifacademico.presentation.diary_list.components.TimeTableSection
 
 @Composable
 fun DiaryListScreen(viewModel: DiaryListViewModel) {
@@ -71,6 +79,13 @@ fun DiaryListScreen(viewModel: DiaryListViewModel) {
                 DiaryItem(diary, state.examsMap[diary.id] ?: emptyList()) {
                     viewModel.onAction(
                         DiaryListAction.ExpandDiary(it)
+                    )
+                }
+            }
+            item {
+                IndividualTimeTableButton(state.individualTimeTable) {
+                    viewModel.onAction(
+                            DiaryListAction.OpenIndividualTimeTable
                     )
                 }
             }
@@ -138,6 +153,48 @@ private fun DiaryItem(diary: Diary, exams: List<Exam>, onDiaryClick: (diaryId: I
                         ExamsSection(exams)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable fun IndividualTimeTableButton(individualTimeTable: IndividualTimeTable?, onClickButton: () -> Unit) {
+    var opened by remember { mutableStateOf(false) }
+
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row (
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = {
+                    opened = !opened
+
+                    if (opened) {
+                        onClickButton()
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Schedule,
+                    contentDescription = "TimeTable Icon"
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                Text(UiText.StringResource(R.string.individual_time_table).asString())
+            }
+        }
+
+        AnimatedVisibility(visible = opened) {
+            if (individualTimeTable == null) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                TimeTableSection(individualTimeTable.classes, individualTimeTable.weekDay)
             }
         }
     }

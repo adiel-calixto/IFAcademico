@@ -33,6 +33,7 @@
     <string name="unknown_error">Um erro inesperado ocorreu</string>
     <string name="calendar">Calendário</string>
     <string name="month">Mês</string>
+    <string name="individual_time_table">Horário Individual</string>
     <string name="formula_not_set">Fórmula não configurada</string>
     <string name="io_error">Ocorreu um erro ao tentar acessar os dados. Verifique sua conexão ou tente novamente mais tarde</string>
     <string name="privacy_policy">Política de Privacidade</string>

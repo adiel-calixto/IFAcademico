@@ -8,5 +8,6 @@ data class TimeTableClass (
     val startTime: String,
     val endTime: String,
     val classRoomName: String,
-    val finished: Boolean
+    val finished: Boolean,
+    val weekDay: Int?
 )

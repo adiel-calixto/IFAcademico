@@ -15,10 +15,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(
-    private val getPerformanceCoefficientsUseCase: GetPerformanceCoefficientsUseCase,
-    private val getTimeTableUseCase: GetTimeTableUseCase
-) : ViewModel() {
+    class DashboardViewModel @Inject constructor(
+        private val getPerformanceCoefficientsUseCase: GetPerformanceCoefficientsUseCase,
+        private val getTimeTableUseCase: GetTimeTableUseCase
+    ) : ViewModel() {
     private val _state = MutableStateFlow(
         DashboardState(
             TimeTable(emptyList(), "", ""),
