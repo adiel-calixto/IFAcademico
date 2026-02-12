@@ -2,6 +2,7 @@ package com.adielcalixto.ifacademico.data.remote
 
 import com.adielcalixto.ifacademico.data.remote.dto.DiaryDTO
 import com.adielcalixto.ifacademico.data.remote.dto.ExamDTO
+import com.adielcalixto.ifacademico.data.remote.dto.IndividualTimeTableDTO
 import com.adielcalixto.ifacademico.data.remote.dto.LoginDTO
 import com.adielcalixto.ifacademico.data.remote.dto.PerformanceGraphDTO
 import com.adielcalixto.ifacademico.data.remote.dto.PeriodDTO
@@ -36,6 +37,12 @@ interface AcademicoAPI {
         @Query("idMatricula") registrationId: Int,
         @Query("ativosNaData") dateTime: LocalDateTime?
     ): Response<List<DiaryDTO>>
+
+    @GET("horario-individual/obter-horario")
+    suspend fun getIndividualTimeTable(
+        @Query("anoLet") periodYear: Int,
+        @Query("periodoLet") priodNumber: Int
+    ): Response<IndividualTimeTableDTO>
 
     @GET("diarios/aluno/diarios/{id}/avaliacoes")
     suspend fun getExams(

@@ -33,6 +33,9 @@
     <string name="unknown_error">An unexpected error occurred</string>
     <string name="calendar">Calendar</string>
     <string name="month">Month</string>
+    <string name="individual_time_table">Individual Timetable</string>
+    <string name="show_course_detail">Show Course Details</string>
+    <string name="course">course</string>
     <string name="formula_not_set">Formula not set"</string>
     <string name="io_error">Something went wrong while trying to access the data. Please check your connection or try again later</string>
     <string name="privacy_policy">Privacy Policy</string>

@@ -2,6 +2,7 @@ package com.adielcalixto.ifacademico.di
 
 import com.adielcalixto.ifacademico.data.usecases.GetDiariesUseCaseImpl
 import com.adielcalixto.ifacademico.data.usecases.GetExamsUseCaseImpl
+import com.adielcalixto.ifacademico.data.usecases.GetIndividualTimeTableImpl
 import com.adielcalixto.ifacademico.data.usecases.GetPerformanceCoefficientsUseCaseImpl
 import com.adielcalixto.ifacademico.data.usecases.GetPeriodsUseCaseImpl
 import com.adielcalixto.ifacademico.data.usecases.GetSessionUseCaseImpl
@@ -15,6 +16,7 @@ import com.adielcalixto.ifacademico.data.usecases.SaveSessionUseCaseImpl
 import com.adielcalixto.ifacademico.data.usecases.VerifySessionUseCaseImpl
 import com.adielcalixto.ifacademico.domain.usecases.GetDiariesUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetExamsUseCase
+import com.adielcalixto.ifacademico.domain.usecases.GetIndividualTimeTableUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPerformanceCoefficientsUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPeriodsUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetSessionUseCase
@@ -86,4 +88,8 @@ abstract class UseCasesModule {
     @Binds
     @Singleton
     abstract fun bindGetPerformanceCoefficientsUseCase(getPerformanceCoefficientsUseCaseImpl: GetPerformanceCoefficientsUseCaseImpl): GetPerformanceCoefficientsUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindGetIndividualTimeTableUseCase(getIndividualTimeTableImpl: GetIndividualTimeTableImpl): GetIndividualTimeTableUseCase
 }

@@ -6,14 +6,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TimeTableClassDTO(
-    @SerializedName("idAulaMinistrada") val id: Int,
+    @SerializedName("idAulaMinistrada", alternate = ["idDisciplina"]) val id: Int,
     @SerializedName("descDisciplina") val className: String,
-    @SerializedName("periodo") val academicPeriod: UByte,
-    @SerializedName("professor") val professorName: String?,
-    @SerializedName("horarioInicio") val startTime: String,
-    @SerializedName("horarioFim") val endTime: String,
+    @SerializedName("periodo", alternate = ["anoLet"]) val academicPeriod: UByte,
+    @SerializedName("professor", alternate = ["nomeProfessor"]) val professorName: String?,
+    @SerializedName("horarioInicio", alternate = ["horaInicio"]) val startTime: String,
+    @SerializedName("horarioFim", alternate = ["horaFinal"]) val endTime: String,
     @SerializedName("descSala") val classRoomName: String,
     @SerializedName("encerrada") val finished: Boolean,
+    @SerializedName("diaSem") val weekDay: Int?
 ) {
     fun toDomain(): TimeTableClass {
         return TimeTableClass(
@@ -24,7 +25,8 @@ data class TimeTableClassDTO(
             startTime,
             endTime,
             classRoomName,
-            finished
+            finished,
+            weekDay
         )
     }
 }
