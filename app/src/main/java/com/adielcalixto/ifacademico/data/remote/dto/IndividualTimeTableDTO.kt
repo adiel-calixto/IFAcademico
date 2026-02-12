@@ -11,11 +11,12 @@ data class IndividualTimeTableDTO(
     @SerializedName("diaDaSemana") val weekDay: Int
 ) {
     fun toDomain(): IndividualTimeTable {
-        val coursesByDay = mutableMapOf<String, MutableMap<Int, TimeTableClass>>();
+        val coursesByDay = mutableMapOf<Int, MutableList<TimeTableClass>>();
 
         courses.forEach { d ->
-            coursesByDay
-                .getOrPut(d.startTime) { mutableMapOf() }[d.weekDay!!] = d.toDomain()
+            coursesByDay.getOrPut(d.weekDay!!) { mutableListOf() }.apply {
+                add(d.toDomain())
+            }
         }
 
         return IndividualTimeTable(

@@ -2,20 +2,16 @@ package com.adielcalixto.ifacademico.presentation.diary_list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adielcalixto.ifacademico.data.local.CacheService
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.usecases.GetDiariesUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetExamsUseCase
-import com.adielcalixto.ifacademico.domain.usecases.GetIndividualTimeTableUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPeriodsUseCase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +19,6 @@ class DiaryListViewModel @Inject constructor(
     private val getPeriodsUseCase: GetPeriodsUseCase,
     private val getDiariesUseCase: GetDiariesUseCase,
     private val getExamsUseCase: GetExamsUseCase,
-    private val getIndividualTimeTableUseCase: GetIndividualTimeTableUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiaryListState(0))
     val state = _state.asStateFlow()
@@ -98,21 +93,6 @@ class DiaryListViewModel @Inject constructor(
         }
     }
 
-    private fun loadIndividualTimeTable() {
-        val selectedPeriod = state.value.selectedPeriod ?: return
-
-        viewModelScope.launch {
-            when (val result = getIndividualTimeTableUseCase.execute(selectedPeriod.year, selectedPeriod.number)) {
-                is Result.Error -> {}
-                is Result.Success -> {
-                    _state.update {
-                        it.copy(individualTimeTable =  result.data)
-                    }
-                }
-            }
-        }
-    }
-
     fun onAction(action: DiaryListAction) {
         when (action) {
             is DiaryListAction.ExpandDiary -> loadExams(action.diaryId)
@@ -123,7 +103,6 @@ class DiaryListViewModel @Inject constructor(
                 _state.update { it.copy(selectedPeriod = action.period) };
                 loadData()
             }
-            is DiaryListAction.OpenIndividualTimeTable -> loadIndividualTimeTable()
         }
     }
 }

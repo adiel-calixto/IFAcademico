@@ -6,5 +6,4 @@ sealed class DiaryListAction {
     data object LoadViewModelData : DiaryListAction()
     data class ExpandDiary(val diaryId: Int) : DiaryListAction()
     data class SelectPeriod(val period: Period) : DiaryListAction()
-    data object OpenIndividualTimeTable : DiaryListAction()
 }
