@@ -5,24 +5,33 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.TimeTable
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.dashboard.DashboardAction
 
 @Composable
-internal fun TodayTimeTable(timeTable: TimeTable) {
+internal fun TodayTimeTable(timeTable: TimeTable, onOpenIndividualTimeTableClicked: () -> Unit) {
     Surface(
         tonalElevation = 2.dp,
         shape = RoundedCornerShape(12.dp)
@@ -75,6 +84,23 @@ internal fun TodayTimeTable(timeTable: TimeTable) {
                             }
                         }
                     }
+                }
+            }
+
+            Row {
+                Spacer(modifier = Modifier.weight(1f))
+                TextButton(
+                    onClick = onOpenIndividualTimeTableClicked,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = "Schedule Icon",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        UiText.StringResource(R.string.individual_time_table).asString()
+                    )
                 }
             }
         }

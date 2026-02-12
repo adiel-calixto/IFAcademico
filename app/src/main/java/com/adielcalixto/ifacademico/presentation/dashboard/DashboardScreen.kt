@@ -39,7 +39,6 @@ import com.adielcalixto.ifacademico.presentation.dashboard.components.TodayTimeT
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel) {
     val state by viewModel.state.collectAsState()
-    var showIndividualTimeTable by remember { mutableStateOf(false) }
 
     if (state.isLoading) {
         LoadingComponent()
@@ -61,7 +60,7 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
 
         item {
             AnimatedContent(
-                targetState = showIndividualTimeTable,
+                targetState = state.showIndividualTimeTable,
                 transitionSpec = {
                     if (targetState) {
                         slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) togetherWith
@@ -75,41 +74,15 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
                 modifier = Modifier.fillMaxWidth()
             ) { showIndividual ->
                 if (!showIndividual) {
-                    TodayTimeTable(state.timeTable)
+                    TodayTimeTable(
+                        state.timeTable
+                    ) { viewModel.onAction(DashboardAction.ShowIndividualTimeTable) }
                 } else {
-                    if (state.individualTimeTable == null) {
-                        LinearProgressIndicator()
-                    } else {
-                        IndividualTimeTableSection(state.individualTimeTable!!)
+                    IndividualTimeTableSection(state.individualTimeTable!!) {
+                        viewModel.onAction(
+                            DashboardAction.HideIndividualTimeTable
+                        )
                     }
-                }
-            }
-        }
-
-        item {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    onClick = {
-                        showIndividualTimeTable = !showIndividualTimeTable
-                        if (showIndividualTimeTable) {
-                            viewModel.onAction(DashboardAction.ShowIndividualTimeTable)
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (showIndividualTimeTable) Icons.Filled.Schedule else Icons.Filled.CalendarMonth,
-                        contentDescription = "Schedule Icon"
-                    )
-                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                    Text(
-                        UiText.StringResource(
-                            if (showIndividualTimeTable) R.string.classes_of_the_day
-                            else R.string.individual_time_table
-                        ).asString()
-                    )
                 }
             }
         }

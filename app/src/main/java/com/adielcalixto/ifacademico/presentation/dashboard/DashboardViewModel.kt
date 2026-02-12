@@ -53,27 +53,31 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadPeriodAndIndividualTimeTable() {
-        if (_state.value.actualPeriod == null) {
-            when (val periodsResult = getPeriodsUseCase.execute()) {
-                is Result.Error -> {
-                    _state.update { it.copy(error = periodsResult.error) }
-                    return
-                }
-                is Result.Success -> {
-                    _state.update {
-                        it.copy(actualPeriod = periodsResult.data.first())
-                    }
+    private suspend fun loadPeriod() {
+        when (val periodsResult = getPeriodsUseCase.execute()) {
+            is Result.Error -> {
+                _state.update { it.copy(error = periodsResult.error) }
+            }
+
+            is Result.Success -> {
+                _state.update {
+                    it.copy(currentPeriod = periodsResult.data.first())
                 }
             }
         }
+    }
 
-        val actualPeriod = _state.value.actualPeriod ?: return
+    private suspend fun loadIndividualTimeTable() {
+        loadPeriod()
 
-        when (val result = getIndividualTimeTableUseCase.execute(actualPeriod.year, actualPeriod.number)) {
+        val currentPeriod = _state.value.currentPeriod ?: return
+
+        when (val result =
+            getIndividualTimeTableUseCase.execute(currentPeriod.year, currentPeriod.number)) {
             is Result.Error -> {
                 _state.update { it.copy(error = result.error) }
             }
+
             is Result.Success -> {
                 _state.update {
                     it.copy(individualTimeTable = result.data)
@@ -87,10 +91,16 @@ class DashboardViewModel @Inject constructor(
             is DashboardAction.LoadViewModelData -> {
                 loadData()
             }
+
             is DashboardAction.ShowIndividualTimeTable -> {
                 viewModelScope.launch {
-                    loadPeriodAndIndividualTimeTable()
+                    loadIndividualTimeTable()
+                    _state.update { it.copy(showIndividualTimeTable = true) }
                 }
+            }
+
+            is DashboardAction.HideIndividualTimeTable -> {
+                _state.update { it.copy(showIndividualTimeTable = false) }
             }
         }
     }

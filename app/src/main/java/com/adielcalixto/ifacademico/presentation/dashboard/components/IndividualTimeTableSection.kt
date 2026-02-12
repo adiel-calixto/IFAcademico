@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,13 +56,36 @@ private fun getLocalizedBusinessDays(): List<String> {
 }
 
 @Composable
-internal fun IndividualTimeTableSection(individualTimeTable: IndividualTimeTable) {
+internal fun IndividualTimeTableSection(
+    individualTimeTable: IndividualTimeTable,
+    onReturnClicked: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Schedule(individualTimeTable)
+        Surface(
+            tonalElevation = 1.dp,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                NavigationBar(onReturnClicked)
+                Schedule(individualTimeTable)
+            }
+        }
         Spacer(Modifier.height(16.dp))
         CoursesInfos(individualTimeTable.classes.values.flatten().distinctBy { it.className })
+    }
+}
+
+@Composable
+internal fun NavigationBar(onReturnClicked: () -> Unit) {
+    Row {
+        IconButton(onClick = onReturnClicked) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Return button"
+            )
+        }
     }
 }
 
@@ -68,76 +93,74 @@ internal fun IndividualTimeTableSection(individualTimeTable: IndividualTimeTable
 internal fun Schedule(individualTimeTable: IndividualTimeTable) {
     val weekDays = getLocalizedBusinessDays()
 
-    Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            weekDays.forEachIndexed { index, day ->
+                val bgColor =
+                    if (index + 2 == individualTimeTable.weekDay) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(2f)
+                        .padding(2.dp)
+                        .background(bgColor, RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        day,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (index + 2 == individualTimeTable.weekDay) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+
+        for (time in individualTimeTable.times) {
+            val formatedTime = LocalTime.parse(time)
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.weight(1f))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(formatedTime.toString(), style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        formatedTime.plusMinutes(50).toString(),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
 
-                weekDays.forEachIndexed { index, day ->
-                    val bgColor = if (index + 2 == individualTimeTable.weekDay) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                for (day in 2..6) {
+                    val courses = individualTimeTable.classes[day]?.sortedBy { it.startTime }
+                    val course = courses?.find { it.startTime == time }
+                    val bgColor =
+                        if (course == null) Color.Transparent else MaterialTheme.colorScheme.surface
 
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(2f)
-                            .padding(2.dp)
+                            .aspectRatio(1.1f)
+                            .padding(5.dp)
                             .background(bgColor, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            day,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (index + 2 == individualTimeTable.weekDay) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-
-            for (time in individualTimeTable.times) {
-                val formatedTime = LocalTime.parse(time)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(formatedTime.toString(), style = MaterialTheme.typography.labelSmall)
-                        Text(formatedTime.plusMinutes(50).toString(), style = MaterialTheme.typography.labelSmall)
-                    }
-
-                    for (day in 2..6) {
-                        val courses = individualTimeTable.classes[day]?.sortedBy { it.startTime }
-                        val course = courses?.find { it.startTime == time }
-                        val bgColor = if (course == null) Color.Transparent else MaterialTheme.colorScheme.surface
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1.1f)
-                                .padding(5.dp)
-                                .background(bgColor, RoundedCornerShape(10.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            course.let {
-                                Text(
-                                    it?.acronym ?: "",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    maxLines = 1,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
+                        if (course != null) {
+                            Text(
+                                course.acronym,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
@@ -168,7 +191,9 @@ private fun CoursesInfos(courses: List<TimeTableClass>) {
                 Text(UiText.StringResource(R.string.show_course_detail).asString())
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "${courses.size} ${UiText.StringResource(R.string.course).asString()}${if (courses.size > 1) "s" else ""}",
+                    "${courses.size} ${
+                        UiText.StringResource(R.string.course).asString()
+                    }${if (courses.size > 1) "s" else ""}",
                     style = MaterialTheme.typography.labelSmall
                 )
             }

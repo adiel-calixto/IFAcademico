@@ -17,8 +17,8 @@ data class TimeTableClass (
             val courseNumber = eachWord.last().takeIf { it.matches(Regex("^(X{0,3})(IX|IV|V?I{0,3})$")) } ?: ""
 
             val withoutPreposition = eachWord.filter { s ->  s.count() > 3}
-            val justFirstLetter: List<Char> = withoutPreposition.map { it[0] }
+            val onlyFirstLetter: List<Char> = withoutPreposition.map { it[0] }
 
-            return justFirstLetter.joinToString("") { it.uppercase() } + courseNumber
+            return onlyFirstLetter.joinToString("") { it.uppercase() } + courseNumber
         }
 }
