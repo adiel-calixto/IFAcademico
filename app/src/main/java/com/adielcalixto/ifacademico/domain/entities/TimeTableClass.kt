@@ -14,11 +14,11 @@ data class TimeTableClass (
     val acronym: String
         get() {
             val eachWord: List<String> = className.split(" ", "-")
-            val saveCourseNumber = if(listOf("I", "II", "III", "IV", "V").indexOf(eachWord.last()) != -1) eachWord.last() else ""
+            val courseNumber = eachWord.last().takeIf { it.matches(Regex("^(X{0,3})(IX|IV|V?I{0,3})$")) } ?: ""
 
-            val removePreposition = eachWord.filter { s ->  s.count() > 3}
-            val justFirstLetter: List<Char> = removePreposition.map { it.get(0) }
+            val withoutPreposition = eachWord.filter { s ->  s.count() > 3}
+            val justFirstLetter: List<Char> = withoutPreposition.map { it[0] }
 
-            return justFirstLetter.joinToString("") { it.uppercase() } + saveCourseNumber
+            return justFirstLetter.joinToString("") { it.uppercase() } + courseNumber
         }
 }

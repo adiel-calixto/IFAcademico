@@ -11,7 +11,6 @@ data class DashboardState(
     val performanceCoefficients: PerformanceCoefficients,
     val actualPeriod: Period? = null,
     val individualTimeTable: IndividualTimeTable? = null,
-    val showIndividualTimeTable: Boolean = false,
     val error: Error.DataError? = null,
     val isLoading: Boolean = false
 )
