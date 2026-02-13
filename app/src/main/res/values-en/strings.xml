@@ -34,7 +34,7 @@
     <string name="calendar">Calendar</string>
     <string name="month">Month</string>
     <string name="individual_time_table">Individual Timetable</string>
-    <string name="show_course_detail">Show Course Details</string>
+    <string name="show_course_detail">Show Details</string>
     <string name="course">course</string>
     <string name="formula_not_set">Formula not set"</string>
     <string name="io_error">Something went wrong while trying to access the data. Please check your connection or try again later</string>
@@ -43,7 +43,7 @@
     <string name="terms_of_service">Terms of Service</string>
     <string name="terms_of_service_details">By using this app, you accept the following terms:\n\n1. This app is an independent, open-source project and has no official affiliation with Q-Academico.\n\n2. The app uses public interfaces of the academic system to display information accessible to the student. Access is done using the credentials provided by the user, who is solely responsible for their use.\n\n3. The institution may change the Q-Academico system at any time, which could cause instability or partial/total malfunction of the app.\n\n4. The developer is not responsible for downtimes, system changes, or misuse of credentials by the user.</string>
     <string name="classes_summary">Classes Summary</string>
-    <string name="taught_classes">Taught Classes</string>
-    <string name="pending_classes">Pending Classes</string>
+    <string name="taught_classes">Classes Held</string>
+    <string name="pending_classes">Classes Pending</string>
     <string name="view_on_github">View on GitHub</string>
 </resources>

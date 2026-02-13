@@ -11,14 +11,4 @@ data class TimeTableClass (
     val finished: Boolean,
     val weekDay: Int?
 ) {
-    val acronym: String
-        get() {
-            val eachWord: List<String> = className.split(" ", "-")
-            val courseNumber = eachWord.last().takeIf { it.matches(Regex("^(X{0,3})(IX|IV|V?I{0,3})$")) } ?: ""
-
-            val withoutPreposition = eachWord.filter { s ->  s.count() > 3}
-            val onlyFirstLetter: List<Char> = withoutPreposition.map { it[0] }
-
-            return onlyFirstLetter.joinToString("") { it.uppercase() } + courseNumber
-        }
 }

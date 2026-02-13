@@ -37,6 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.IndividualTimeTable
@@ -45,6 +48,77 @@ import com.adielcalixto.ifacademico.presentation.UiText
 import java.text.DateFormatSymbols
 import java.time.LocalTime
 import java.util.Locale
+
+private val PREPOSITIONS = setOf(
+    "DE", "DA", "DO", "DAS", "DOS",
+    "EM", "NA", "NO", "NAS", "NOS",
+    "A", "O", "AS", "OS",
+    "E", "OU",
+    "PARA", "POR", "COM", "SEM", "À"
+)
+
+private val ROMAN_NUMERAL_REGEX = Regex("^(X{0,3})(IX|IV|V?I{0,3})$")
+
+private fun generateAcronym(className: String, maxLength: Int = 3): AnnotatedString {
+    val words = extractValidWords(className)
+    val courseNumber = extractCourseNumber(words)
+
+    if (words.isEmpty()) return AnnotatedString.Builder().toAnnotatedString()
+
+    val wordsWithoutCourseNumber = if (courseNumber.isNotEmpty()) words.dropLast(1) else words
+    val chars = mutableListOf<Char>()
+
+    chars.addAll(
+        wordsWithoutCourseNumber.take(maxLength)
+            .map { it.first().uppercaseChar() }
+    )
+
+    var charIndex = 1
+    while (chars.size < maxLength && charIndex < wordsWithoutCourseNumber.maxOf { it.length }) {
+        for ((wordIndex, word) in wordsWithoutCourseNumber.withIndex()) {
+            if (chars.size >= maxLength) break
+
+            if (charIndex < word.length) {
+                val insertPosition = wordIndex * wordsWithoutCourseNumber.size + charIndex
+                chars.add(
+                    insertPosition.coerceAtMost(chars.size),
+                    word[charIndex].uppercaseChar()
+                )
+            }
+        }
+        charIndex++
+    }
+
+    return buildAnnotatedAcronym(chars.take(maxLength), courseNumber)
+}
+
+private fun extractValidWords(className: String): List<String> {
+    return className.split("\\s+".toRegex())
+        .map { it.filter(Char::isLetter) }
+        .filter { it.isNotEmpty() && it !in PREPOSITIONS }
+}
+
+private fun extractCourseNumber(words: List<String>): String {
+    if (words.isEmpty()) return ""
+
+    return words.last()
+        .takeIf { it.matches(ROMAN_NUMERAL_REGEX) }
+        .orEmpty()
+}
+
+private fun buildAnnotatedAcronym(acronymChars: List<Char>, courseNumber: String): AnnotatedString {
+    val fullText = acronymChars.joinToString("") + courseNumber
+
+    return AnnotatedString.Builder(fullText).apply {
+        if (courseNumber.isNotEmpty()) {
+            addStyle(
+                style = SpanStyle(fontFamily = FontFamily.Serif),
+                start = acronymChars.size,
+                end = fullText.length
+            )
+        }
+    }.toAnnotatedString()
+}
 
 private fun getLocalizedBusinessDays(): List<String> {
     val locale = Locale.getDefault()
@@ -156,7 +230,7 @@ internal fun Schedule(individualTimeTable: IndividualTimeTable) {
                     ) {
                         if (course != null) {
                             Text(
-                                course.acronym,
+                                generateAcronym(course.className),
                                 style = MaterialTheme.typography.labelSmall,
                                 maxLines = 1,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -209,7 +283,7 @@ private fun CoursesInfos(courses: List<TimeTableClass>) {
                     courses.forEach { course ->
                         Column(modifier = Modifier.padding(vertical = 8.dp)) {
                             Text(
-                                "${course.acronym} - ${course.className}",
+                                "${generateAcronym(course.className)} - ${course.className}",
                                 style = MaterialTheme.typography.titleSmall
                             )
                             Text(
