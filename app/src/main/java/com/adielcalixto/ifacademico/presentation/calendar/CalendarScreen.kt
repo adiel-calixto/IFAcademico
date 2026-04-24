@@ -44,19 +44,16 @@ private fun getLocalizedDaysOfWeek(): List<String> {
     return daysOfWeek.drop(1).map { it.substring(0..2).uppercase() }
 }
 
-private fun parseColor(color: String): Color {
-    val colorInt = android.graphics.Color.parseColor(color)
-
-    val hsv = FloatArray(3)
-    android.graphics.Color.colorToHSV(colorInt, hsv)
-
-    hsv[1] *= 0.25f
-    hsv[1] = hsv[1].coerceIn(0f, 1f)
-
-    hsv[2] += 0.4f
-    hsv[2] = hsv[2].coerceIn(0f, 1f)
-
-    return Color(android.graphics.Color.HSVToColor(hsv))
+@Composable
+private fun specialDateColors(type: String): Pair<Color, Color> {
+    return when (type) {
+        "Feriado Nacional", "Férias", "Recesso Escolar" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+        "Eventos Desportivos, Socioculturais e Científicos" -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        "Etapa Letiva", "Início/fim de Período Letivo" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        "Avaliação Final (af)" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+        "Entrega de Diário", "Reunião de Colegiado de Curso" -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+        else -> Color.Transparent to MaterialTheme.colorScheme.onSurface
+    }
 }
 
 private fun computeSpecialDatesMap(specialDates: List<SpecialDate>): Map<Int, SpecialDate> {
@@ -150,8 +147,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                             val day = dayIndex + 1
 
                                             val specialDate = specialDatesMap[day]
-                                            val bgColor = specialDate?.color?.let { parseColor(it) }
-                                                ?: Color.Transparent
+                                            val (bgColor, textColor) = specialDate?.type?.let { specialDateColors(it) } ?: (Color.Transparent to MaterialTheme.colorScheme.onSurface)
 
                                             Column(
                                                 modifier = Modifier
@@ -167,9 +163,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                                 ) {
                                                     Text(
                                                         day.toString(),
-                                                        color = if (bgColor == Color.Transparent)
-                                                            MaterialTheme.colorScheme.onSurface
-                                                        else Color.DarkGray
+                                                        color = textColor
                                                     )
                                                 }
                                             }

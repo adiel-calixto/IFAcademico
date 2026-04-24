@@ -21,7 +21,7 @@ fun PerformanceCoefficientCard(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 1.dp,
+        tonalElevation = 2.dp,
         shape = RoundedCornerShape(12.dp),
         modifier = modifier
     ) {
