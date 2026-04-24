@@ -5,7 +5,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adielcalixto.ifacademico.domain.Error
 import com.adielcalixto.ifacademico.domain.IOError
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.usecases.GetStudentUseCase

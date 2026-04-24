@@ -61,4 +61,12 @@
     <string name="good_evening">Boa noite,</string>
     <string name="weekly_schedule">Horário da Semana</string>
     <string name="tap_to_see_details">Toque em uma disciplina para ver detalhes</string>
+    <string name="update_available">Atualização Disponível</string>
+    <string name="new_version_available">Uma nova versão está disponível no GitHub.</string>
+    <string name="new_version_label">Nova versão: %1$s</string>
+    <string name="view_release">Ver release</string>
+    <string name="not_now">Agora não</string>
+    <string name="update_now">Atualizar</string>
+    <string name="skip_this_version">Pular esta versão</string>
+    <string name="check_for_updates">Verificar atualizações</string>
 </resources>

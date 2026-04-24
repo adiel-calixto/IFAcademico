@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -28,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,11 +58,13 @@ import com.adielcalixto.ifacademico.presentation.asUiText
 @Composable
 fun StudentInfoScreen(
     student: Student,
-    themeViewModel: ThemeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner),
+    isUpdateCheckEnabled: Boolean,
+    onUpdateCheckEnabledChange: (Boolean) -> Unit,
     onLogout: () -> Unit
 ) {
     var openLogoutDialog by remember { mutableStateOf(false) }
     var dropDownExpanded by remember { mutableStateOf(false) }
+    val themeViewModel: ThemeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
     val theme by themeViewModel.theme.collectAsState()
 
     Column(
@@ -159,7 +163,26 @@ fun StudentInfoScreen(
 
                 HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
 
-                // Logout
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Filled.SystemUpdate, contentDescription = "Update Icon")
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        UiText.StringResource(R.string.check_for_updates).asString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = isUpdateCheckEnabled,
+                        onCheckedChange = onUpdateCheckEnabledChange
+                    )
+                }
+
+                HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

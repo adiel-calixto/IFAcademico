@@ -6,8 +6,9 @@ import com.adielcalixto.ifacademico.data.local.LruCacheService
 import com.adielcalixto.ifacademico.data.local.EncryptionUtil
 import com.adielcalixto.ifacademico.data.local.SessionPreferences
 import com.adielcalixto.ifacademico.data.local.SessionPreferencesImpl
-import com.adielcalixto.ifacademico.data.local.ThemePreferences
+import com.adielcalixto.ifacademico.data.local.SettingsPreferences
 import com.adielcalixto.ifacademico.data.remote.AcademicoAPI
+import com.adielcalixto.ifacademico.data.remote.GitHubAPI
 import com.adielcalixto.ifacademico.data.remote.interceptors.AddCookiesInterceptor
 import com.adielcalixto.ifacademico.data.remote.interceptors.CookieInterceptor
 import com.adielcalixto.ifacademico.data.remote.interceptors.UnauthorizedErrorInterceptor
@@ -46,8 +47,9 @@ object AppModule {
     }
 
     @Provides
-    fun provideThemePreferences(@ApplicationContext context: Context): ThemePreferences =
-        ThemePreferences(context)
+    @Singleton
+    fun provideSettingsPreferences(@ApplicationContext context: Context): SettingsPreferences =
+        SettingsPreferences(context)
 
     @Provides
     @Singleton
@@ -81,5 +83,20 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AcademicoAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGitHubApi(): GitHubAPI {
+        return Retrofit.Builder()
+            .baseUrl(GitHubAPI.BASE_URL)
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                    .build()
+            )
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GitHubAPI::class.java)
     }
 }

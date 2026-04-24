@@ -16,24 +16,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import com.adielcalixto.ifacademico.presentation.AppTheme
 import com.adielcalixto.ifacademico.presentation.MainState
 import com.adielcalixto.ifacademico.presentation.MainViewModel
-import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
-import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
 import com.adielcalixto.ifacademico.presentation.components.BottomNavigationBar
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.components.TopBar
+import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
+import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardViewModel
 import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailScreen
@@ -43,6 +42,8 @@ import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListViewModel
 import com.adielcalixto.ifacademico.presentation.login.LoginScreen
 import com.adielcalixto.ifacademico.presentation.login.LoginViewModel
 import com.adielcalixto.ifacademico.presentation.student_info.StudentInfoScreen
+import com.adielcalixto.ifacademico.presentation.update.UpdateDialog
+import com.adielcalixto.ifacademico.presentation.update.UpdateViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -94,9 +95,15 @@ private fun MainState.isLoggedIn() = this.sessionState == SessionState.Valid
 @Composable
 fun App(
     viewModel: MainViewModel = hiltViewModel(),
+    updateViewModel: UpdateViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val state by viewModel.state.collectAsState()
+    val updateState by updateViewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        updateViewModel.checkForUpdates()
+    }
 
     if (state.error != null) {
         ErrorComponent(
@@ -104,6 +111,13 @@ fun App(
             onRetryClicked = viewModel::retryLoadingData
         )
         return
+    }
+
+    updateState.pendingUpdate?.let { info ->
+        UpdateDialog(
+            info = info,
+            onSkipClick = updateViewModel::skipVersion,
+        )
     }
 
     Scaffold(
@@ -164,6 +178,8 @@ fun App(
 
                 StudentInfoScreen(
                     student = state.student!!,
+                    isUpdateCheckEnabled = updateState.isUpdateCheckEnabled,
+                    onUpdateCheckEnabledChange = updateViewModel::setUpdateCheckEnabled,
                     onLogout = {
                         viewModel.onLogout()
                         navController.navigate(Screen.Login) { popUpTo(0) }
