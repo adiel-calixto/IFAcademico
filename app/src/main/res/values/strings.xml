@@ -19,6 +19,8 @@
     <string name="dark_theme">Escuro</string>
     <string name="light_theme">Claro</string>
     <string name="purple_theme">Roxo</string>
+    <string name="yellow_theme">Amarelo</string>
+    <string name="blue_theme">Azul</string>
     <string name="logout">Sair</string>
     <string name="preferences">Ajustes</string>
     <string name="student">Aluno</string>

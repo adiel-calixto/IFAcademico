@@ -127,10 +127,88 @@ val purpleScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestPurple,
 )
 
+private val yellowScheme = lightColorScheme(
+    primary = primaryYellow,
+    onPrimary = onPrimaryYellow,
+    primaryContainer = primaryContainerYellow,
+    onPrimaryContainer = onPrimaryContainerYellow,
+    secondary = secondaryYellow,
+    onSecondary = onSecondaryYellow,
+    secondaryContainer = secondaryContainerYellow,
+    onSecondaryContainer = onSecondaryContainerYellow,
+    tertiary = tertiaryYellow,
+    onTertiary = onTertiaryYellow,
+    tertiaryContainer = tertiaryContainerYellow,
+    onTertiaryContainer = onTertiaryContainerYellow,
+    error = errorYellow,
+    onError = onErrorYellow,
+    errorContainer = errorContainerYellow,
+    onErrorContainer = onErrorContainerYellow,
+    background = backgroundYellow,
+    onBackground = onBackgroundYellow,
+    surface = surfaceYellow,
+    onSurface = onSurfaceYellow,
+    surfaceVariant = surfaceVariantYellow,
+    onSurfaceVariant = onSurfaceVariantYellow,
+    outline = outlineYellow,
+    outlineVariant = outlineVariantYellow,
+    scrim = scrimYellow,
+    inverseSurface = inverseSurfaceYellow,
+    inverseOnSurface = inverseOnSurfaceYellow,
+    inversePrimary = inversePrimaryYellow,
+    surfaceDim = surfaceDimYellow,
+    surfaceBright = surfaceBrightYellow,
+    surfaceContainerLowest = surfaceContainerLowestYellow,
+    surfaceContainerLow = surfaceContainerLowYellow,
+    surfaceContainer = surfaceContainerYellow,
+    surfaceContainerHigh = surfaceContainerHighYellow,
+    surfaceContainerHighest = surfaceContainerHighestYellow,
+)
+
+private val blueScheme = lightColorScheme(
+    primary = primaryBlue,
+    onPrimary = onPrimaryBlue,
+    primaryContainer = primaryContainerBlue,
+    onPrimaryContainer = onPrimaryContainerBlue,
+    secondary = secondaryBlue,
+    onSecondary = onSecondaryBlue,
+    secondaryContainer = secondaryContainerBlue,
+    onSecondaryContainer = onSecondaryContainerBlue,
+    tertiary = tertiaryBlue,
+    onTertiary = onTertiaryBlue,
+    tertiaryContainer = tertiaryContainerBlue,
+    onTertiaryContainer = onTertiaryContainerBlue,
+    error = errorBlue,
+    onError = onErrorBlue,
+    errorContainer = errorContainerBlue,
+    onErrorContainer = onErrorContainerBlue,
+    background = backgroundBlue,
+    onBackground = onBackgroundBlue,
+    surface = surfaceBlue,
+    onSurface = onSurfaceBlue,
+    surfaceVariant = surfaceVariantBlue,
+    onSurfaceVariant = onSurfaceVariantBlue,
+    outline = outlineBlue,
+    outlineVariant = outlineVariantBlue,
+    scrim = scrimBlue,
+    inverseSurface = inverseSurfaceBlue,
+    inverseOnSurface = inverseOnSurfaceBlue,
+    inversePrimary = inversePrimaryBlue,
+    surfaceDim = surfaceDimBlue,
+    surfaceBright = surfaceBrightBlue,
+    surfaceContainerLowest = surfaceContainerLowestBlue,
+    surfaceContainerLow = surfaceContainerLowBlue,
+    surfaceContainer = surfaceContainerBlue,
+    surfaceContainerHigh = surfaceContainerHighBlue,
+    surfaceContainerHighest = surfaceContainerHighestBlue,
+)
+
 enum class Theme(val id: String) {
     LIGHT("light"),
     DARK("dark"),
-    PURPLE("purple");
+    PURPLE("purple"),
+    YELLOW("yellow"),
+    BLUE("blue");
 
     companion object {
         infix fun from(id: String): Theme? = entries.firstOrNull { it.id == id }
@@ -148,6 +226,8 @@ fun AppTheme(
         Theme.LIGHT -> lightScheme
         Theme.DARK -> darkScheme
         Theme.PURPLE -> purpleScheme
+        Theme.YELLOW -> yellowScheme
+        Theme.BLUE -> blueScheme
     }
 
     val view = LocalView.current
@@ -158,10 +238,10 @@ fun AppTheme(
             window.navigationBarColor = colorScheme.surfaceContainer.toArgb()
             WindowCompat
                 .getInsetsController(window, view)
-                .isAppearanceLightStatusBars = theme == Theme.LIGHT
+                .isAppearanceLightStatusBars = theme == Theme.LIGHT || theme == Theme.YELLOW || theme == Theme.BLUE
             WindowCompat
                 .getInsetsController(window, view)
-                .isAppearanceLightNavigationBars = theme == Theme.LIGHT
+                .isAppearanceLightNavigationBars = theme == Theme.LIGHT || theme == Theme.YELLOW || theme == Theme.BLUE
         }
     }
 

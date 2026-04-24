@@ -192,13 +192,13 @@ fun App(
             }
 
             composable<Screen.DiaryDetail> { backStackEntry ->
-                val route = backStackEntry.toRoute<Screen.DiaryDetail>()
-                val detailViewModel = hiltViewModel<DiaryDetailViewModel>()
-
                 if (state.student == null) {
                     LoadingComponent()
                     return@composable
                 }
+
+                val route = backStackEntry.toRoute<Screen.DiaryDetail>()
+                val detailViewModel = hiltViewModel<DiaryDetailViewModel>()
 
                 detailViewModel.setRegistrationId(state.student!!.registrationId)
 

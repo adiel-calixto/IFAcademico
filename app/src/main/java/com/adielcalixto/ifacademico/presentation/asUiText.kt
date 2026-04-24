@@ -19,5 +19,7 @@ fun Theme.asUiText(): UiText {
         Theme.LIGHT -> UiText.StringResource(R.string.light_theme)
         Theme.DARK -> UiText.StringResource(R.string.dark_theme)
         Theme.PURPLE -> UiText.StringResource(R.string.purple_theme)
+        Theme.YELLOW -> UiText.StringResource(R.string.yellow_theme)
+        Theme.BLUE -> UiText.StringResource(R.string.blue_theme)
     }
 }
