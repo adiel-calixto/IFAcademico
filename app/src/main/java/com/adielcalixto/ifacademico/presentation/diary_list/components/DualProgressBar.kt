@@ -13,8 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 
 @Composable
 fun DualProgressBar(
@@ -22,11 +20,11 @@ fun DualProgressBar(
     maxValue: Int = 100,
     firstProgress: Int = 0,
     secondProgress: Int = 0,
-    firstColor: Color = Color(0xffb25047),
-    secondColor: Color = Color(0xffb28547), // Yellow/Gold
+    firstColor: Color = MaterialTheme.colorScheme.error,
+    secondColor: Color = MaterialTheme.colorScheme.tertiary,
     firstLabel: String = "First Progress",
     secondLabel: String = "Second Progress",
-    backgroundColor: Color = Color.LightGray,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     height: Dp = 6.dp,
 ) {
     val validFirstProgress = firstProgress.coerceIn(0, maxValue)
@@ -39,49 +37,39 @@ fun DualProgressBar(
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
         ) {
-            // 0 label at start
             Text(
                 text = "0",
-                fontSize = 12.sp,
-                color = Color.Gray,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
 
-            // First progress label
             if (validFirstProgress in 1..<maxValue) {
                 Text(
                     text = validFirstProgress.toString(),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = firstColor,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .offset(
-                            x = ((validFirstProgress.toFloat() / maxValue.toFloat()) *
-                                    LocalConfiguration.current.screenWidthDp.dp * 0.65f)
-                        )
+                        .offset(x = ((validFirstProgress.toFloat() / maxValue.toFloat()) * LocalConfiguration.current.screenWidthDp * 0.65f).dp)
                 )
             }
 
-            // Second progress label (total)
             if (validSecondProgress > 0) {
                 Text(
                     text = validSecondProgress.toString(),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = secondColor,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .offset(
-                            x = ((totalProgress.toFloat() / maxValue.toFloat()) *
-                                    LocalConfiguration.current.screenWidthDp.dp * 0.7f)
-                        )
+                        .offset(x = ((totalProgress.toFloat() / maxValue.toFloat()) * LocalConfiguration.current.screenWidthDp * 0.7f).dp)
                 )
             }
 
-            // Max value label at end
             Text(
                 text = maxValue.toString(),
-                fontSize = 12.sp,
-                color = Color.Gray,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
         }

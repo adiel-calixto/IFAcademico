@@ -1,5 +1,6 @@
 package com.adielcalixto.ifacademico.presentation.diary_detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -23,14 +26,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Exam
@@ -117,8 +121,7 @@ fun DiaryDetailScreen(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
                                 text = UiText.StringResource(R.string.exams).asString(),
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.titleSmall,
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -145,8 +148,7 @@ private fun AbsencesCard(absences: Int, maxAbsences: Int) {
         ) {
             Text(
                 text = UiText.StringResource(R.string.absences).asString(),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleSmall,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -190,7 +192,7 @@ private fun StatCard(
         ) {
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -220,8 +222,7 @@ private fun ClassesCard(
         ) {
             Text(
                 text = UiText.StringResource(R.string.classes_summary).asString(),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleSmall,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -248,23 +249,86 @@ private fun ExamsList(exams: List<Exam>) {
 
     val groupedExams = exams.groupBy { it.stepId }
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        groupedExams.entries.withIndex().forEach { (index, entry) ->
-            entry.value.forEach { exam ->
-                CompactExamRow(exam = exam)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        groupedExams.entries.forEach { entry ->
+            StepExamCard(
+                stepName = entry.key,
+                exams = entry.value,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StepExamCard(
+    stepName: String,
+    exams: List<Exam>,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val averageExam = exams.find { it.acronym == "Média" }
+
+    Surface(
+        tonalElevation = 2.dp,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { expanded = !expanded }
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stepName,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (averageExam != null) {
+                        Text(
+                            text = "média: %.2f".format(averageExam.grade),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = if (expanded) "Recolher" else "Expandir",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .height(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
-            if (index < groupedExams.entries.size - 1) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
+            if (expanded) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                exams.forEach { exam ->
+                    if (exam.acronym != "Média") {
+                        ExamRow(exam = exam)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+
+                if (averageExam != null) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    AverageRow(exam = averageExam)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CompactExamRow(exam: Exam) {
-    val isAverage = exam.acronym == "Média"
-
+private fun ExamRow(exam: Exam) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -274,7 +338,42 @@ private fun CompactExamRow(exam: Exam) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            if (isAverage) {
+            Surface(
+                tonalElevation = 1.dp,
+                shape = RoundedCornerShape(4.dp),
+                modifier = Modifier.padding(end = 6.dp)
+            ) {
+                Text(
+                    text = exam.acronym,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+            Text(
+                text = exam.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(
+            text = "${exam.grade} / ${exam.maxGrade}",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+@Composable
+private fun AverageRow(exam: Exam) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     tonalElevation = 1.dp,
                     shape = RoundedCornerShape(4.dp),
@@ -282,40 +381,24 @@ private fun CompactExamRow(exam: Exam) {
                 ) {
                     Text(
                         text = exam.acronym,
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
-            } else {
                 Text(
-                    text = exam.acronym,
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = exam.formula ?: UiText.StringResource(R.string.formula_not_set).asString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text(
-                text = " - ${exam.description}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
-
         Text(
-            text = if (isAverage) {
-                "%.2f".format(exam.grade)
-            } else {
-                "${exam.grade} / ${exam.maxGrade}"
-            },
-            style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-            fontWeight = if (isAverage) FontWeight.Bold else FontWeight.Normal,
-            color = if (isAverage) {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
+            text = "%.2f".format(exam.grade),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }

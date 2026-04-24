@@ -161,7 +161,7 @@ fun App(
                 }
 
                 StudentInfoScreen(
-                    state.student!!,
+                    student = state.student!!,
                     onLogout = {
                         viewModel.onLogout()
                         navController.navigate(Screen.Login) { popUpTo(0) }

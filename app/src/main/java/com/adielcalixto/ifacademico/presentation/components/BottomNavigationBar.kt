@@ -1,16 +1,14 @@
 package com.adielcalixto.ifacademico.presentation.components
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,32 +41,32 @@ fun getTopLevelRoutes() = listOf(
     )
 )
 
-@SuppressLint("RestrictedApi")
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
         getTopLevelRoutes().forEach { topLevelRoute ->
-            BottomNavigationItem(
-                modifier = Modifier.padding(4.dp),
+            val selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true
+
+            NavigationBarItem(
                 icon = {
                     Icon(
                         topLevelRoute.icon,
                         contentDescription = topLevelRoute.name,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 },
                 label = {
                     Text(
                         topLevelRoute.name,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.labelSmall
                     )
                 },
-                selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelRoute.route::class) } == true,
+                selected = selected,
                 onClick = {
                     navController.navigate(topLevelRoute.route) {
                         popUpTo(navController.graph.findStartDestination().id)

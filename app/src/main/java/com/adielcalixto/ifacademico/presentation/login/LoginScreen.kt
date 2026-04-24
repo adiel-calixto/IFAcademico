@@ -30,7 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -64,7 +64,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
 
         Text(
             text = "LOGIN",
-            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+            style = MaterialTheme.typography.headlineSmall,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

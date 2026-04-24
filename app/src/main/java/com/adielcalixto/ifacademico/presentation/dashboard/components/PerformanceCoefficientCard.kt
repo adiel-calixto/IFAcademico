@@ -34,9 +34,8 @@ fun PerformanceCoefficientCard(
         ) {
             Text(
                 text = "%.2f".format(value),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = label,

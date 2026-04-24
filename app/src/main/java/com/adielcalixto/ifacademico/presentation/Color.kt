@@ -97,9 +97,9 @@ val surfaceContainerHighDark = Color(0xFF242424)
 val surfaceContainerHighestDark = Color(0xFF2E2E2E)
 
 // Purple theme - Dracula-inspired
-val primaryPurple = Color(0xFFAA82F2)
-val onPrimaryPurple = Color(0xFF1E1F29)
-val primaryContainerPurple = Color(0xFF6B3FBF)
+val primaryPurple = Color(0xFF8B7EC8)
+val onPrimaryPurple = Color(0xFFFFFFFF)
+val primaryContainerPurple = Color(0xFF5B5499)
 val onPrimaryContainerPurple = Color(0xFFEAE0FF)
 
 val secondaryPurple = Color(0xFF8BE9FD)
@@ -138,8 +138,8 @@ val surfaceContainerHighPurple = Color(0xFF252631)
 val surfaceContainerHighestPurple = Color(0xFF2D2E3A)
 
 // Yellow theme - pastel light
-val primaryYellow = Color(0xFFE6B84D)
-val onPrimaryYellow = Color(0xFF3D2E00)
+val primaryYellow = Color(0xFFC9960A)
+val onPrimaryYellow = Color(0xFFFFFFFF)
 val primaryContainerYellow = Color(0xFFFFF0C4)
 val onPrimaryContainerYellow = Color(0xFF251E00)
 

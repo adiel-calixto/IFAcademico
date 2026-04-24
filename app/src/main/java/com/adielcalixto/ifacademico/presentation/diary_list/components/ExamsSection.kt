@@ -27,8 +27,7 @@ internal fun ExamsSection(exams: List<Exam>) {
     Column {
         Text(
             UiText.StringResource(R.string.exams).asString(),
-            fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize
+            style = MaterialTheme.typography.titleSmall,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -65,12 +64,12 @@ private fun AverageExam(exam: Exam) {
                     Text(
                         text = "${UiText.StringResource(R.string.grade).asString()}:",
                         modifier = Modifier.padding(2.dp),
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
                         text = exam.grade.toString(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
 
@@ -80,7 +79,7 @@ private fun AverageExam(exam: Exam) {
                     text = exam.formula
                         ?: UiText.StringResource(R.string.formula_not_set)
                             .asString(),
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         }
@@ -103,12 +102,12 @@ private fun NormalExam(exam: Exam) {
                     Text(
                         text = "${UiText.StringResource(R.string.grade).asString()}:",
                         modifier = Modifier.padding(2.dp),
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
                         text = "${exam.grade} / ${exam.maxGrade}",
                         fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }
