@@ -18,9 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import com.adielcalixto.ifacademico.presentation.AppTheme
@@ -174,7 +176,7 @@ fun App(
                 CalendarScreen(calendarViewModel)
             }
 
-            composable<Screen.DiaryList> {
+            composable<Screen.DiaryList> { outerBackStackEntry ->
                 if (state.student == null) {
                     LoadingComponent()
                     return@composable
@@ -183,31 +185,34 @@ fun App(
                 val diariesViewModel = hiltViewModel<DiaryListViewModel>()
                 diariesViewModel.setRegistrationId(state.student!!.registrationId)
 
-                DiaryListScreen(
-                    viewModel = diariesViewModel,
-                    onDiaryClick = { diaryId, periodNumber, periodYear ->
-                        navController.navigate(Screen.DiaryDetail(diaryId, periodNumber, periodYear))
+                val nestedNavController = rememberNavController()
+
+                NavHost(
+                    navController = nestedNavController,
+                    startDestination = "list"
+                ) {
+                    composable("list") {
+                        DiaryListScreen(
+                            viewModel = diariesViewModel,
+                            onDiaryClick = { diaryId, periodNumber, periodYear ->
+                                nestedNavController.navigate(Screen.DiaryDetail(diaryId, periodNumber, periodYear))
+                            }
+                        )
                     }
-                )
-            }
 
-            composable<Screen.DiaryDetail> { backStackEntry ->
-                if (state.student == null) {
-                    LoadingComponent()
-                    return@composable
-                }
+                    composable<Screen.DiaryDetail> { backStackEntry ->
+                        val route = backStackEntry.toRoute<Screen.DiaryDetail>()
+                        val detailViewModel = hiltViewModel<DiaryDetailViewModel>()
+                        detailViewModel.setRegistrationId(state.student!!.registrationId)
 
-                val route = backStackEntry.toRoute<Screen.DiaryDetail>()
-                val detailViewModel = hiltViewModel<DiaryDetailViewModel>()
-
-                detailViewModel.setRegistrationId(state.student!!.registrationId)
-
-                DiaryDetailScreen(
-                    viewModel = detailViewModel,
-                    navController = navController
-                )
-                LaunchedEffect(route) {
-                    detailViewModel.setDiaryAndPeriod(route.diaryId, route.periodNumber, route.periodYear)
+                        DiaryDetailScreen(
+                            viewModel = detailViewModel,
+                            navController = nestedNavController
+                        )
+                        LaunchedEffect(route) {
+                            detailViewModel.setDiaryAndPeriod(route.diaryId, route.periodNumber, route.periodYear)
+                        }
+                    }
                 }
             }
         }

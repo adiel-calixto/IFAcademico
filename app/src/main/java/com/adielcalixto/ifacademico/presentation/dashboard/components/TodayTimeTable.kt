@@ -112,7 +112,8 @@ internal fun TodayTimeTable(
                                 Text(
                                     text = "${timeTableClass.professorName} • ${timeTableClass.classRoomName}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.Light
                                 )
                             }
                         }
