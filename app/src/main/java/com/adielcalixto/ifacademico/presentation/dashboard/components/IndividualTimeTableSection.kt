@@ -1,11 +1,7 @@
 package com.adielcalixto.ifacademico.presentation.dashboard.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,19 +12,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Room
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.IndividualTimeTable
@@ -129,11 +129,15 @@ private fun getLocalizedBusinessDays(): List<String> {
     return businessDays.map { it.uppercase() }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun IndividualTimeTableSection(
     individualTimeTable: IndividualTimeTable,
     onReturnClicked: () -> Unit
 ) {
+    var selectedCourse by remember { mutableStateOf<TimeTableClass?>(null) }
+    val sheetState = rememberModalBottomSheetState()
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -141,30 +145,73 @@ internal fun IndividualTimeTableSection(
             tonalElevation = 1.dp,
             shape = RoundedCornerShape(16.dp)
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                NavigationBar(onReturnClicked)
-                Schedule(individualTimeTable)
+            Column(modifier = Modifier.padding(16.dp)) {
+                NavigationBar(onReturnClicked = onReturnClicked)
+                Spacer(modifier = Modifier.height(16.dp))
+                Schedule(
+                    individualTimeTable = individualTimeTable,
+                    onCourseClicked = { selectedCourse = it }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                    Icon(
+                        imageVector = Icons.Filled.Info,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = UiText.StringResource(R.string.tap_to_see_details).asString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
-        Spacer(Modifier.height(16.dp))
-        CoursesInfos(individualTimeTable.classes.values.flatten().distinctBy { it.className })
+    }
+
+    selectedCourse?.let { course ->
+        CourseBottomSheet(
+            course = course,
+            sheetState = sheetState,
+            onDismiss = { selectedCourse = null }
+        )
     }
 }
 
 @Composable
 internal fun NavigationBar(onReturnClicked: () -> Unit) {
-    Row {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         IconButton(onClick = onReturnClicked) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Return button"
             )
         }
+        Text(
+            text = UiText.StringResource(R.string.weekly_schedule).asString(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
 @Composable
-internal fun Schedule(individualTimeTable: IndividualTimeTable) {
+internal fun Schedule(
+    individualTimeTable: IndividualTimeTable,
+    onCourseClicked: (TimeTableClass) -> Unit
+) {
     val weekDays = getLocalizedBusinessDays()
 
     Column {
@@ -225,7 +272,11 @@ internal fun Schedule(individualTimeTable: IndividualTimeTable) {
                             .weight(1f)
                             .aspectRatio(1.1f)
                             .padding(5.dp)
-                            .background(bgColor, RoundedCornerShape(10.dp)),
+                            .background(bgColor, RoundedCornerShape(10.dp))
+                            .then(
+                                if (course != null) Modifier.clickable { onCourseClicked(course) }
+                                else Modifier
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         if (course != null) {
@@ -243,61 +294,83 @@ internal fun Schedule(individualTimeTable: IndividualTimeTable) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CoursesInfos(courses: List<TimeTableClass>) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth()
+private fun CourseBottomSheet(
+    course: TimeTableClass,
+    sheetState: androidx.compose.material3.SheetState,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
     ) {
-        Column {
-            TextButton(
-                onClick = { isExpanded = !isExpanded },
-                modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Text(
+                text = course.className,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = null
+                    imageVector = Icons.Filled.Schedule,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(UiText.StringResource(R.string.show_course_detail).asString())
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    "${courses.size} ${
-                        UiText.StringResource(R.string.course).asString()
-                    }${if (courses.size > 1) "s" else ""}",
-                    style = MaterialTheme.typography.labelSmall
+                    text = "${course.startTime} - ${course.endTime}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    courses.forEach { course ->
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text(
-                                "${generateAcronym(course.className)} - ${course.className}",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Text(
-                                "${course.classRoomName} - ${course.professorName}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        if (course != courses.last()) {
-                            HorizontalDivider(thickness = 0.5.dp)
-                        }
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Filled.Room,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = course.classRoomName,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = course.professorName,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

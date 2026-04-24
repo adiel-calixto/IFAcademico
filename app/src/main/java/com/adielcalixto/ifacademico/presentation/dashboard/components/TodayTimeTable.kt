@@ -1,17 +1,16 @@
 package com.adielcalixto.ifacademico.presentation.dashboard.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -22,84 +21,122 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.TimeTable
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.dashboard.DashboardAction
 
 @Composable
-internal fun TodayTimeTable(timeTable: TimeTable, onOpenIndividualTimeTableClicked: () -> Unit) {
+internal fun TodayTimeTable(
+    timeTable: TimeTable,
+    onOpenIndividualTimeTableClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Surface(
         tonalElevation = 2.dp,
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
-            Text(
-                "${
-                    UiText.StringResource(R.string.classes_of_the_day).asString()
-                } ${timeTable.today}",
-                fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = UiText.StringResource(R.string.today_classes).asString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${timeTable.classes.size} ${UiText.StringResource(R.string.classes_label).asString()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (timeTable.classes.isEmpty()) {
-                Text(UiText.StringResource(R.string.empty_timetable_classes).asString())
+                Text(
+                    text = UiText.StringResource(R.string.empty_timetable_classes).asString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             } else {
                 Column {
-                    timeTable.classes.forEach { timeTableClass ->
-                        Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("⚬")
-                                Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                                Column {
+                    timeTable.classes.forEachIndexed { index, timeTableClass ->
+                        if (index > 0) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                text = "◉",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 12.dp)
+                                    .weight(1f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Text(
-                                        timeTableClass.className,
-                                        style = MaterialTheme.typography.titleSmall
+                                        text = timeTableClass.className,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.weight(1f)
                                     )
                                     Text(
-                                        timeTableClass.professorName,
+                                        text = "${timeTableClass.startTime} - ${timeTableClass.endTime}",
                                         style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Light
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                            }
-
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                modifier = Modifier.padding(8.dp)
-                            )
-
-                            Row {
-                                Text(timeTableClass.classRoomName)
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text("${timeTableClass.startTime} - ${timeTableClass.endTime}")
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "${timeTableClass.professorName} • ${timeTableClass.classRoomName}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
                 }
             }
 
-            Row {
-                Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 TextButton(
-                    onClick = onOpenIndividualTimeTableClicked,
+                    onClick = onOpenIndividualTimeTableClicked
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "Schedule Icon",
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
-                        UiText.StringResource(R.string.individual_time_table).asString()
+                        text = UiText.StringResource(R.string.view_weekly_schedule).asString(),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.ChevronRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
                     )
                 }
             }
