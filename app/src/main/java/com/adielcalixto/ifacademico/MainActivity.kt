@@ -1,7 +1,6 @@
 package com.adielcalixto.ifacademico
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,20 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.adielcalixto.ifacademico.domain.entities.Session
+import androidx.navigation.toRoute
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import com.adielcalixto.ifacademico.presentation.AppTheme
 import com.adielcalixto.ifacademico.presentation.MainState
@@ -38,6 +34,8 @@ import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.components.TopBar
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardViewModel
+import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailScreen
+import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailViewModel
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListScreen
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListViewModel
 import com.adielcalixto.ifacademico.presentation.login.LoginScreen
@@ -80,6 +78,13 @@ sealed class Screen {
 
     @Serializable
     data object DiaryList : Screen()
+
+    @Serializable
+    data class DiaryDetail(
+        val diaryId: Int,
+        val periodNumber: Int,
+        val periodYear: Int
+    ) : Screen()
 }
 
 private fun MainState.isLoggedIn() = this.sessionState == SessionState.Valid
@@ -178,7 +183,32 @@ fun App(
                 val diariesViewModel = hiltViewModel<DiaryListViewModel>()
                 diariesViewModel.setRegistrationId(state.student!!.registrationId)
 
-                DiaryListScreen(diariesViewModel)
+                DiaryListScreen(
+                    viewModel = diariesViewModel,
+                    onDiaryClick = { diaryId, periodNumber, periodYear ->
+                        navController.navigate(Screen.DiaryDetail(diaryId, periodNumber, periodYear))
+                    }
+                )
+            }
+
+            composable<Screen.DiaryDetail> { backStackEntry ->
+                val route = backStackEntry.toRoute<Screen.DiaryDetail>()
+                val detailViewModel = hiltViewModel<DiaryDetailViewModel>()
+
+                if (state.student == null) {
+                    LoadingComponent()
+                    return@composable
+                }
+
+                detailViewModel.setRegistrationId(state.student!!.registrationId)
+
+                DiaryDetailScreen(
+                    viewModel = detailViewModel,
+                    navController = navController
+                )
+                LaunchedEffect(route) {
+                    detailViewModel.setDiaryAndPeriod(route.diaryId, route.periodNumber, route.periodYear)
+                }
             }
         }
     }

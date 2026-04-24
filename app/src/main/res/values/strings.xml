@@ -23,6 +23,10 @@
     <string name="preferences">Ajustes</string>
     <string name="student">Aluno</string>
     <string name="diaries">Diários</string>
+    <string name="diary">Diário</string>
+    <string name="no_exams">Nenhuma avaliação registrada</string>
+    <string name="formula">Fórmula</string>
+    <string name="professor">Professor</string>
     <string name="confirm">Confirmar</string>
     <string name="logout_warning">Tem certeza de que deseja sair? Sua sessão será encerrada.</string>
     <string name="classes_of_the_day">Aulas do dia</string>
