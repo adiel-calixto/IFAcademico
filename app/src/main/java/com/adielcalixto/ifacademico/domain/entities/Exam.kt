@@ -11,4 +11,6 @@ data class Exam(
     val acronym: String,
     val maxGrade: Float,
     val stepId: String
-)
+) {
+    val hasGrade: Boolean get() = grade > 0
+}

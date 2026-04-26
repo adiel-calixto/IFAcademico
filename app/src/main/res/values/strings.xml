@@ -31,7 +31,6 @@
     <string name="professor">Professor</string>
     <string name="confirm">Confirmar</string>
     <string name="logout_warning">Tem certeza de que deseja sair? Sua sessão será encerrada.</string>
-    <string name="classes_of_the_day">Aulas do dia</string>
     <string name="student_coefficient">Seu coeficiente</string>
     <string name="class_coefficient">Coeficiente da turma</string>
     <string name="empty_timetable_classes">Nenhuma aula planejada</string>
@@ -39,15 +38,12 @@
     <string name="unknown_error">Um erro inesperado ocorreu</string>
     <string name="calendar">Calendário</string>
     <string name="month">Mês</string>
-    <string name="individual_time_table">Horário Individual</string>
-    <string name="show_course_detail">Detalhar Disciplinas</string>
-    <string name="course">disciplina</string>
     <string name="formula_not_set">Fórmula não configurada</string>
     <string name="io_error">Ocorreu um erro ao tentar acessar os dados. Verifique sua conexão ou tente novamente mais tarde</string>
     <string name="privacy_policy">Política de Privacidade</string>
     <string name="privacy_policy_details">Este aplicativo, respeita a sua privacidade.\n\n- Nenhum dado pessoal é coletado ou compartilhado com terceiros.\n- As credenciais fornecidas (matrícula e senha) são armazenadas localmente no dispositivo, com criptografia.\n- Nenhuma informação é enviada a servidores externos ou capturada para análise.\n\nO aplicativo funciona exclusivamente como uma interface alternativa para o sistema acadêmico Q-Acadêmico, acessando diretamente os dados do aluno de forma local, segura e com o consentimento do usuário.</string>
     <string name="terms_of_service">Termos de Serviço</string>
-    <string name="terms_of_service_details">O uso deste aplicativo implica na aceitação dos seguintes termos:\n\n1. Este aplicativo é um projeto independente, de código aberto, e não possui qualquer vínculo oficial com o Q-Acadêmico.\n\n2. O aplicativo utiliza interfaces públicas do sistema acadêmico para exibir informações acessíveis ao próprio aluno. O acesso é feito com as credenciais fornecidas pelo usuário, que é o único responsável por seu uso.\n\n3. A qualquer momento, a instituição pode modificar o sistema Q-Acadêmico, o que pode causar instabilidade ou inutilização parcial/total do aplicativo.\n\n4. O desenvolvedor não se responsabiliza por indisponibilidades, mudanças no sistema da instituição ou uso indevido das credenciais por parte do usuário.</string>
+    <string name="terms_of_service_details">O uso deste aplicativo implica na aceitação dos seguintes termos:\n\n1. Este aplicativo é um projeto independente, de código aberto, e não possui qualquer vínculo oficial com o Q-Acadêmico.\n\n2. O aplicativo utiliza interfaces públicas do sistema acadêmico para exibir informações acessíveis ao próprio aluno. O acesso é feito com as credenciais fornecidas pelo usuário, que é o único responsável por seu uso.\n\n\n3. A qualquer momento, a instituição pode modificar o sistema Q-Acadêmico, o que pode causar instabilidade ou inutilização parcial/total do aplicativo.\n\n4. O desenvolvedor não se responsabiliza por indisponibilidades, mudanças no sistema da instituição ou uso indevido das credenciais por parte do usuário.</string>
     <string name="classes_summary">Resumo de Aulas</string>
     <string name="taught_classes">Aulas Realizadas</string>
     <string name="pending_classes">Aulas Pendentes</string>
@@ -69,4 +65,7 @@
     <string name="update_now">Atualizar</string>
     <string name="skip_this_version">Pular esta versão</string>
     <string name="check_for_updates">Verificar atualizações</string>
+    <string name="no_grade">sem nota</string>
+    <string name="not_configured">não configurada</string>
+    <string name="calculated_averages">Médias Calculadas</string>
 </resources>

@@ -25,9 +25,12 @@
     <string name="preferences">Preferences</string>
     <string name="student">Student</string>
     <string name="diaries">Diaries</string>
+    <string name="diary">Diary</string>
+    <string name="no_exams">No exams recorded</string>
+    <string name="formula">Formula</string>
+    <string name="professor">Professor</string>
     <string name="confirm">Confirm</string>
     <string name="logout_warning">Are you sure you want to log out? Your session will end.</string>
-    <string name="classes_of_the_day">Classes of the day</string>
     <string name="student_coefficient">Your coefficient</string>
     <string name="class_coefficient">Class coefficient</string>
     <string name="empty_timetable_classes">No classes planned</string>
@@ -35,15 +38,12 @@
     <string name="unknown_error">An unexpected error occurred</string>
     <string name="calendar">Calendar</string>
     <string name="month">Month</string>
-    <string name="individual_time_table">Individual Timetable</string>
-    <string name="show_course_detail">Show Details</string>
-    <string name="course">course</string>
-    <string name="formula_not_set">Formula not set"</string>
+    <string name="formula_not_set">Formula not set</string>
     <string name="io_error">Something went wrong while trying to access the data. Please check your connection or try again later</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_details">This app respects your privacy.\n\n- No personal data is collected or shared with third parties.\n- The credentials provided (registration number and password) are stored locally on the device, with encryption.\n- No information is sent to external servers or captured for analysis.\n\nThe app exclusively works as an alternative interface for the academic system Q-Academico, accessing student data locally, securely, and with the user\'s consent.</string>
     <string name="terms_of_service">Terms of Service</string>
-    <string name="terms_of_service_details">By using this app, you accept the following terms:\n\n1. This app is an independent, open-source project and has no official affiliation with Q-Academico.\n\n2. The app uses public interfaces of the academic system to display information accessible to the student. Access is done using the credentials provided by the user, who is solely responsible for their use.\n\n3. The institution may change the Q-Academico system at any time, which could cause instability or partial/total malfunction of the app.\n\n4. The developer is not responsible for downtimes, system changes, or misuse of credentials by the user.</string>
+    <string name="terms_of_service_details">By using this app, you accept the following terms:\n\n1. This app is an independent, open-source project and has no official affiliation with Q-Academico.\n2. The app uses public interfaces of the academic system to display information accessible to the student. Access is done using the credentials provided by the user, who is solely responsible for their use.\n\n3. The institution may change the Q-Academico system at any time, which could cause instability or partial/total malfunction of the app.\n\n4. The developer is not responsible for downtimes, system changes, or misuse of credentials by the user.</string>
     <string name="classes_summary">Classes Summary</string>
     <string name="taught_classes">Classes Held</string>
     <string name="pending_classes">Classes Pending</string>
@@ -65,4 +65,7 @@
     <string name="update_now">Update</string>
     <string name="skip_this_version">Skip this version</string>
     <string name="check_for_updates">Check for updates</string>
+    <string name="no_grade">no grade</string>
+    <string name="not_configured">not configured</string>
+    <string name="calculated_averages">Calculated Averages</string>
 </resources>

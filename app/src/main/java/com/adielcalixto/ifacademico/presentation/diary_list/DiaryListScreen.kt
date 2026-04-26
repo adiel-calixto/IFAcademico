@@ -1,10 +1,11 @@
 package com.adielcalixto.ifacademico.presentation.diary_list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -25,12 +25,35 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.domain.entities.Diary
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
+
+fun Modifier.leftBorder(
+    borderWidth: Dp,
+    borderColor: Color,
+    cornerRadius: Dp
+): Modifier = this.drawBehind {
+    val strokeWidth = borderWidth.toPx()
+    val radius = cornerRadius.toPx()
+
+    drawRoundRect(
+        color = borderColor,
+        size = Size(strokeWidth * 2, size.height),
+        cornerRadius = CornerRadius(radius, radius),
+        style = Stroke(width = strokeWidth * 2)
+    )
+}
 
 @Composable
 fun DiaryListScreen(
@@ -80,31 +103,23 @@ private fun DiaryItem(
     diary: Diary,
     onClick: () -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick)
+            .leftBorder(
+                borderWidth = 2.dp,
+                borderColor = MaterialTheme.colorScheme.primary,
+                cornerRadius = 12.dp
+            )
+            .padding(start = 16.dp, top = 12.dp, end = 12.dp, bottom = 12.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Filled.MenuBook,
-                contentDescription = "Diary",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(16.dp)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = diary.name,

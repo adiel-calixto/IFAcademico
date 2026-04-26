@@ -20,7 +20,7 @@ fun DualProgressBar(
     maxValue: Int = 100,
     firstProgress: Int = 0,
     secondProgress: Int = 0,
-    firstColor: Color = MaterialTheme.colorScheme.error,
+    firstColor: Color = MaterialTheme.colorScheme.primary,
     secondColor: Color = MaterialTheme.colorScheme.tertiary,
     firstLabel: String = "First Progress",
     secondLabel: String = "Second Progress",
