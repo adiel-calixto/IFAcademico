@@ -2,7 +2,6 @@ package com.adielcalixto.ifacademico.presentation
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adielcalixto.ifacademico.domain.IOError
@@ -35,7 +34,6 @@ class MainViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         unauthorizedApiErrorObserver.subscribe(this)
 
         viewModelScope.launch { loadSession() }
@@ -57,10 +55,6 @@ class MainViewModel @Inject constructor(
     override fun onResume(owner: LifecycleOwner) {
         if (_state.value.isFirstLoad) return
         viewModelScope.launch { loadSession() }
-    }
-
-    override fun onCleared() {
-        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
     }
 
     override fun onUnauthorizedError() {

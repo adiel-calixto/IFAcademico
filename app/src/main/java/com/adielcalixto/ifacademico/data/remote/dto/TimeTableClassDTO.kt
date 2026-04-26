@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class TimeTableClassDTO(
     @SerializedName("idAulaMinistrada", alternate = ["idDisciplina"]) val id: Int,
     @SerializedName("descDisciplina") val className: String,
-    @SerializedName("periodo", alternate = ["anoLet"]) val academicPeriod: UByte,
+    @SerializedName("periodo", alternate = ["anoLet"]) val academicPeriod: Short,
     @SerializedName("professor", alternate = ["nomeProfessor"]) val professorName: String?,
     @SerializedName("horarioInicio", alternate = ["horaInicio"]) val startTime: String,
     @SerializedName("horarioFim", alternate = ["horaFinal"]) val endTime: String,

@@ -4,7 +4,6 @@ import com.adielcalixto.ifacademico.data.local.CacheService
 import com.adielcalixto.ifacademico.observers.UnauthorizedApiErrorObserver
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.io.IOException
 import javax.inject.Inject
 
 class UnauthorizedErrorInterceptor @Inject constructor(

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -62,11 +62,11 @@ fun PeriodsDropdown(
                         onClick = {
                             dropDownExpanded = false
                             onPeriodSelected(period)
-                        }) {
-                        Box {
-                            Text(period.asString())
-                        }
-                    }
+                        }, text = {
+                            Box {
+                                Text(period.asString())
+                            }
+                        })
                 }
             }
         }

@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Student
@@ -151,11 +151,11 @@ fun StudentInfoScreen(
                                     onClick = {
                                         dropDownExpanded = false
                                         themeViewModel.changeTheme(colorscheme)
-                                    }) {
-                                    Box(contentAlignment = Alignment.CenterEnd) {
-                                        Text(colorscheme.asUiText().asString())
-                                    }
-                                }
+                                    }, text = {
+                                        Box(contentAlignment = Alignment.CenterEnd) {
+                                            Text(colorscheme.asUiText().asString())
+                                        }
+                                    })
                             }
                         }
                     }
@@ -169,7 +169,10 @@ fun StudentInfoScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Filled.SystemUpdate, contentDescription = "Update Icon")
+                    Icon(
+                        imageVector = Icons.Filled.SystemUpdate,
+                        contentDescription = "Update Icon"
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         UiText.StringResource(R.string.check_for_updates).asString(),
@@ -270,7 +273,7 @@ fun StudentInfoScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = UiText.StringResource(R.string.view_on_github).asString(),
-                    style= MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

@@ -4,7 +4,7 @@ data class TimeTableClass (
     val id: Int,
     val className: String,
     val professorName: String,
-    val academicPeriod: UByte,
+    val academicPeriod: Short,
     val startTime: String,
     val endTime: String,
     val classRoomName: String,

@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -94,12 +96,20 @@ private fun MainState.isLoggedIn() = this.sessionState == SessionState.Valid
 
 @Composable
 fun App(
-    viewModel: MainViewModel = hiltViewModel(),
-    updateViewModel: UpdateViewModel = hiltViewModel(),
+    viewModel: MainViewModel = viewModel(),
+    updateViewModel: UpdateViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val state by viewModel.state.collectAsState()
     val updateState by updateViewModel.state.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(viewModel)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(viewModel)
+        }
+    }
 
     LaunchedEffect(Unit) {
         updateViewModel.checkForUpdates()
@@ -156,7 +166,7 @@ fun App(
             }
 
             composable<Screen.Login> {
-                val loginViewModel = hiltViewModel<LoginViewModel>()
+                val loginViewModel: LoginViewModel = hiltViewModel()
                 LoginScreen(
                     loginViewModel,
                     onLoginSuccess = {
