@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +34,8 @@ class MainViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MainState(isFirstLoad = true))
     val state = _state.asStateFlow()
+
+    private val sessionMutex = Mutex()
 
     init {
         unauthorizedApiErrorObserver.subscribe(this)
@@ -62,16 +66,18 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun loadSession() {
-        val sessionState = verifySessionUseCase.execute()
-        _state.update { it.copy(sessionState = sessionState) }
+        sessionMutex.withLock {
+            val sessionState = verifySessionUseCase.execute()
+            _state.update { it.copy(sessionState = sessionState) }
 
-        when (sessionState) {
-            SessionState.Invalid -> {}
-            SessionState.Valid -> {
-                if (_state.first().student == null) loadStudent()
+            when (sessionState) {
+                SessionState.Invalid -> {}
+                SessionState.Valid -> {
+                    if (_state.first().student == null) loadStudent()
+                }
+
+                SessionState.CanRefresh -> refreshSession()
             }
-
-            SessionState.CanRefresh -> refreshSession()
         }
     }
 

@@ -10,7 +10,6 @@ import javax.crypto.spec.GCMParameterSpec
 
 class EncryptionUtil {
     private val provider = "AndroidKeyStore"
-    private val cipher by lazy { Cipher.getInstance("AES/GCM/NoPadding") }
     private val charset by lazy { charset("UTF-8") }
 
     private val keyGenerator by lazy {
@@ -27,11 +26,13 @@ class EncryptionUtil {
     }
 
     fun encrypt(data: String, keyAlias: String): ByteArray {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(keyAlias))
         return cipher.iv + cipher.doFinal(data.toByteArray(charset))
     }
 
     fun decrypt(data: ByteArray, keyAlias: String): String {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         val dataWithoutIv = data.copyOfRange(12, data.size)
         val iv = data.copyOfRange(0, 12)
         cipher.init(Cipher.DECRYPT_MODE, getSecretKey(keyAlias), GCMParameterSpec(128, iv))
