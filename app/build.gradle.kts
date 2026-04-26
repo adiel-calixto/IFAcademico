@@ -19,7 +19,7 @@ android {
         minSdk = 33
         targetSdk = 36
         versionCode = 1
-        versionName = "2.0.0"
+        versionName = "2.1.0"
 
         testInstrumentationRunner = "com.adielcalixto.ifacademico.CustomTestRunner"
     }
@@ -73,6 +73,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Testing
+    testImplementation("io.mockk:mockk:1.13.16")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 
     // Icons
     implementation("androidx.compose.material:material-icons-extended:1.7.8")

@@ -7,6 +7,8 @@ import com.adielcalixto.ifacademico.data.local.EncryptionUtil
 import com.adielcalixto.ifacademico.data.local.SessionPreferences
 import com.adielcalixto.ifacademico.data.local.SessionPreferencesImpl
 import com.adielcalixto.ifacademico.data.local.SettingsPreferences
+import com.adielcalixto.ifacademico.data.AndroidLogger
+import com.adielcalixto.ifacademico.data.Logger
 import com.adielcalixto.ifacademico.data.remote.AcademicoAPI
 import com.adielcalixto.ifacademico.data.remote.GitHubAPI
 import com.adielcalixto.ifacademico.data.remote.interceptors.AddCookiesInterceptor
@@ -99,4 +101,8 @@ object AppModule {
             .build()
             .create(GitHubAPI::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideLogger(): Logger = AndroidLogger
 }

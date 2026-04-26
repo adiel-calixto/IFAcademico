@@ -1,11 +1,14 @@
 package com.adielcalixto.ifacademico.data.remote
 
-import android.util.Log
 import com.adielcalixto.ifacademico.BuildConfig
+import com.adielcalixto.ifacademico.data.Logger
 import com.adielcalixto.ifacademico.data.local.SettingsPreferences
+import com.adielcalixto.ifacademico.data.remote.dto.GitHubReleaseDTO
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val RELEASE_NOTES_MAX_CHARS = 300
 
 data class ReleaseInfo(
     val latestVersion: String,
@@ -21,48 +24,68 @@ sealed class UpdateCheckResult {
 @Singleton
 class UpdateChecker @Inject constructor(
     private val gitHubAPI: GitHubAPI,
-    private val updatePreferences: SettingsPreferences
+    private val updatePreferences: SettingsPreferences,
+    private val logger: Logger
 ) {
     suspend fun check(): UpdateCheckResult {
-        val isEnabled = updatePreferences.isUpdateCheckEnabled.first()
-        if (!isEnabled) return UpdateCheckResult.UpToDate
-
-        val skipped = updatePreferences.skippedVersion.first()
+        if (!updatePreferences.isUpdateCheckEnabled.first()) {
+            return UpdateCheckResult.UpToDate
+        }
 
         return try {
-            val response = gitHubAPI.getLatestRelease()
-            if (!response.isSuccessful) return UpdateCheckResult.UpToDate
-
-            val release = response.body() ?: return UpdateCheckResult.UpToDate
-            val latest = release.tagName.trimStart('v')
-            val current = BuildConfig.VERSION_NAME.trimStart('v')
-
-            if (isNewer(latest, current) && skipped != latest) {
-                UpdateCheckResult.UpdateAvailable(
-                    ReleaseInfo(
-                        latestVersion = latest,
-                        releaseUrl = release.htmlUrl,
-                        releaseNotes = release.body?.take(300) ?: "",
-                    )
-                )
-            } else {
-                UpdateCheckResult.UpToDate
-            }
+            fetchLatestRelease()
         } catch (e: Exception) {
-            Log.i("CHECK_UPDATE", "Request Failed", e)
+            logger.i(TAG, "Update check failed", e)
             UpdateCheckResult.UpToDate
         }
     }
 
-    private fun isNewer(candidate: String, current: String): Boolean {
-        fun parse(v: String) = v.split(".").map { it.toIntOrNull() ?: 0 }
-        val c = parse(candidate)
-        val cur = parse(current)
-        val len = maxOf(c.size, cur.size)
-        for (i in 0 until len) {
-            val diff = (c.getOrElse(i) { 0 }) - (cur.getOrElse(i) { 0 })
-            if (diff != 0) return diff > 0
+    private suspend fun fetchLatestRelease(): UpdateCheckResult {
+        val release = gitHubAPI.getLatestRelease()
+            .takeIf { it.isSuccessful }
+            ?.body()
+            ?: run {
+                logger.i(TAG, "Update check returned no usable response")
+                return UpdateCheckResult.UpToDate
+            }
+
+        val latest = release.tagName.toCleanVersion()
+        val current = BuildConfig.VERSION_NAME.toCleanVersion()
+        val skipped = updatePreferences.skippedVersion.first()
+
+        return when {
+            !latest.isNewerThan(current) -> UpdateCheckResult.UpToDate
+            latest == skipped -> UpdateCheckResult.UpToDate
+            else -> UpdateCheckResult.UpdateAvailable(release.toReleaseInfo(latest))
         }
-        return false
     }
+
+    private fun GitHubReleaseDTO.toReleaseInfo(resolvedVersion: String) = ReleaseInfo(
+        latestVersion = resolvedVersion,
+        releaseUrl = htmlUrl,
+        releaseNotes = body?.toTruncatedNotes() ?: "",
+    )
+
+    companion object {
+        const val TAG = "UpdateChecker"
+    }
+}
+
+private fun String.toCleanVersion() = trimStart('v')
+
+private fun String.toTruncatedNotes() = take(RELEASE_NOTES_MAX_CHARS) // or trimToLastLine()
+
+private fun String.isNewerThan(other: String): Boolean {
+    val candidate = parseVersion()
+    val current = other.parseVersion()
+    val len = maxOf(candidate.size, current.size)
+    for (i in 0 until len) {
+        val diff = candidate.getOrElse(i) { 0 } - current.getOrElse(i) { 0 }
+        if (diff != 0) return diff > 0
+    }
+    return false
+}
+
+private fun String.parseVersion() = split(".").map { part ->
+    part.filter(Char::isDigit).toIntOrNull() ?: 0
 }
