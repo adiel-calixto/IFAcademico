@@ -1,11 +1,11 @@
 package com.adielcalixto.ifacademico.data.remote
 
-import com.adielcalixto.ifacademico.BuildConfig
 import com.adielcalixto.ifacademico.data.Logger
 import com.adielcalixto.ifacademico.data.local.SettingsPreferences
 import com.adielcalixto.ifacademico.data.remote.dto.GitHubReleaseDTO
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 private const val RELEASE_NOTES_MAX_CHARS = 300
@@ -25,7 +25,8 @@ sealed class UpdateCheckResult {
 class UpdateChecker @Inject constructor(
     private val gitHubAPI: GitHubAPI,
     private val updatePreferences: SettingsPreferences,
-    private val logger: Logger
+    private val logger: Logger,
+    @Named("currentVersion") private val currentVersion: String,
 ) {
     suspend fun check(): UpdateCheckResult {
         if (!updatePreferences.isUpdateCheckEnabled.first()) {
@@ -50,11 +51,11 @@ class UpdateChecker @Inject constructor(
             }
 
         val latest = release.tagName.toCleanVersion()
-        val current = BuildConfig.VERSION_NAME.toCleanVersion()
+        val versionToCompare = currentVersion.toCleanVersion()
         val skipped = updatePreferences.skippedVersion.first()
 
         return when {
-            !latest.isNewerThan(current) -> UpdateCheckResult.UpToDate
+            !latest.isNewerThan(versionToCompare) -> UpdateCheckResult.UpToDate
             latest == skipped -> UpdateCheckResult.UpToDate
             else -> UpdateCheckResult.UpdateAvailable(release.toReleaseInfo(latest))
         }

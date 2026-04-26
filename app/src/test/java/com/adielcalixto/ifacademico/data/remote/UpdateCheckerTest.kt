@@ -25,7 +25,7 @@ class UpdateCheckerTest {
         gitHubAPI = mockk(relaxed = true)
         settings = mockk(relaxed = true)
         logger = mockk(relaxed = true)
-        updateChecker = UpdateChecker(gitHubAPI, settings, logger)
+        updateChecker = UpdateChecker(gitHubAPI, settings, logger, "2.0.0")
     }
 
     @Test

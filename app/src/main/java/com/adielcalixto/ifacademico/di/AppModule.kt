@@ -1,6 +1,7 @@
 package com.adielcalixto.ifacademico.di
 
 import android.content.Context
+import com.adielcalixto.ifacademico.BuildConfig
 import com.adielcalixto.ifacademico.data.local.CacheService
 import com.adielcalixto.ifacademico.data.local.LruCacheService
 import com.adielcalixto.ifacademico.data.local.EncryptionUtil
@@ -26,6 +27,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -105,4 +107,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLogger(): Logger = AndroidLogger
+
+    @Provides
+    @Singleton
+    @Named("currentVersion")
+    fun provideCurrentVersion(): String = BuildConfig.VERSION_NAME
 }
