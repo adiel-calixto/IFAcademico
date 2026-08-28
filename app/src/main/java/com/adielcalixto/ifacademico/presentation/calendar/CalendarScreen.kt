@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,15 +45,15 @@ private fun getLocalizedDaysOfWeek(): List<String> {
     return daysOfWeek.drop(1).map { it.substring(0..2).uppercase() }
 }
 
-@Composable
-private fun specialDateColors(type: String): Pair<Color, Color> {
+internal fun specialDateColors(type: String, scheme: ColorScheme): Pair<Color, Color> {
     return when (type) {
-        "Feriado Nacional", "Férias", "Recesso Escolar" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        "Eventos Desportivos, Socioculturais e Científicos" -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
-        "Etapa Letiva", "Início/fim de Período Letivo" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-        "Avaliação Final (af)" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
-        "Entrega de Diário", "Reunião de Colegiado de Curso" -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
-        else -> Color.Transparent to MaterialTheme.colorScheme.onSurface
+        "Feriado Nacional", "Feriado Municipal", "Férias", "Recesso Escolar", "Encontro Pedagógico" -> scheme.tertiaryContainer to scheme.onTertiaryContainer
+        "Eventos Desportivos, Socioculturais e Científicos", "Outras Datas Acadêmicas" -> scheme.secondaryContainer to scheme.onSecondaryContainer
+        "Etapa Letiva", "Início/fim de Período Letivo", "Reajuste de Matrícula" -> scheme.primaryContainer to scheme.onPrimaryContainer
+        "Avaliação Final (af)" -> scheme.errorContainer to scheme.onErrorContainer
+        "Entrega de Diário", "Reunião de Colegiado de Curso" -> scheme.surfaceVariant to scheme.onSurfaceVariant
+        "Sábado Letivo" -> scheme.surfaceContainerHigh to scheme.onSurface
+        else -> Color.Transparent to scheme.onSurface
     }
 }
 
@@ -147,7 +148,8 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                             val day = dayIndex + 1
 
                                             val specialDate = specialDatesMap[day]
-                                            val (bgColor, textColor) = specialDate?.type?.let { specialDateColors(it) } ?: (Color.Transparent to MaterialTheme.colorScheme.onSurface)
+                                            val (bgColor, textColor) = specialDate?.let { specialDateColors(it.type, MaterialTheme.colorScheme) }
+                                                ?: (Color.Transparent to MaterialTheme.colorScheme.onSurface)
 
                                             Column(
                                                 modifier = Modifier
