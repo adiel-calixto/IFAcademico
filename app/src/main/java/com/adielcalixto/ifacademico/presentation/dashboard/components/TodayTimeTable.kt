@@ -8,16 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.TimeTable
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
+import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
 
 @Composable
 internal fun TodayTimeTable(
@@ -34,8 +33,8 @@ internal fun TodayTimeTable(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 2.dp,
-        shape = RoundedCornerShape(16.dp),
+        tonalElevation = 0.dp,
+        shape = IFShapes.lg,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(
@@ -135,7 +134,7 @@ internal fun TodayTimeTable(
                         style = MaterialTheme.typography.labelMedium
                     )
                     Icon(
-                        imageVector = Icons.Filled.ChevronRight,
+                        imageVector = IFIcon.Chevron.vector,
                         contentDescription = null,
                         modifier = Modifier.size(ButtonDefaults.IconSpacing)
                     )

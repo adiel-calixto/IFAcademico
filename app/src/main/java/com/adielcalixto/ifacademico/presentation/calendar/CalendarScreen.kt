@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +33,7 @@ import com.adielcalixto.ifacademico.domain.entities.SpecialDate
 import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.calendar.components.DropdownSelect
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import java.text.DateFormatSymbols
 import java.util.Locale
 
@@ -106,8 +106,8 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                 Text(state.error!!.asUiText().asString())
             } else {
                 Surface(
-                    tonalElevation = 1.dp,
-                    shape = RoundedCornerShape(16.dp)
+                    tonalElevation = 0.dp,
+                    shape = IFShapes.lg
                 ) {
                     val firstDayOfMonth = state.selectedDate.withDayOfMonth(1)
                     val daysInMonth = state.selectedDate.lengthOfMonth()
@@ -159,7 +159,7 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
                                                 Box(
                                                     modifier = Modifier
                                                         .aspectRatio(1f)
-                                                        .background(bgColor, RoundedCornerShape(12.dp))
+                                                        .background(bgColor, IFShapes.md)
                                                         .padding(2.dp),
                                                     contentAlignment = Alignment.Center
                                                 ) {

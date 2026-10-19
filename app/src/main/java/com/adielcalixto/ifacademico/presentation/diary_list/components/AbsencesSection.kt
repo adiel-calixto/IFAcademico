@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,11 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 
 @Composable
 internal fun AbsencesSection(absences: Int, maxAbsences: Int, excusedAbsences: Int) {
     Row (modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
-        Surface (tonalElevation = 4.dp, modifier = Modifier.weight(1f).fillMaxHeight(), shape = RoundedCornerShape(12.dp)) {
+        Surface (tonalElevation = 0.dp, modifier = Modifier.weight(1f).fillMaxHeight(), shape = IFShapes.md) {
             Column (
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -33,7 +33,7 @@ internal fun AbsencesSection(absences: Int, maxAbsences: Int, excusedAbsences: I
 
         Spacer(modifier = Modifier.padding(16.dp))
 
-        Surface (tonalElevation = 4.dp, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) {
+        Surface (tonalElevation = 0.dp, modifier = Modifier.weight(1f), shape = IFShapes.md) {
             Column (
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier

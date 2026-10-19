@@ -6,12 +6,9 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +23,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFOutlinedTextField as OutlinedTextField
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -70,7 +69,7 @@ fun DropdownSelect(
                 },
             trailingIcon = {
                 Icon(
-                    Icons.Filled.KeyboardArrowDown, "Arrow",
+                    IFIcon.Down.vector, "Arrow",
                     Modifier
                         .rotate(rotation)
                 )

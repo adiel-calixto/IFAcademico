@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 
 @Composable
 fun PerformanceCoefficientCard(
@@ -21,8 +21,8 @@ fun PerformanceCoefficientCard(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 2.dp,
-        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 0.dp,
+        shape = IFShapes.md,
         modifier = modifier
     ) {
         Column(

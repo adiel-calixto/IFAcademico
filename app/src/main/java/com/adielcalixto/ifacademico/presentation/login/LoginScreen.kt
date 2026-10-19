@@ -1,28 +1,19 @@
 package com.adielcalixto.ifacademico.presentation.login
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,11 +28,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFButton as Button
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIconButton as IconButton
+import com.adielcalixto.ifacademico.presentation.designsystem.IFOutlinedTextField as OutlinedTextField
+import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
+import com.adielcalixto.ifacademico.presentation.designsystem.IFTheme
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () -> Unit) {
     val state by viewModel.state.collectAsState()
-    val isDark = isSystemInDarkTheme()
+    val isDark = IFTheme.isDark
 
     Column(
         Modifier.padding(horizontal = 24.dp, vertical = 80.dp),
@@ -70,7 +67,6 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             value = state.registration,
             onValueChange = { viewModel.onAction(LoginAction.UsernameChanged(it)) },
             label = { Text(UiText.StringResource(R.string.registration).asString()) },
-            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -83,12 +79,11 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             onValueChange = { viewModel.onAction(LoginAction.PasswordChanged(it)) },
             label = { Text(UiText.StringResource(R.string.password).asString()) },
-            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             trailingIcon = {
                 val image =
-                    if (state.showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    if (state.showPassword) IFIcon.Visibility.vector else IFIcon.VisibilityOff.vector
                 val description =
                     UiText.StringResource(if (state.showPassword) R.string.hide_password else R.string.show_password)
                         .asString()
@@ -110,9 +105,8 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
                     viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess))
                 }
             },
-            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
-                .height(50.dp)
+                .heightIn(min = 48.dp)
                 .fillMaxWidth(),
             enabled = !state.loading,
         ) {
@@ -133,7 +127,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             Spacer(modifier = Modifier.height(16.dp))
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
@@ -176,7 +170,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
             AlertDialog(
                 icon = {
                     Icon(
-                        Icons.Filled.Warning,
+                        IFIcon.Warning.vector,
                         contentDescription = UiText.StringResource(R.string.warning).asString()
                     )
                 },

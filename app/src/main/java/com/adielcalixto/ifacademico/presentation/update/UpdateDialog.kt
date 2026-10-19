@@ -5,23 +5,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.data.remote.ReleaseInfo
-import androidx.core.net.toUri
+import com.adielcalixto.ifacademico.presentation.designsystem.IFButton as Button
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
 
 @Composable
 fun UpdateDialog(
@@ -34,19 +34,19 @@ fun UpdateDialog(
         onDismissRequest = onSkipClick,
         icon = {
             Icon(
-                imageVector = Icons.Filled.SystemUpdate,
+                imageVector = IFIcon.Update.vector,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = {
-            Text("${context.getString(R.string.update_available)} - ${info.latestVersion}", style = MaterialTheme.typography.titleMedium)
+            Text("${stringResource(R.string.update_available)} - ${info.latestVersion}", style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = context.getString(R.string.new_version_available),
+                    text = stringResource(R.string.new_version_available),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 if (info.releaseNotes.isNotBlank()) {
@@ -69,12 +69,12 @@ fun UpdateDialog(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(context.getString(R.string.view_release))
+                Text(stringResource(R.string.view_release))
             }
         },
         dismissButton = {
             TextButton(onClick = onSkipClick) {
-                Text(context.getString(R.string.not_now))
+                Text(stringResource(R.string.not_now))
             }
         }
     )

@@ -13,16 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Room
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -45,6 +37,9 @@ import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.IndividualTimeTable
 import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIconButton as IconButton
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import java.text.DateFormatSymbols
 import java.time.LocalTime
 import java.util.Locale
@@ -142,8 +137,8 @@ internal fun IndividualTimeTableSection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Surface(
-            tonalElevation = 1.dp,
-            shape = RoundedCornerShape(16.dp)
+            tonalElevation = 0.dp,
+            shape = IFShapes.lg
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 NavigationBar(onReturnClicked = onReturnClicked)
@@ -160,7 +155,7 @@ internal fun IndividualTimeTableSection(
                     verticalAlignment = Alignment.CenterVertically,
                     ) {
                     Icon(
-                        imageVector = Icons.Filled.Info,
+                        imageVector = IFIcon.Info.vector,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -194,7 +189,7 @@ internal fun NavigationBar(onReturnClicked: () -> Unit) {
     ) {
         IconButton(onClick = onReturnClicked) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = IFIcon.Back.vector,
                 contentDescription = "Return button"
             )
         }
@@ -230,7 +225,7 @@ internal fun Schedule(
                         .weight(1f)
                         .aspectRatio(2f)
                         .padding(2.dp)
-                        .background(bgColor, RoundedCornerShape(10.dp)),
+                        .background(bgColor, IFShapes.md),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -272,7 +267,7 @@ internal fun Schedule(
                             .weight(1f)
                             .aspectRatio(1.1f)
                             .padding(5.dp)
-                            .background(bgColor, RoundedCornerShape(10.dp))
+                            .background(bgColor, IFShapes.md)
                             .then(
                                 if (course != null) Modifier.clickable { onCourseClicked(course) }
                                 else Modifier
@@ -322,7 +317,7 @@ private fun CourseBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Schedule,
+                    imageVector = IFIcon.Clock.vector,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.primary
@@ -340,7 +335,7 @@ private fun CourseBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Room,
+                    imageVector = IFIcon.Room.vector,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.primary
@@ -358,7 +353,7 @@ private fun CourseBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Person,
+                    imageVector = IFIcon.Profile.vector,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.primary

@@ -1,7 +1,6 @@
 package com.adielcalixto.ifacademico.presentation.student_info
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,25 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,10 +36,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Student
-import com.adielcalixto.ifacademico.presentation.Theme
 import com.adielcalixto.ifacademico.presentation.ThemeViewModel
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.asUiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
+import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
+import com.adielcalixto.ifacademico.presentation.designsystem.IFThemeSelector
+import com.adielcalixto.ifacademico.presentation.designsystem.IFUpdateSwitch
 
 @Composable
 fun StudentInfoScreen(
@@ -63,7 +52,6 @@ fun StudentInfoScreen(
     onLogout: () -> Unit
 ) {
     var openLogoutDialog by remember { mutableStateOf(false) }
-    var dropDownExpanded by remember { mutableStateOf(false) }
     val themeViewModel: ThemeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
     val theme by themeViewModel.theme.collectAsState()
 
@@ -78,10 +66,10 @@ fun StudentInfoScreen(
         Surface(
             modifier = Modifier.size(80.dp),
             shape = CircleShape,
-            tonalElevation = 1.dp
+            tonalElevation = 0.dp
         ) {
             Icon(
-                imageVector = Icons.Filled.Person,
+                imageVector = IFIcon.Profile.vector,
                 contentDescription = "Profile Icon",
                 modifier = Modifier
                     .size(50.dp)
@@ -105,8 +93,8 @@ fun StudentInfoScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Surface(
-            shape = RoundedCornerShape(12.dp),
-            tonalElevation = 1.dp
+            shape = IFShapes.md,
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -120,46 +108,11 @@ fun StudentInfoScreen(
                     modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = { dropDownExpanded = !dropDownExpanded })
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Filled.DarkMode, contentDescription = "Theme Icon")
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        UiText.StringResource(R.string.theme).asString(),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-                        Row {
-                            Text(theme.asUiText().asString())
-                            Spacer(modifier = Modifier.padding(2.dp))
-                            Icon(Icons.Filled.ArrowDropDown, "Arrow down")
-                        }
-                        DropdownMenu(
-                            modifier = Modifier.padding(4.dp),
-                            expanded = dropDownExpanded,
-                            onDismissRequest = {
-                                dropDownExpanded = false
-                            }) {
-                            Theme.entries.forEach { colorscheme ->
-                                DropdownMenuItem(
-                                    onClick = {
-                                        dropDownExpanded = false
-                                        themeViewModel.changeTheme(colorscheme)
-                                    }, text = {
-                                        Box(contentAlignment = Alignment.CenterEnd) {
-                                            Text(colorscheme.asUiText().asString())
-                                        }
-                                    })
-                            }
-                        }
-                    }
-                }
+                IFThemeSelector(
+                    theme = theme,
+                    onThemeChange = themeViewModel::changeTheme,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                )
 
                 HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
 
@@ -170,7 +123,7 @@ fun StudentInfoScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.SystemUpdate,
+                        imageVector = IFIcon.Update.vector,
                         contentDescription = "Update Icon"
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -178,9 +131,9 @@ fun StudentInfoScreen(
                         UiText.StringResource(R.string.check_for_updates).asString(),
                         modifier = Modifier.weight(1f)
                     )
-                    Switch(
+                    IFUpdateSwitch(
                         checked = isUpdateCheckEnabled,
-                        onCheckedChange = onUpdateCheckEnabledChange
+                        onCheckedChange = onUpdateCheckEnabledChange,
                     )
                 }
 
@@ -190,12 +143,12 @@ fun StudentInfoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { openLogoutDialog = true }
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(IFShapes.md)
                         .padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Logout,
+                        imageVector = IFIcon.Logout.vector,
                         contentDescription = "Logout",
                         tint = MaterialTheme.colorScheme.error
                     )
@@ -211,7 +164,7 @@ fun StudentInfoScreen(
                     AlertDialog(
                         icon = {
                             Icon(
-                                Icons.Filled.Warning,
+                                IFIcon.Warning.vector,
                                 contentDescription = "Logout Warning",
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
@@ -228,6 +181,7 @@ fun StudentInfoScreen(
                         onDismissRequest = { openLogoutDialog = false },
                         confirmButton = {
                             TextButton(
+                                destructive = true,
                                 onClick = { openLogoutDialog = false; onLogout() }
                             ) {
                                 Text(UiText.StringResource(R.string.confirm).asString())
@@ -266,7 +220,7 @@ fun StudentInfoScreen(
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Code,
+                    imageVector = IFIcon.Code.vector,
                     contentDescription = "GitHub",
                     modifier = Modifier.size(16.dp)
                 )

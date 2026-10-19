@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.domain.entities.Diary
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
 
 fun Modifier.leftBorder(
@@ -107,7 +106,7 @@ private fun DiaryItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(IFShapes.md)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
             .leftBorder(
@@ -134,7 +133,7 @@ private fun DiaryItem(
             }
 
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = IFIcon.Chevron.vector,
                 contentDescription = "Go to details",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)

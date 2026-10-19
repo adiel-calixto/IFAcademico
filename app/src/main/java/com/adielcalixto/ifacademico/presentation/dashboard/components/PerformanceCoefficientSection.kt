@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.PerformanceCoefficients
 import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 
 @Composable
 internal fun PerformanceCoefficientSection(
@@ -25,8 +25,8 @@ internal fun PerformanceCoefficientSection(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(16.dp),
+        tonalElevation = 0.dp,
+        shape = IFShapes.lg,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(

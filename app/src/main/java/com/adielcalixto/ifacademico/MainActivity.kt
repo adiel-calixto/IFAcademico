@@ -14,8 +14,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -29,12 +29,12 @@ import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import com.adielcalixto.ifacademico.presentation.AppTheme
 import com.adielcalixto.ifacademico.presentation.MainState
 import com.adielcalixto.ifacademico.presentation.MainViewModel
+import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
+import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
 import com.adielcalixto.ifacademico.presentation.components.BottomNavigationBar
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
 import com.adielcalixto.ifacademico.presentation.components.TopBar
-import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
-import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardViewModel
 import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailScreen
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme() {
-                Surface(modifier = Modifier.fillMaxHeight()) {
+                Surface(modifier = Modifier.fillMaxHeight(), color = androidx.compose.material3.MaterialTheme.colorScheme.background) {
                     App()
                 }
             }

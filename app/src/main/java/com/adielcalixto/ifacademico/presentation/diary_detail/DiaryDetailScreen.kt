@@ -16,14 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -43,6 +39,9 @@ import com.adielcalixto.ifacademico.domain.entities.Exam
 import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.designsystem.IFIconButton as IconButton
+import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import com.adielcalixto.ifacademico.presentation.diary_list.components.ClassesSummary
 import java.time.format.DateTimeFormatter
 
@@ -77,7 +76,7 @@ fun DiaryDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = IFIcon.Back.vector,
                             contentDescription = "Back"
                         )
                     }
@@ -117,8 +116,8 @@ fun DiaryDetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Surface(
-                        tonalElevation = 1.dp,
-                        shape = RoundedCornerShape(12.dp),
+                        tonalElevation = 0.dp,
+                        shape = IFShapes.md,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
@@ -141,8 +140,8 @@ fun DiaryDetailScreen(
 @Composable
 private fun AbsencesCard(absences: Int, maxAbsences: Int) {
     Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(12.dp)
+        tonalElevation = 0.dp,
+        shape = IFShapes.md
     ) {
         Column(
             modifier = Modifier
@@ -183,8 +182,8 @@ private fun StatCard(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 0.dp,
+        shape = IFShapes.md,
         modifier = modifier
     ) {
         Column(
@@ -215,8 +214,8 @@ private fun ClassesCard(
     pendingClasses: Int
 ) {
     Surface(
-        tonalElevation = 1.dp,
-        shape = RoundedCornerShape(12.dp)
+        tonalElevation = 0.dp,
+        shape = IFShapes.md
     ) {
         Column(
             modifier = Modifier
@@ -288,7 +287,7 @@ private fun BimestreSection(
         ) {
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(4.dp)
+                shape = IFShapes.xs
             ) {
                 Text(
                     text = stepId,
@@ -351,7 +350,7 @@ private fun ExamTimelineItem(
 
         Surface(
             color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(8.dp),
+            shape = IFShapes.sm,
             modifier = Modifier.weight(1f)
         ) {
             Row(
@@ -365,7 +364,7 @@ private fun ExamTimelineItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(4.dp)
+                            shape = IFShapes.xs
                         ) {
                             Text(
                                 text = exam.acronym,
@@ -447,7 +446,7 @@ private fun AveragesSection(exams: List<Exam>) {
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-        shape = RoundedCornerShape(12.dp)
+        shape = IFShapes.md
     ) {
         Column(
             modifier = Modifier
@@ -479,7 +478,7 @@ private fun AveragesSection(exams: List<Exam>) {
                     )
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(16.dp)
+                        shape = IFShapes.lg
                     ) {
                         Text(
                             text = if (avg.hasGrade) {
