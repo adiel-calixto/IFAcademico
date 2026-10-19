@@ -140,9 +140,9 @@ class GradesInteractionTest {
     @Test
     fun zeroGradeAndMissingResultDateAndFormulaRemainDistinct() {
         compose.setContent { Host(PreviewGrades.copy(sheet = GradesSheet.Subject(1))) {} }
-        compose.onNodeWithText("0").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.assessment_score, "0")).performScrollTo().assertIsDisplayed()
         compose.onAllNodesWithText(label(R.string.not_graded)).assertCountEquals(2)
-        compose.onAllNodesWithText(label(R.string.date_not_supplied)).assertCountEquals(3)
+        compose.onAllNodesWithText(label(R.string.date_not_supplied), substring = true).assertCountEquals(3)
         compose.onNodeWithText("(A1 + A2) / 2").performScrollTo().assertIsDisplayed()
     }
 

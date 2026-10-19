@@ -308,15 +308,20 @@ The weekly timetable opens from the action beside Today's classes. It presents w
 
 Subject rows show name, teacher, assessment count, and workload hours, with a chevron. Names use the same 16sp/500 `detail-title` style as Home class rows. Keep the main list compact; tapping opens the detailed panel.
 
-The panel starts with subject identity and context, then presents Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses an explicit warning label as well as amber color. The native
+The panel uses a wrapping 16sp/600 `title-sm` subject heading, followed by teacher and period context, then Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses a compact 12sp `label-sm` warning aligned right below the usage percentage, with amber `notice`/`on-notice` colors and 8dp horizontal/4dp vertical padding. The warning wraps at enlarged text sizes. The native
 page warns at 80% of the allowance used. When the maximum is zero, show the supplied
 counts without a usage percentage or progress bar.
 
 Workload hours remain in the subject list. Grade details omit a separate class-progress section.
 
 Assessments are grouped by stage in API display order, with calculated averages
-included within their stage. Each row balances description, acronym, and date
-against grade and maximum score. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
+included within their stage. Compact flat rows show the 16sp description on the left and a
+16sp semibold system-font labeled grade (`Grade: 8.5`) on the right, with a smaller
+`Maximum: 10` below it. Acronym and date share a
+14sp secondary metadata line. Ungraded records show “Not graded” with the maximum
+below it. Rows stack the score below the description and metadata when available width
+is below 280dp multiplied by the font scale; otherwise the score occupies at most 40%
+of the row. Text wraps without truncation. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
 
 ### Calendar and event rows
 

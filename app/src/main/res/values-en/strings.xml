@@ -86,6 +86,8 @@
     <string name="planned_classes">Planned classes</string>
     <string name="date_not_supplied">Date not supplied</string>
     <string name="not_graded">Not graded</string>
+    <string name="assessment_score">Grade: %1$s</string>
+    <string name="assessment_metadata">%1$s · %2$s</string>
     <string name="maximum_score">Maximum: %1$s</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>

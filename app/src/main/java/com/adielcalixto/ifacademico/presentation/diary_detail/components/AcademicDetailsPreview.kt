@@ -17,7 +17,11 @@ internal fun AcademicDetailsPreview() = Catalog {
     IFAttendanceSummary(IFAttendanceRecord(18, 20, 2, 1, true))
     IFAttendanceSummary(IFAttendanceRecord(0, 0, 0, 0, false))
     IFAssessments(listOf(
-        IFAssessmentStage("Stage 1", listOf(SampleAssessment)),
+        IFAssessmentStage("Stage 1", listOf(
+            SampleAssessment.copy(formula = null),
+            SampleAssessment.copy(description = "Practical assignment", acronym = "A2", grade = "0", formula = null),
+            SampleAssessment.copy(description = "Stage average", acronym = "Average", date = null),
+        )),
         IFAssessmentStage("Stage 2", listOf(SampleAssessment.copy(grade = null, date = null, formula = null))),
     ))
 }

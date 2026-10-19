@@ -122,8 +122,16 @@ workload hours. Assessment errors have a local retry inside subject details whil
 attendance remains available. Obsolete period/registration
 responses cannot replace current state.
 
-Subject sheets present attendance and assessments in that order; workload hours
-remain in subject rows. There is no separate class-progress section.
+Subject sheets use a wrapping 16sp/600 `titleSm` heading and present attendance
+and assessments in that order; workload hours remain in subject rows. There is no
+separate class-progress section. The attendance warning uses compact, right-aligned
+12sp `labelSm` text in the amber notice colors below the usage percentage.
+Assessments use flat rows with a 16sp description, combined acronym/date metadata,
+and a 16sp semibold system-font labeled grade with a smaller maximum below it. Missing grades retain a
+separate “Not graded” label and maximum. Below 280dp multiplied by the font scale,
+scores move below descriptions and metadata; wider rows limit scores to 40% of the
+available width. Formulas remain in subtle inset blocks. Shared sheet and notice
+defaults are unchanged.
 Attendance uses supplied counts and warns at 80% allowance usage; a zero maximum
 omits the percentage and progress bar. Assessments follow API display order and
 are grouped by stage, with averages inline and supplied formulas visible. Numbers

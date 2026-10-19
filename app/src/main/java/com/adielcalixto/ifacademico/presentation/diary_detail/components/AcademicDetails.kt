@@ -5,13 +5,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.components.IFEmptyState
-import com.adielcalixto.ifacademico.presentation.components.IFNotice
 import com.adielcalixto.ifacademico.presentation.components.IFRecord
 import com.adielcalixto.ifacademico.presentation.components.IFSectionTitle
 
@@ -38,7 +41,21 @@ fun IFAttendanceSummary(record: IFAttendanceRecord, modifier: Modifier = Modifie
                 Text(stringResource(R.string.absence_usage_percent, kotlin.math.round(usage * 100).toInt()),
                     style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
             }
-            if (record.lowAllowance) IFNotice(stringResource(R.string.low_attendance_allowance))
+            if (record.lowAllowance) {
+                Surface(
+                    modifier = Modifier.align(Alignment.End),
+                    color = IFTheme.colors.notice,
+                    contentColor = IFTheme.colors.onNotice,
+                    shape = IFShapes.sm
+                ) {
+                    Text(
+                        stringResource(R.string.low_attendance_allowance),
+                        Modifier.padding(horizontal = IFSpacing.xs, vertical = IFSpacing.micro),
+                        style = IFTheme.typography.labelSm,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
         }
     }
 }
@@ -53,20 +70,23 @@ data class IFAssessmentStage(val label: String, val assessments: List<IFAssessme
 fun IFAssessmentRow(record: IFAssessmentRecord, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(vertical = IFSpacing.sm),
         verticalArrangement = Arrangement.spacedBy(IFSpacing.xs)) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(IFSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(IFSpacing.xs)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
-                Text(record.description, style = IFTheme.typography.bodyMd, color = IFTheme.colors.onSurface)
-                Text(record.acronym, style = IFTheme.typography.labelSm, color = IFTheme.colors.secondary)
-                Text(record.date ?: stringResource(R.string.date_not_supplied),
-                    style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(record.grade ?: stringResource(R.string.not_graded),
-                    style = if (record.grade == null) IFTheme.typography.bodySm else IFTheme.typography.titleMd,
-                    color = IFTheme.colors.onSurface)
-                Text(stringResource(R.string.maximum_score, record.maximum),
-                    style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // Keep descriptions readable instead of squeezing two columns at larger font scales.
+            val stacked = maxWidth < 280.dp * LocalDensity.current.fontScale
+            if (stacked) {
+                Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.xs)) {
+                    AssessmentIdentity(record)
+                    AssessmentScore(record, stacked = true)
+                }
+            } else {
+                val scoreMaxWidth = maxWidth * .4f
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IFSpacing.md)
+                ) {
+                    AssessmentIdentity(record, Modifier.weight(1f))
+                    AssessmentScore(record, Modifier.widthIn(max = scoreMaxWidth))
+                }
             }
         }
         record.formula?.takeIf { it.isNotBlank() }?.let {
@@ -82,13 +102,54 @@ fun IFAssessmentRow(record: IFAssessmentRecord, modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun AssessmentIdentity(record: IFAssessmentRecord, modifier: Modifier = Modifier) {
+    val date = record.date ?: stringResource(R.string.date_not_supplied)
+    val metadata = if (record.acronym.isBlank()) {
+        date
+    } else {
+        stringResource(R.string.assessment_metadata, record.acronym, date)
+    }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
+        Text(record.description, style = IFTheme.typography.bodyMd, color = IFTheme.colors.onSurface)
+        Text(metadata, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
+    }
+}
+
+@Composable
+private fun AssessmentScore(
+    record: IFAssessmentRecord,
+    modifier: Modifier = Modifier,
+    stacked: Boolean = false,
+) {
+    Column(modifier, horizontalAlignment = if (stacked) Alignment.Start else Alignment.End) {
+        val textAlign = if (stacked) TextAlign.Start else TextAlign.End
+        if (record.grade != null) {
+            Text(
+                stringResource(R.string.assessment_score, record.grade),
+                style = IFTheme.typography.bodyMd.copy(fontWeight = FontWeight.SemiBold),
+                color = IFTheme.colors.onSurface,
+                textAlign = textAlign
+            )
+        } else {
+            Text(stringResource(R.string.not_graded), style = IFTheme.typography.bodySm,
+                color = IFTheme.colors.onSurface, textAlign = textAlign)
+        }
+        Text(stringResource(R.string.maximum_score, record.maximum),
+            style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary, textAlign = textAlign)
+    }
+}
+
+@Composable
 fun IFAssessments(stages: List<IFAssessmentStage>, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
         IFSectionTitle(stringResource(R.string.exams), detail = true)
         if (stages.all { it.assessments.isEmpty() }) IFEmptyState(stringResource(R.string.no_exams))
         stages.forEach { stage ->
-            Text(stage.label, style = IFTheme.typography.labelMd, color = IFTheme.colors.secondary)
-            stage.assessments.forEach { IFAssessmentRow(it) }
+            Column {
+                Text(stage.label, Modifier.padding(bottom = IFSpacing.xs),
+                    style = IFTheme.typography.labelMd, color = IFTheme.colors.secondary)
+                stage.assessments.forEach { IFAssessmentRow(it) }
+            }
         }
     }
 }
