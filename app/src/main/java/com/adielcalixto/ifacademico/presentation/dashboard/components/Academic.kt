@@ -44,7 +44,7 @@ fun IFCoefficientPanel(student: String, classValue: String, modifier: Modifier =
                 Column(horizontalAlignment = Alignment.End) {
                     Text(stringResource(R.string.class_coefficient), style = IFTheme.typography.labelSm,
                         color = IFTheme.colors.performanceSecondary)
-                    Text(classValue, style = IFTheme.typography.headlineSm,
+                    Text(classValue, style = IFTheme.typography.coefficientComparison,
                         color = IFTheme.colors.performanceSecondary)
                 }
             }

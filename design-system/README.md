@@ -17,7 +17,8 @@ and durations. Layout values use dp, text uses sp. `IFTheme.pageInset` is 20dp a
 375dp and narrower, otherwise 24dp. Host pages own safe areas and scrolling.
 
 Manrope is bundled locally with its OFL license in `assets/licenses`. The heading
-font defines 650, 700, and 750 weight instances of the variable font. Body and
+font defines genuine 500 and 600 weight instances of the variable font for subject
+names and headings, plus 750 for the unchanged wordmark. Body and
 numeric styles use Android system sans-serif. There are no runtime font downloads.
 
 The Material bridge keeps existing screens usable during migration:
@@ -34,9 +35,24 @@ The Material bridge keeps existing screens usable during migration:
 | inverseSurface / inverseOnSurface | toast / onToast |
 
 Use the named design styles directly for new components, especially `detailTitle`,
-`coefficient`, and `wordmark`. Keep ordinary borders on `outline` and form outlines
-on the stronger `inputOutline`. Default elevated Material surfaces are neutral;
+`coefficient`, `coefficientNarrow`, `coefficientComparison`, and `wordmark`.
+Keep ordinary borders on `outline` and form outlines on the stronger `inputOutline`.
+Default elevated Material surfaces are neutral;
 avoid adding tonal elevation to ordinary rows.
+
+### Typography hierarchy
+
+Headlines use 28/36, 24/32, and 22/30sp size/line-height pairs at weight 600.
+Titles use 20/28, 18/26, and 16/24sp at weight 600. `detailTitle` uses
+16/24sp at weight 500 for subject rows and detail sections. Headings have neutral
+tracking; avoid local bold overrides that bypass the shared hierarchy.
+
+The student coefficient uses system sans-serif at 36/44sp, weight 500, and -1sp
+tracking; `coefficientNarrow` uses 32/40sp at weight 500 at 375dp and narrower.
+`coefficientComparison` uses 20/28sp, weight 400, and neutral tracking for the class
+coefficient. Body text, metadata, controls, and branding retain their existing
+styles. Text wraps naturally and respects system font scaling; review narrow
+layouts with enlarged text up to 200%.
 
 ## Component ownership
 
@@ -78,16 +94,17 @@ does not install updates or prove that an update occurred.
 ## Reviewing and extending
 
 Open the feature and shared `*Preview.kt` files in Android Studio. Preview groups have light, dark,
-and 360dp enlarged-text variants. Sample data is local and never connects to an
+and 360dp enlarged-text variants at 160% and 200%. Sample data is local and never connects to an
 institutional account. Switch to interactive preview for control behavior.
 
 Home now follows the prototype: server date, charcoal coefficient panel, and flat
 class rows. Timetable opens a weekday sheet; class details open from either Today
 or the timetable, with nested Back navigation and focus restoration. Timetable
 loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`
-format. Class rows use 17sp Manrope titles and class-detail sheets use 19sp
-headings; status is omitted from the detail fields. Its period remains the first API period,
-independent of Grades selection. Missing periods have an explicit empty state.
+format. Home, timetable, and Grades rows share 16sp/500 Manrope subject names;
+class-detail sheets use 16sp/600 headings; status is omitted from the detail fields.
+Its period remains the first API period, independent of Grades selection.
+Missing periods have an explicit empty state.
 
 Grades now uses a flat subject list with period context and a header period picker.
 Both the picker and subject details use sliding sheets with focus restoration. The

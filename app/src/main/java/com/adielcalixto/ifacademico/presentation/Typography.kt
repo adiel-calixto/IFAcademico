@@ -13,36 +13,54 @@ import com.adielcalixto.ifacademico.R
 
 @OptIn(ExperimentalTextApi::class)
 internal val Manrope = FontFamily(
-    listOf(650, 700, 750).map { weight ->
-        Font(R.font.manrope, FontWeight(weight),
-            variationSettings = FontVariation.Settings(FontVariation.weight(weight)))
+    listOf(500, 600, 750).map { weight ->
+        Font(
+            R.font.manrope,
+            FontWeight(weight),
+            variationSettings = FontVariation.Settings(FontVariation.weight(weight))
+        )
     }
 )
-private fun heading(size: Int, weight: Int, line: Float, tracking: Float = 0f) = TextStyle(
-    fontFamily = Manrope, fontWeight = FontWeight(weight), fontSize = size.sp,
-    lineHeight = (size * line).sp, letterSpacing = tracking.sp,
+
+private fun heading(size: Int, weight: Int, lineHeight: Int, tracking: Float = 0f) = TextStyle(
+    fontFamily = Manrope,
+    fontWeight = FontWeight(weight),
+    fontSize = size.sp,
+    lineHeight = lineHeight.sp,
+    letterSpacing = tracking.sp,
 )
-private fun system(size: Int, weight: Int = 400, line: Float = 1.5f, tracking: Float = 0f) = TextStyle(
-    fontFamily = FontFamily.SansSerif, fontWeight = FontWeight(weight), fontSize = size.sp,
-    lineHeight = (size * line).sp, letterSpacing = tracking.sp,
+
+private fun system(
+    size: Int,
+    weight: Int = 400,
+    lineHeight: Float = size * 1.5f,
+    tracking: Float = 0f,
+) = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight(weight),
+    fontSize = size.sp,
+    lineHeight = lineHeight.sp,
+    letterSpacing = tracking.sp,
 )
+
 @Immutable
 class IFTypography internal constructor() {
-    val headlineLg = heading(34, 650, 1.2f, -1f)
-    val headlineMd = heading(26, 650, 1.2f, -1f)
-    val headlineSm = heading(24, 650, 1.3f, -.5f)
-    val titleLg = heading(22, 700, 1.4f)
-    val titleMd = heading(20, 700, 1.4f, -.4f)
-    val titleSm = heading(19, 700, 1.4f, -.4f)
-    val detailTitle = heading(17, 700, 1.45f)
+    val headlineLg = heading(28, 600, 36)
+    val headlineMd = heading(24, 600, 32)
+    val headlineSm = heading(22, 600, 30)
+    val titleLg = heading(20, 600, 28)
+    val titleMd = heading(18, 600, 26)
+    val titleSm = heading(16, 600, 24)
+    val detailTitle = heading(16, 500, 24)
     val bodyMd = system(16)
     val bodySm = system(14)
     val labelMd = system(14, 650)
     val labelSm = system(12, 600)
     val caption = system(11)
-    val coefficient = system(52, 500, 1.2f, -3f)
-    val coefficientNarrow = system(40, 500, 1.2f, -3f)
-    val wordmark = heading(20, 750, 1.5f, -.75f)
+    val coefficient = system(36, weight = 500, lineHeight = 44f, tracking = -1f)
+    val coefficientNarrow = system(32, weight = 500, lineHeight = 40f, tracking = -1f)
+    val coefficientComparison = system(20, lineHeight = 28f)
+    val wordmark = heading(20, 750, 30, -.75f)
 
     internal val material = Typography(
         displayLarge = headlineLg, displayMedium = headlineMd, displaySmall = headlineSm,

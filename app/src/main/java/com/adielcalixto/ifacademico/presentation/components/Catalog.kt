@@ -14,6 +14,7 @@ import com.adielcalixto.ifacademico.presentation.IFTheme
 @Preview(name = "Light", widthDp = 412, heightDp = 1000, showBackground = true)
 @Preview(name = "Dark", widthDp = 412, heightDp = 1000, uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Preview(name = "Narrow, enlarged text", widthDp = 360, heightDp = 1200, fontScale = 1.6f, showBackground = true)
+@Preview(name = "Narrow, 200% text", widthDp = 360, heightDp = 1200, fontScale = 2f, showBackground = true)
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 annotation class IFCatalogPreviews

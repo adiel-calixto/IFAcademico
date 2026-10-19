@@ -45,44 +45,46 @@ colors:
 typography:
   headline-lg:
     fontFamily: Manrope
-    fontSize: 34px
-    fontWeight: 650
-    lineHeight: 1.2
-    letterSpacing: -1px
+    fontSize: 28px
+    fontWeight: 600
+    lineHeight: 36px
+    letterSpacing: 0px
   headline-md:
     fontFamily: Manrope
-    fontSize: 26px
-    fontWeight: 650
-    lineHeight: 1.2
-    letterSpacing: -1px
+    fontSize: 24px
+    fontWeight: 600
+    lineHeight: 32px
+    letterSpacing: 0px
   headline-sm:
     fontFamily: Manrope
-    fontSize: 24px
-    fontWeight: 650
-    lineHeight: 1.3
-    letterSpacing: -0.5px
+    fontSize: 22px
+    fontWeight: 600
+    lineHeight: 30px
+    letterSpacing: 0px
   title-lg:
     fontFamily: Manrope
-    fontSize: 22px
-    fontWeight: 700
-    lineHeight: 1.4
+    fontSize: 20px
+    fontWeight: 600
+    lineHeight: 28px
+    letterSpacing: 0px
   title-md:
     fontFamily: Manrope
-    fontSize: 20px
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: -0.4px
+    fontSize: 18px
+    fontWeight: 600
+    lineHeight: 26px
+    letterSpacing: 0px
   title-sm:
     fontFamily: Manrope
-    fontSize: 19px
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: -0.4px
+    fontSize: 16px
+    fontWeight: 600
+    lineHeight: 24px
+    letterSpacing: 0px
   detail-title:
     fontFamily: Manrope
-    fontSize: 17px
-    fontWeight: 700
-    lineHeight: 1.45
+    fontSize: 16px
+    fontWeight: 500
+    lineHeight: 24px
+    letterSpacing: 0px
   body-md:
     fontFamily: system-ui, sans-serif
     fontSize: 16px
@@ -110,10 +112,22 @@ typography:
     lineHeight: 1.5
   coefficient:
     fontFamily: system-ui, sans-serif
-    fontSize: 52px
+    fontSize: 36px
     fontWeight: 500
-    lineHeight: 1.2
-    letterSpacing: -3px
+    lineHeight: 44px
+    letterSpacing: -1px
+  coefficient-narrow:
+    fontFamily: system-ui, sans-serif
+    fontSize: 32px
+    fontWeight: 500
+    lineHeight: 40px
+    letterSpacing: -1px
+  coefficient-comparison:
+    fontFamily: system-ui, sans-serif
+    fontSize: 20px
+    fontWeight: 400
+    lineHeight: 28px
+    letterSpacing: 0px
   wordmark:
     fontFamily: Manrope
     fontSize: 20px
@@ -233,11 +247,11 @@ Tokens without a `-dark` suffix define light mode. The matching suffixed token s
 
 Use Manrope for headings, subject names, the wordmark, and the initials avatar. Use the platform system sans-serif for body copy, times, scores, and controls. The wordmark always reads **IFAcademico**, with that exact capitalization, alongside a compact IF mark.
 
-Reserve `headline-lg` for a true page title when needed; the interface does not require a title above every screen. Profile uses `headline-md`; sliding panels use `headline-sm`. Subject rows use `title-md`, section headings use `title-sm`, and detail sections use `detail-title`.
+Reserve `headline-lg` for a true page title when needed; the interface does not require a title above every screen. Profile identity uses `title-lg`; sliding panels use `headline-sm`. Home, timetable, and Grades subject rows share the 16sp medium-weight `detail-title` style. Section headings use the 16sp semibold `title-sm`; detail sections use `detail-title`. Headings use medium or semibold weights and neutral tracking so repeated academic records remain calm and easy to scan.
 
 Body text uses `body-md`; supporting descriptions use `body-sm`. Labels and metadata are smaller and subordinate. Keep essential information readable when text is enlarged. Captions must not become the sole carrier of an action or error.
 
-Coefficient numerals use the `coefficient` style, scaling down toward 40px on narrow layouts. Keep times, grades, and their units together. Names and descriptions wrap naturally rather than shrinking to fit. Never use serif display type.
+Student coefficient numerals use the medium-weight 36sp `coefficient` style, switching to the medium-weight 32sp `coefficient-narrow` style at 375dp and narrower. The class coefficient uses the regular-weight 20sp `coefficient-comparison` system-font style. Native sizes and line heights use sp and honor system font scaling, including enlarged text up to 200%. Keep times, grades, and their units together. Names and descriptions wrap naturally rather than shrinking to fit. Never use serif display type.
 
 ## Layout
 
@@ -279,13 +293,13 @@ Show the student coefficient as the dominant numeral and the class coefficient a
 
 ### Class rows and weekly timetable
 
-Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home class names use the 17sp Manrope `detail-title` style; class-detail sheet headings use the 19sp `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. A trailing chevron indicates read-only detail.
+Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home and timetable class names use the 16sp/500 Manrope `detail-title` style, matching Grades subject names; class-detail sheet headings use the 16sp/600 `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. A trailing chevron indicates read-only detail.
 
 The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Nested class details provide a return path to the timetable. The calendar page does not contain this schedule.
 
 ### Subject rows and grade details
 
-Subject rows show name, teacher, assessment count, and workload hours, with a chevron. Keep the main list compact; tapping opens the detailed panel.
+Subject rows show name, teacher, assessment count, and workload hours, with a chevron. Names use the same 16sp/500 `detail-title` style as Home class rows. Keep the main list compact; tapping opens the detailed panel.
 
 The panel starts with subject identity and context, then presents Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses an explicit warning label as well as amber color. The native
 page warns at 80% of the allowance used. When the maximum is zero, show the supplied

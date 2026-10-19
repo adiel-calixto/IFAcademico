@@ -22,7 +22,7 @@ fun IFSubjectRow(subject: IFSubjectRecord, onClick: () -> Unit, modifier: Modifi
         Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)
             .padding(vertical = IFSpacing.md), horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
-                Text(subject.name, style = IFTheme.typography.titleMd, color = IFTheme.colors.onSurface)
+                Text(subject.name, style = IFTheme.typography.detailTitle, color = IFTheme.colors.onSurface)
                 Text(subject.teacher, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
                 Text(subject.assessmentCount?.let {
                     pluralStringResource(R.plurals.subject_assessments, it, it, subject.hours)

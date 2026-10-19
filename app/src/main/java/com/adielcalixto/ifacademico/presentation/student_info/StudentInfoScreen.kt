@@ -82,7 +82,6 @@ fun StudentInfoScreen(
         Text(
             text = student.name,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
         )
 
         Text(
@@ -104,7 +103,6 @@ fun StudentInfoScreen(
                 Text(
                     text = UiText.StringResource(R.string.preferences).asString(),
                     style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
                 )
 
