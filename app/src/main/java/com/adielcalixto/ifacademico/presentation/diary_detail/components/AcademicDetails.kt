@@ -3,7 +3,7 @@ package com.adielcalixto.ifacademico.presentation.diary_detail.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.adielcalixto.ifacademico.R
@@ -28,26 +28,18 @@ fun IFAttendanceSummary(record: IFAttendanceRecord, modifier: Modifier = Modifie
             IFRecord(stringResource(R.string.max_absences), record.maximum.toString())
             IFRecord(stringResource(R.string.remaining_absences), record.remaining.toString())
             IFRecord(stringResource(R.string.excused_absences), record.excused.toString())
-            LinearProgressIndicator(
-                progress = { if (record.maximum > 0) (record.absences.toFloat() / record.maximum).coerceIn(0f, 1f) else 0f },
-                modifier = Modifier.fillMaxWidth(), color = IFTheme.colors.primary, trackColor = IFTheme.colors.outline,
-            )
-            Text(stringResource(R.string.absence_usage, record.absences, record.maximum), style = IFTheme.typography.bodySm)
+            if (record.maximum > 0) {
+                val usage = record.absences.toFloat() / record.maximum
+                LinearProgressIndicator(
+                    progress = { usage.coerceIn(0f, 1f) },
+                    modifier = Modifier.fillMaxWidth(), color = IFTheme.colors.primary,
+                    trackColor = IFTheme.colors.outline,
+                )
+                Text(stringResource(R.string.absence_usage_percent, kotlin.math.round(usage * 100).toInt()),
+                    style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
+            }
             if (record.lowAllowance) IFNotice(stringResource(R.string.low_attendance_allowance))
         }
-    }
-}
-
-data class IFClassProgressRecord(val hours: Int, val planned: Int, val taught: Int, val pending: Int)
-
-@Composable
-fun IFClassProgress(record: IFClassProgressRecord, modifier: Modifier = Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
-        IFSectionTitle(stringResource(R.string.class_progress), detail = true)
-        IFRecord(stringResource(R.string.total_hours), stringResource(R.string.hours_value, record.hours))
-        IFRecord(stringResource(R.string.planned_classes), record.planned.toString())
-        IFRecord(stringResource(R.string.taught_classes), record.taught.toString())
-        IFRecord(stringResource(R.string.pending_classes), record.pending.toString())
     }
 }
 
@@ -69,9 +61,10 @@ fun IFAssessmentRow(record: IFAssessmentRecord, modifier: Modifier = Modifier) {
                 Text(record.date ?: stringResource(R.string.date_not_supplied),
                     style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
             }
-            Column(Modifier.weight(1f)) {
+            Column(horizontalAlignment = Alignment.End) {
                 Text(record.grade ?: stringResource(R.string.not_graded),
-                    style = IFTheme.typography.labelMd, color = IFTheme.colors.onSurface)
+                    style = if (record.grade == null) IFTheme.typography.bodySm else IFTheme.typography.titleMd,
+                    color = IFTheme.colors.onSurface)
                 Text(stringResource(R.string.maximum_score, record.maximum),
                     style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
             }

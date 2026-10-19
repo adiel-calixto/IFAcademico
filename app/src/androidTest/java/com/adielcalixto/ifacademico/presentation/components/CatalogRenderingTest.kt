@@ -6,6 +6,7 @@ import com.adielcalixto.ifacademico.presentation.dashboard.DashboardPreview
 import com.adielcalixto.ifacademico.presentation.dashboard.TimetablePreview
 import com.adielcalixto.ifacademico.presentation.dashboard.ClassDetailPreview
 import com.adielcalixto.ifacademico.presentation.diary_list.components.SubjectRowPreview
+import com.adielcalixto.ifacademico.presentation.diary_list.*
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
@@ -42,7 +43,7 @@ class CatalogRenderingTest {
 
     private fun renderCatalog(appearance: String, dark: Boolean, fontScale: Float, width: Int) {
         var selected by mutableIntStateOf(0)
-        val names = listOf("controls", "chrome", "academic-rows", "academic-details", "calendar", "feedback", "sheet", "home", "timetable", "class-detail", "subjects")
+        val names = listOf("controls", "chrome", "academic-rows", "academic-details", "calendar", "feedback", "sheet", "home", "timetable", "class-detail", "subjects", "grades", "grades-period", "grades-detail")
         compose.setContent {
             val current = LocalConfiguration.current
             val configuration = remember(current) {
@@ -67,7 +68,10 @@ class CatalogRenderingTest {
                             7 -> DashboardPreview()
                             8 -> TimetablePreview()
                             9 -> ClassDetailPreview()
-                            else -> SubjectRowPreview()
+                            10 -> SubjectRowPreview()
+                            11 -> GradesPreview()
+                            12 -> GradesPeriodPreview()
+                            else -> GradesDetailPreview()
                         }
                     }
                 }
@@ -83,7 +87,7 @@ class CatalogRenderingTest {
                 }
                 assertEquals("Sheet inherits caller font scaling", fontScale, layouts.first().layoutInput.density.fontScale, .01f)
                 compose.onNode(isDialog()).assertIsDisplayed().captureToImage()
-            } else if (name == "timetable" || name == "class-detail") {
+            } else if (name == "timetable" || name == "class-detail" || name == "grades-period" || name == "grades-detail") {
                 compose.onNode(isDialog()).captureToImage()
             } else compose.onRoot().captureToImage()
             assertTrue("$appearance/$name has content", image.width > 0 && image.height > 0)

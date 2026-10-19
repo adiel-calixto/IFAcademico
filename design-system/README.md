@@ -3,7 +3,7 @@
 [DESIGN.md](../DESIGN.md) is the specification. Native Compose configuration lives directly in
 `presentation/`. Shared controls live in `presentation/components/`; page-specific
 components and previews live with their feature. `index.html` is the page redesign
-reference, now implemented for Home.
+reference, now implemented for Home and Grades.
 
 ## Theme and tokens
 
@@ -47,8 +47,8 @@ avoid adding tonal elevation to ordinary rows.
   Notices are shared by profile and attendance displays.
 - `dashboard/components/`: coefficient panel, class rows/details, weekday selector,
   and timetable content.
-- `diary_list/components/`: subject rows; `diary_detail/components/`: attendance,
-  class progress, and assessment displays.
+- `diary_list/components/`: subject rows; `diary_detail/components/`: attendance
+  and assessment displays.
 - `calendar/components/`: month grid and event panels.
 - `student_info/components/`: profile identity, settings rows, appearance selector,
   and update switch.
@@ -56,7 +56,8 @@ avoid adding tonal elevation to ordinary rows.
 `IFSlidingSheet` keeps a fixed close/back header and an independently scrolling
 body. Pass the opener's `FocusRequester` as `returnFocus`. An optional `scrollState`
 lets a host retain separate scroll positions for nested contents. Close completes
-after the exit animation; Back can return to parent content. Android animator
+after the exit animation; `dismissRequested` lets a selection request the same animated
+close before its host applies the selection. Back can return to parent content. Android animator
 scale, including disabled animation, is respected.
 
 Components take display records and callbacks, never view models, repositories,
@@ -88,14 +89,37 @@ format. Class rows use 17sp Manrope titles and class-detail sheets use 19sp
 headings; status is omitted from the detail fields. Its period remains the first API period,
 independent of Grades selection. Missing periods have an explicit empty state.
 
-Other feature pages retain their existing layouts. Academic preview components
+Grades now uses a flat subject list with period context and a header period picker.
+Both the picker and subject details use sliding sheets with focus restoration. The
+selected period and list scroll position survive navigation to Profile and other tabs;
+changing periods resets the list. Selection affects Grades only, independently of
+Home's timetable. The first API period is selected initially, with explicit states for
+missing periods, empty subjects, loading, and failures.
+
+Subjects appear before assessment counts finish loading. Up to four assessment
+requests run at once; successful responses supply both counts and detail content.
+Counts include averages returned by the API. Pending/unavailable counts show only
+workload hours. Assessment errors have a local retry inside subject details while
+attendance remains available. Obsolete period/registration
+responses cannot replace current state.
+
+Subject sheets present attendance and assessments in that order; workload hours
+remain in subject rows. There is no separate class-progress section.
+Attendance uses supplied counts and warns at 80% allowance usage; a zero maximum
+omits the percentage and progress bar. Assessments follow API display order and
+are grouped by stage, with averages inline and supplied formulas visible. Numbers
+and dates use the device locale. Nullable API/cached grades preserve zero as a grade.
+The previous full-screen detail route and legacy grade widgets have been removed.
+
+Calendar and Profile retain their existing layouts. Academic preview components
 remain available in their owning features for subsequent redesigns. The old
 `presentation/designsystem` package has been removed; the root `design-system/`
 directory contains documentation only.
 
-`DashboardPreviews.kt` provides Home, timetable, and class-detail variants. The
-instrumentation preview renderer exports component and Home images into
-`presentation-previews` under the test app's external files directory.
+`DashboardPreviews.kt` provides Home, timetable, and class-detail variants.
+`GradesPreviews.kt` provides full-page, period-picker, and subject-detail variants.
+The instrumentation preview renderer exports component, Home, and Grades images
+into `presentation-previews` under the test app's external files directory.
 
 Verify changes with:
 
@@ -106,5 +130,7 @@ Verify changes with:
 ```
 
 Unit tests cover migration, persistence, observing preferences, theme resolution,
-and ordinary-text contrast. Component tests cover selected/disabled states, switch
-semantics, modal dismissal/focus return, and safe confirmation cancellation.
+ordinary-text contrast, Grades loading/retry and stale responses, assessment
+serialization/formatting, and attendance warning boundaries. Component tests cover
+selected/disabled states, switch semantics, modal dismissal/focus return, Grades
+period selection and retained list position, and safe confirmation cancellation.

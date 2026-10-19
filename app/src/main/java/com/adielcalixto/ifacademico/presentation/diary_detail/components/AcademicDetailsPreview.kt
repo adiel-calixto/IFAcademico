@@ -16,7 +16,6 @@ internal fun AcademicDetailsPreview() = Catalog {
     IFAttendanceSummary(IFAttendanceRecord(2, 20, 18, 1, false))
     IFAttendanceSummary(IFAttendanceRecord(18, 20, 2, 1, true))
     IFAttendanceSummary(IFAttendanceRecord(0, 0, 0, 0, false))
-    IFClassProgress(IFClassProgressRecord(80, 40, 32, 8))
     IFAssessments(listOf(
         IFAssessmentStage("Stage 1", listOf(SampleAssessment)),
         IFAssessmentStage("Stage 2", listOf(SampleAssessment.copy(grade = null, date = null, formula = null))),

@@ -112,4 +112,19 @@
     <string name="weekday">Weekday</string>
     <string name="starts_at">Starts</string>
     <string name="ends_at">Ends</string>
+    <string name="choose_academic_period">Academic period</string>
+    <string name="period_number">Period %1$d</string>
+    <string name="subject_context">%1$s · %2$d / %3$d</string>
+    <string name="no_subjects">No subjects listed. Try another academic period.</string>
+    <string name="assessment_stage">Stage %1$s</string>
+    <string name="stage_not_supplied">Stage not supplied</string>
+    <string name="absence_usage_percent">%1$d%% of absence allowance used</string>
+    <plurals name="subject_count">
+        <item quantity="one">%d subject</item>
+        <item quantity="other">%d subjects</item>
+    </plurals>
+    <plurals name="subject_assessments">
+        <item quantity="one">%1$d assessment · %2$d h</item>
+        <item quantity="other">%1$d assessments · %2$d h</item>
+    </plurals>
 </resources>

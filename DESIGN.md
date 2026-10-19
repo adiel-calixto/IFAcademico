@@ -287,11 +287,15 @@ The weekly timetable opens from the action beside Today's classes. It presents w
 
 Subject rows show name, teacher, assessment count, and workload hours, with a chevron. Keep the main list compact; tapping opens the detailed panel.
 
-The panel starts with subject identity and context, then presents Attendance, Class progress, and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses an explicit warning label as well as amber color.
+The panel starts with subject identity and context, then presents Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses an explicit warning label as well as amber color. The native
+page warns at 80% of the allowance used. When the maximum is zero, show the supplied
+counts without a usage percentage or progress bar.
 
-Class progress contains total hours and planned, taught, and pending class counts. It does not require a separate Subject details section.
+Workload hours remain in the subject list. Grade details omit a separate class-progress section.
 
-Assessments are grouped by stage. Each row balances description, acronym, and date against grade and maximum score. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
+Assessments are grouped by stage in API display order, with calculated averages
+included within their stage. Each row balances description, acronym, and date
+against grade and maximum score. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
 
 ### Calendar and event panels
 
@@ -318,7 +322,7 @@ Use subdued placeholder blocks while loading, actionable retry messages for fail
 - Do keep large surfaces neutral and reserve green for interaction and focused emphasis.
 - Do preserve the moderate dark green rather than returning to pastel or highly saturated alternatives.
 - Do use Manrope headings, clear hierarchy, fine dividers, and consistent spacing.
-- Do keep attendance first in grade details and total hours within Class progress.
+- Do keep attendance first in grade details and workload hours in the subject list.
 - Do show all special dates below the month grid and keep the timetable reachable from Today.
 - Do preserve full descriptions, readable numeric values, accessible focus, and enlarged-text support.
 - Don't add redundant Grades or Calendar titles, motivational headlines, or dashboard counters.

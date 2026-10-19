@@ -5,8 +5,8 @@ import androidx.navigation.NavController
 import com.adielcalixto.ifacademico.Screen
 
 @Composable
-fun TopBar(navController: NavController) {
-    IFHeader(onProfile = {
+fun TopBar(navController: NavController, periodControl: (@Composable () -> Unit)? = null) {
+    IFHeader(periodControl = periodControl, onProfile = {
         navController.navigate(Screen.StudentInfo) {
             launchSingleTop = true
         }

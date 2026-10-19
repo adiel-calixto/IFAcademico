@@ -49,11 +49,15 @@ fun IFSlidingSheet(
     returnFocus: FocusRequester? = null,
     scrollState: ScrollState = rememberScrollState(),
     titleStyle: TextStyle = IFTheme.typography.headlineSm,
+    dismissRequested: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val hostView = LocalView.current
     val hostDensity = LocalDensity.current
     val transition = remember { MutableTransitionState(false).apply { targetState = true } }
+    LaunchedEffect(dismissRequested) {
+        if (dismissRequested) transition.targetState = false
+    }
     val closeFocus = remember { FocusRequester() }
     val currentDismiss by rememberUpdatedState(onDismiss)
     val currentReturnFocus by rememberUpdatedState(returnFocus)

@@ -4,8 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.adielcalixto.ifacademico.R
@@ -14,7 +14,7 @@ import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.components.IFIcon
 
-data class IFSubjectRecord(val name: String, val teacher: String, val assessmentCount: Int, val hours: Int)
+data class IFSubjectRecord(val name: String, val teacher: String, val assessmentCount: Int?, val hours: Int)
 
 @Composable
 fun IFSubjectRow(subject: IFSubjectRecord, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -24,8 +24,10 @@ fun IFSubjectRow(subject: IFSubjectRecord, onClick: () -> Unit, modifier: Modifi
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
                 Text(subject.name, style = IFTheme.typography.titleMd, color = IFTheme.colors.onSurface)
                 Text(subject.teacher, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
-                Text(stringResource(R.string.subject_metadata, subject.assessmentCount, subject.hours),
-                    style = IFTheme.typography.labelSm, color = IFTheme.colors.secondary)
+                Text(subject.assessmentCount?.let {
+                    pluralStringResource(R.plurals.subject_assessments, it, it, subject.hours)
+                } ?: stringResource(R.string.hours_value, subject.hours),
+                    style = IFTheme.typography.labelSm, color = IFTheme.colors.primary)
             }
             Icon(IFIcon.Chevron.vector, null, Modifier.size(IFSize.icon), tint = IFTheme.colors.secondary)
         }

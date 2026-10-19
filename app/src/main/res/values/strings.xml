@@ -112,4 +112,19 @@
     <string name="weekday">Dia da semana</string>
     <string name="starts_at">Início</string>
     <string name="ends_at">Fim</string>
+    <string name="choose_academic_period">Período acadêmico</string>
+    <string name="period_number">Período %1$d</string>
+    <string name="subject_context">%1$s · %2$d / %3$d</string>
+    <string name="no_subjects">Nenhuma disciplina listada. Experimente outro período acadêmico.</string>
+    <string name="assessment_stage">Etapa %1$s</string>
+    <string name="stage_not_supplied">Etapa não informada</string>
+    <string name="absence_usage_percent">%1$d%% do limite de faltas utilizado</string>
+    <plurals name="subject_count">
+        <item quantity="one">%d disciplina</item>
+        <item quantity="other">%d disciplinas</item>
+    </plurals>
+    <plurals name="subject_assessments">
+        <item quantity="one">%1$d avaliação · %2$d h</item>
+        <item quantity="other">%1$d avaliações · %2$d h</item>
+    </plurals>
 </resources>
