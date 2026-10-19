@@ -101,4 +101,15 @@
     <string name="choose_appearance">Escolha um tema ou siga a aparência do dispositivo.</string>
     <string name="update_check_help">Verifica se há novas versões. As atualizações são instaladas por você.</string>
     <string name="password_change_notice">Sua conta exige uma alteração de senha. Acesse o serviço de contas da instituição.</string>
+    <string name="timetable">Horário</string>
+    <string name="grades_label">Notas</string>
+    <string name="no_classes_today">Nenhuma aula listada para hoje.</string>
+    <string name="no_academic_periods">Nenhum período acadêmico disponível.</string>
+    <string name="room_not_supplied">Sala não informada</string>
+    <string name="teacher_not_supplied">Professor não informado</string>
+    <string name="server_time">Horário do servidor: %1$s</string>
+    <string name="timetable_period">Período acadêmico %1$d / %2$d</string>
+    <string name="weekday">Dia da semana</string>
+    <string name="starts_at">Início</string>
+    <string name="ends_at">Fim</string>
 </resources>

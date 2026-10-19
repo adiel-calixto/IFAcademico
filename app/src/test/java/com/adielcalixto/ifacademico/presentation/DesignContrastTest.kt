@@ -2,8 +2,6 @@ package com.adielcalixto.ifacademico.presentation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import com.adielcalixto.ifacademico.presentation.designsystem.DarkColors
-import com.adielcalixto.ifacademico.presentation.designsystem.LightColors
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

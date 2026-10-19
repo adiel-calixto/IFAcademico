@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.adielcalixto.ifacademico.presentation.designsystem.IFTheme
 
 enum class Theme(val id: String) {
     SYSTEM("system"), LIGHT("light"), DARK("dark");

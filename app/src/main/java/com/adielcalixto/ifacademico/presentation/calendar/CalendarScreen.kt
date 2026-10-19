@@ -30,10 +30,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.SpecialDate
+import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.calendar.components.DropdownSelect
-import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import java.text.DateFormatSymbols
 import java.util.Locale
 

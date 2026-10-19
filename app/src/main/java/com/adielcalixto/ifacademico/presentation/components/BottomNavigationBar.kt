@@ -10,16 +10,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.Screen
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.designsystem.IFBottomNavigation
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFNavigationItem
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: IFIcon)
 
 @Composable
 fun getTopLevelRoutes() = listOf(
-    TopLevelRoute("Dashboard", Screen.Dashboard, IFIcon.Home),
-    TopLevelRoute(UiText.StringResource(R.string.diaries).asString(), Screen.DiaryList, IFIcon.Grades),
+    TopLevelRoute(UiText.StringResource(R.string.today_label).asString(), Screen.Dashboard, IFIcon.Home),
+    TopLevelRoute(UiText.StringResource(R.string.grades_label).asString(), Screen.DiaryList, IFIcon.Grades),
     TopLevelRoute(UiText.StringResource(R.string.calendar).asString(), Screen.Calendar, IFIcon.Calendar),
 )
 
@@ -35,7 +32,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         },
         onSelect = { index ->
             navController.navigate(routes[index].route) {
-                popUpTo(navController.graph.findStartDestination().id)
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                 launchSingleTop = true
                 restoreState = true
             }

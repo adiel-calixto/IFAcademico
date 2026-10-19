@@ -27,13 +27,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.designsystem.IFButton as Button
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIconButton as IconButton
-import com.adielcalixto.ifacademico.presentation.designsystem.IFOutlinedTextField as OutlinedTextField
-import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
-import com.adielcalixto.ifacademico.presentation.designsystem.IFTheme
+import com.adielcalixto.ifacademico.presentation.components.IFButton as Button
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFIconButton as IconButton
+import com.adielcalixto.ifacademico.presentation.components.IFOutlinedTextField as OutlinedTextField
+import com.adielcalixto.ifacademico.presentation.components.IFTextButton as TextButton
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () -> Unit) {

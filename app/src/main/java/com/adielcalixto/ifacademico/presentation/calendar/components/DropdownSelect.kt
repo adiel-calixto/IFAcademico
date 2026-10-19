@@ -23,8 +23,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFOutlinedTextField as OutlinedTextField
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFOutlinedTextField as OutlinedTextField
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale

@@ -2,7 +2,6 @@ package com.adielcalixto.ifacademico.presentation.diary_detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,12 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Exam
+import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.UiText
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFIconButton as IconButton
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIconButton as IconButton
-import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import com.adielcalixto.ifacademico.presentation.diary_list.components.ClassesSummary
 import java.time.format.DateTimeFormatter
 

@@ -1,4 +1,4 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +10,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFShapes
+import com.adielcalixto.ifacademico.presentation.IFSpacing
+import com.adielcalixto.ifacademico.presentation.IFTheme
 
 @Composable
 fun IFLoadingPlaceholder(modifier: Modifier = Modifier, rows: Int = 3) {

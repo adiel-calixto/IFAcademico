@@ -1,4 +1,4 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation.components
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -16,6 +16,7 @@ enum class IFIcon(private val data: String) {
     Profile("M16 7 A4 4 0 1 1 8 7 A4 4 0 1 1 16 7 M4 21 L4 19 A8 7 0 0 1 20 19 L20 21"),
     Back("M15 5 L8 12 L15 19"),
     Chevron("M9 5 L16 12 L9 19"),
+    Arrow("M4 12 L20 12 M14 6 L20 12 L14 18"),
     Down("M5 9 L12 16 L19 9"),
     Close("M6 6 L18 18 M18 6 L6 18"),
     Check("M4 12 L9 17 L20 6"),
@@ -32,7 +33,7 @@ enum class IFIcon(private val data: String) {
 
     val vector: ImageVector by lazy {
         ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f,
-            autoMirror = this == Back || this == Chevron || this == Logout).apply {
+            autoMirror = this == Arrow || this == Back || this == Chevron || this == Logout).apply {
             addPath(
                 pathData = PathParser().parsePathString(data).toNodes(),
                 stroke = SolidColor(Color.Black), strokeLineWidth = 1.7f,

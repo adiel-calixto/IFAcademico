@@ -1,4 +1,4 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

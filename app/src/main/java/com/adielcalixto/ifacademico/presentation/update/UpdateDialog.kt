@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.data.remote.ReleaseInfo
-import com.adielcalixto.ifacademico.presentation.designsystem.IFButton as Button
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
+import com.adielcalixto.ifacademico.presentation.components.IFButton as Button
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFTextButton as TextButton
 
 @Composable
 fun UpdateDialog(

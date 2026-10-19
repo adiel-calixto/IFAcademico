@@ -1,8 +1,9 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -12,20 +13,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFMotion
+import com.adielcalixto.ifacademico.presentation.IFShapes
+import com.adielcalixto.ifacademico.presentation.IFSize
+import com.adielcalixto.ifacademico.presentation.IFSpacing
+import com.adielcalixto.ifacademico.presentation.IFTheme
 
 /**
  * Dialog provides a separate modal focus scope and Back handling. The fixed header
@@ -40,6 +47,8 @@ fun IFSlidingSheet(
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
     returnFocus: FocusRequester? = null,
+    scrollState: ScrollState = rememberScrollState(),
+    titleStyle: TextStyle = IFTheme.typography.headlineSm,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val hostView = LocalView.current
@@ -122,16 +131,16 @@ fun IFSlidingSheet(
                                 onBack?.let {
                                     IFIconButton(it) { Icon(IFIcon.Back.vector, stringResource(R.string.back), Modifier.size(IFSize.icon)) }
                                 }
-                                Text(title, Modifier.weight(1f).semantics { heading() }, style = IFTheme.typography.headlineSm)
+                                Text(title, Modifier.weight(1f).semantics { heading() }, style = titleStyle)
                                 IFIconButton(requestDismiss, Modifier.focusRequester(closeFocus)) {
                                     Icon(IFIcon.Close.vector, stringResource(R.string.close), Modifier.size(IFSize.icon))
                                 }
                             }
-                            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                            Column(Modifier.weight(1f, fill = false).verticalScroll(scrollState)
                                 .padding(start = IFSpacing.lg, end = IFSpacing.lg, bottom = IFSpacing.lg), content = content)
                         }
                     }
-                    LaunchedEffect(Unit) { closeFocus.requestFocus() }
+                    LaunchedEffect(title) { closeFocus.requestFocus() }
                 }
             }
         }

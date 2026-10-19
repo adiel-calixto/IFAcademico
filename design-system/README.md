@@ -1,8 +1,9 @@
 # Android design system
 
-[DESIGN.md](../DESIGN.md) is the specification. Native Compose implementation and
-component previews live in `presentation/designsystem`. `index.html` is reserved
-for the later page redesign.
+[DESIGN.md](../DESIGN.md) is the specification. Native Compose configuration lives directly in
+`presentation/`. Shared controls live in `presentation/components/`; page-specific
+components and previews live with their feature. `index.html` is the page redesign
+reference, now implemented for Home.
 
 ## Theme and tokens
 
@@ -37,22 +38,26 @@ Use the named design styles directly for new components, especially `detailTitle
 on the stronger `inputOutline`. Default elevated Material surfaces are neutral;
 avoid adding tonal elevation to ordinary rows.
 
-## Components
+## Component ownership
 
-- `Controls.kt`: buttons, icon controls, outlined fields, theme selector, update
-  switch. Buttons grow with text size; switches retain a 48dp touch target around
-  the 44×24dp visual. Pass an accessible action description to every icon control.
-- `Chrome.kt`: wordmark, optional period slot in the header, navigation, initials,
-  profile identity, labeled records, notices, and settings rows.
-- `Academic.kt`: coefficient panel, class/detail/timetable content, subject rows,
-  attendance, class progress, assessment stages/formulas, and event panels.
-- `Calendar.kt`: static dates with supplied event markers, today's outline, and
-  previous/next month callbacks. It does not fetch or aggregate events.
-- `Sheet.kt`: independently scrolling modal body with a fixed close/back header.
-  Retain the opener's `FocusRequester` and pass it as `returnFocus`. Close after
-  the exit transition via `onDismiss`. `onBack` is for nested detail navigation.
-  Compose respects Android animator duration scale, including disabled motion.
-- `Feedback.kt`: loading placeholders, empty/retry states, toast, confirmation.
+- `presentation/`: `IFTheme`, semantic colors, typography, spacing, shapes, sizes,
+  and motion configuration; `AppTheme` still observes saved appearance.
+- `presentation/components/`: buttons, fields, icons, header/navigation, record and
+  notice displays, loading/empty/retry feedback, confirmation content, and sheets.
+  Notices are shared by profile and attendance displays.
+- `dashboard/components/`: coefficient panel, class rows/details, weekday selector,
+  and timetable content.
+- `diary_list/components/`: subject rows; `diary_detail/components/`: attendance,
+  class progress, and assessment displays.
+- `calendar/components/`: month grid and event panels.
+- `student_info/components/`: profile identity, settings rows, appearance selector,
+  and update switch.
+
+`IFSlidingSheet` keeps a fixed close/back header and an independently scrolling
+body. Pass the opener's `FocusRequester` as `returnFocus`. An optional `scrollState`
+lets a host retain separate scroll positions for nested contents. Close completes
+after the exit animation; Back can return to parent content. Android animator
+scale, including disabled animation, is respected.
 
 Components take display records and callbacks, never view models, repositories,
 or navigation controllers. Callers supply formatted dates/numbers, assessment
@@ -71,14 +76,26 @@ does not install updates or prove that an update occurred.
 
 ## Reviewing and extending
 
-Open `CatalogPreviews.kt` in Android Studio. Every preview group has light, dark,
+Open the feature and shared `*Preview.kt` files in Android Studio. Preview groups have light, dark,
 and 360dp enlarged-text variants. Sample data is local and never connects to an
 institutional account. Switch to interactive preview for control behavior.
 
-The current app adopts the foundation, icons, shared chrome, fields/buttons,
-settings controls, and feedback. Academic catalog components are ready for the later
-page redesign; this milestone does not move sections, change routes, add detail-sheet
-navigation, or aggregate calendar assessments.
+Home now follows the prototype: server date, charcoal coefficient panel, and flat
+class rows. Timetable opens a weekday sheet; class details open from either Today
+or the timetable, with nested Back navigation and focus restoration. Timetable
+loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`
+format. Class rows use 17sp Manrope titles and class-detail sheets use 19sp
+headings; status is omitted from the detail fields. Its period remains the first API period,
+independent of Grades selection. Missing periods have an explicit empty state.
+
+Other feature pages retain their existing layouts. Academic preview components
+remain available in their owning features for subsequent redesigns. The old
+`presentation/designsystem` package has been removed; the root `design-system/`
+directory contains documentation only.
+
+`DashboardPreviews.kt` provides Home, timetable, and class-detail variants. The
+instrumentation preview renderer exports component and Home images into
+`presentation-previews` under the test app's external files directory.
 
 Verify changes with:
 

@@ -279,9 +279,9 @@ Show the student coefficient as the dominant numeral and the class coefficient a
 
 ### Class rows and weekly timetable
 
-Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. A subtle green rule separates time from content. A Finished label appears when applicable. A trailing chevron indicates read-only detail.
+Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home class names use the 17sp Manrope `detail-title` style; class-detail sheet headings use the 19sp `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. A trailing chevron indicates read-only detail.
 
-The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. Nested class details provide a return path to the timetable. The calendar page does not contain this schedule.
+The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Nested class details provide a return path to the timetable. The calendar page does not contain this schedule.
 
 ### Subject rows and grade details
 

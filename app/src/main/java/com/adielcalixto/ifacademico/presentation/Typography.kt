@@ -1,4 +1,4 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Immutable

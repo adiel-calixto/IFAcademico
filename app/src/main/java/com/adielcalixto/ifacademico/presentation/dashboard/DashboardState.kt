@@ -5,13 +5,23 @@ import com.adielcalixto.ifacademico.domain.entities.IndividualTimeTable
 import com.adielcalixto.ifacademico.domain.entities.PerformanceCoefficients
 import com.adielcalixto.ifacademico.domain.entities.Period
 import com.adielcalixto.ifacademico.domain.entities.TimeTable
+import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
+
+sealed interface DashboardSheet {
+    data object Closed : DashboardSheet
+    data object Timetable : DashboardSheet
+    data class ClassDetail(val course: TimeTableClass, val fromTimetable: Boolean) : DashboardSheet
+}
 
 data class DashboardState(
-    val timeTable: TimeTable,
-    val performanceCoefficients: PerformanceCoefficients,
+    val timeTable: TimeTable = TimeTable(emptyList(), "", ""),
+    val performanceCoefficients: PerformanceCoefficients = PerformanceCoefficients(0f, 0f, 0f),
     val currentPeriod: Period? = null,
     val individualTimeTable: IndividualTimeTable? = null,
-    val showIndividualTimeTable: Boolean = false,
+    val sheet: DashboardSheet = DashboardSheet.Closed,
+    val selectedWeekday: Int = 2,
+    val timetableLoading: Boolean = false,
+    val timetableError: Error.DataError? = null,
     val error: Error.DataError? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = true
 )

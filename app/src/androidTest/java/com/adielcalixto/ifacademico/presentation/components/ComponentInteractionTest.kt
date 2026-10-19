@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
 
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
@@ -8,14 +8,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.Theme
+import com.adielcalixto.ifacademico.presentation.student_info.components.IFThemeSelector
+import com.adielcalixto.ifacademico.presentation.student_info.components.IFUpdateSwitch
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test

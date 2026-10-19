@@ -101,4 +101,15 @@
     <string name="choose_appearance">Choose an appearance or follow your device.</string>
     <string name="update_check_help">Checks for new versions. You choose when to install updates.</string>
     <string name="password_change_notice">Your account requires a password change. Use your institution’s account service.</string>
+    <string name="timetable">Timetable</string>
+    <string name="grades_label">Grades</string>
+    <string name="no_classes_today">No classes listed for today.</string>
+    <string name="no_academic_periods">No academic periods available.</string>
+    <string name="room_not_supplied">Room not supplied</string>
+    <string name="teacher_not_supplied">Teacher not supplied</string>
+    <string name="server_time">Server time: %1$s</string>
+    <string name="timetable_period">Academic period %1$d / %2$d</string>
+    <string name="weekday">Weekday</string>
+    <string name="starts_at">Starts</string>
+    <string name="ends_at">Ends</string>
 </resources>

@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,10 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.domain.entities.Diary
+import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
 
 fun Modifier.leftBorder(

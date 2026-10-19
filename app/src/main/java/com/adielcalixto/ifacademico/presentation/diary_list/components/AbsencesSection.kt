@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
 
 @Composable
 internal fun AbsencesSection(absences: Int, maxAbsences: Int, excusedAbsences: Int) {

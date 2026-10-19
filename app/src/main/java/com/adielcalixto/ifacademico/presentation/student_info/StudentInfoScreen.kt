@@ -36,13 +36,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Student
+import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.ThemeViewModel
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
-import com.adielcalixto.ifacademico.presentation.designsystem.IFShapes
-import com.adielcalixto.ifacademico.presentation.designsystem.IFTextButton as TextButton
-import com.adielcalixto.ifacademico.presentation.designsystem.IFThemeSelector
-import com.adielcalixto.ifacademico.presentation.designsystem.IFUpdateSwitch
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFTextButton as TextButton
+import com.adielcalixto.ifacademico.presentation.student_info.components.IFThemeSelector
+import com.adielcalixto.ifacademico.presentation.student_info.components.IFUpdateSwitch
 
 @Composable
 fun StudentInfoScreen(

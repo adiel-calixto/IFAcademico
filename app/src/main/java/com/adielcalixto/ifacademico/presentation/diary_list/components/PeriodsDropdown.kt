@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Period
 import com.adielcalixto.ifacademico.presentation.UiText
-import com.adielcalixto.ifacademico.presentation.designsystem.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
 
 private fun Period.asString() = "%02d/%d".format(number, year)
 

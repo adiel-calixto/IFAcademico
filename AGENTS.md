@@ -15,7 +15,7 @@ Retrofit/OkHttp, and Preferences DataStore.
 - `data/usecases/`: implementations of the domain use-case interfaces.
 - `di/`: Hilt providers in `AppModule` and interface bindings in `UseCasesModule`.
 - `presentation/`: feature screens, view models, state/action types, shared UI,
-  theme handling, and `designsystem/`.
+  theme configuration at its root, shared `components/`, and feature-owned UI.
 - `observers/`: unauthorized-response notifications used by session handling.
 - `MainActivity.kt`: app composition, typed `Screen` routes, and navigation wiring.
 - `DESIGN.md`: visual specification. `design-system/README.md` explains the native
@@ -125,8 +125,9 @@ No automated publishing or release-signing workflow is configured in the build f
 - Compose instrumentation tests live in `app/src/androidTest/java/`. They cover
   catalog rendering and interactions including selected/disabled semantics,
   modal dismissal/focus, and confirmation cancellation.
-- `CatalogPreviews.kt` provides light, dark, and narrow enlarged-text variants.
-  Review relevant previews when changing shared UI.
+- Feature and shared component previews provide light, dark, and narrow
+  enlarged-text variants through `IFCatalogPreviews`. Review relevant previews
+  when changing shared UI.
 - Choose checks appropriate to the change. For shared UI/theme work, the existing
   documented check set is `:app:assembleDebug :app:testDebugUnitTest :app:lintDebug
   :app:assembleDebugAndroidTest`; run connected tests when a suitable test device

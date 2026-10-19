@@ -1,4 +1,4 @@
-package com.adielcalixto.ifacademico.presentation.designsystem
+package com.adielcalixto.ifacademico.presentation.calendar.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,10 +12,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFShapes
+import com.adielcalixto.ifacademico.presentation.IFSize
+import com.adielcalixto.ifacademico.presentation.IFSpacing
+import com.adielcalixto.ifacademico.presentation.IFTheme
+import com.adielcalixto.ifacademico.presentation.components.IFIcon
+import com.adielcalixto.ifacademico.presentation.components.IFIconButton
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
