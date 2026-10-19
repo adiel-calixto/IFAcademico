@@ -23,14 +23,12 @@ import com.adielcalixto.ifacademico.presentation.IFTheme
 
 @Composable
 fun IFWordmark(modifier: Modifier = Modifier) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(IFSpacing.xs)) {
-        Box(Modifier.size(IFSize.mark).clip(IFShapes.brand).background(IFTheme.colors.primary),
-            contentAlignment = Alignment.Center) {
-            Text("IF", color = IFTheme.colors.onPrimary, style = IFTheme.typography.labelSm)
-        }
-        Text("IFAcademico", style = IFTheme.typography.wordmark, color = IFTheme.colors.onSurface)
-    }
+    Text(
+        "IFAcademico",
+        modifier = modifier,
+        style = IFTheme.typography.wordmark,
+        color = IFTheme.colors.onSurface
+    )
 }
 
 @Composable

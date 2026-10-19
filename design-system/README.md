@@ -101,7 +101,8 @@ Home now follows the prototype: server date, charcoal coefficient panel, and fla
 class rows. Timetable opens a weekday sheet; class details open from either Today
 or the timetable, with nested Back navigation and focus restoration. Timetable
 loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`
-format. Home, timetable, and Grades rows share 16sp/500 Manrope subject names;
+format and is right-aligned below today's classes. The header wordmark displays
+the app name without an accompanying icon. Home, timetable, and Grades rows share 16sp/500 Manrope subject names;
 class-detail sheets use 16sp/600 headings; status is omitted from the detail fields.
 Its period remains the first API period, independent of Grades selection.
 Missing periods have an explicit empty state.

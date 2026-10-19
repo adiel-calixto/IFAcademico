@@ -245,7 +245,7 @@ Tokens without a `-dark` suffix define light mode. The matching suffixed token s
 
 ## Typography
 
-Use Manrope for headings, subject names, the wordmark, and the initials avatar. Use the platform system sans-serif for body copy, times, scores, and controls. The wordmark always reads **IFAcademico**, with that exact capitalization, alongside a compact IF mark.
+Use Manrope for headings, subject names, the wordmark, and the initials avatar. Use the platform system sans-serif for body copy, times, scores, and controls. The wordmark always reads **IFAcademico**, with that exact capitalization, without an accompanying icon.
 
 Reserve `headline-lg` for a true page title when needed; the interface does not require a title above every screen. Profile identity uses `title-lg`; sliding panels use `headline-sm`. Home, timetable, and Grades subject rows share the 16sp medium-weight `detail-title` style. Section headings use the 16sp semibold `title-sm`; detail sections use `detail-title`. Headings use medium or semibold weights and neutral tracking so repeated academic records remain calm and easy to scan.
 
@@ -277,7 +277,7 @@ A sliding panel enters with a restrained 220ms ease-out translation and opacity 
 
 The shape language is restrained and consistent. Small highlights use 4–8px corners; controls and event panels use 12px; the coefficient panel uses 16px. Sliding panels have 24px top corners with square lower edges at the viewport boundary.
 
-Circles are reserved for avatars and status dots. The IF mark is a 24px square with 6px corners. Avoid pill-shaped containers for large content regions.
+Circles are reserved for avatars and status dots. Avoid pill-shaped containers for large content regions.
 
 Functional icons belong to one outlined family with rounded caps and joins, a 24-unit view box, and a consistent 1.7px stroke. Most render at 18–22px. Icon controls have a minimum 44px touch target, and icons never replace accessible action names.
 

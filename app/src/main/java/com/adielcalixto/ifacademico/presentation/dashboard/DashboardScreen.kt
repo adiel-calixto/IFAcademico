@@ -11,6 +11,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
 import com.adielcalixto.ifacademico.presentation.asUiText
@@ -119,9 +120,10 @@ internal fun DashboardContent(
             serverTimeLabel(state.timeTable.serverTime, locale)?.let {
                 Text(
                     stringResource(R.string.server_time, it),
-                    Modifier.padding(top = IFSpacing.lg),
+                    Modifier.fillMaxWidth().padding(top = IFSpacing.lg),
                     style = IFTheme.typography.caption,
-                    color = IFTheme.colors.secondary
+                    color = IFTheme.colors.secondary,
+                    textAlign = TextAlign.Right
                 )
             }
         }
