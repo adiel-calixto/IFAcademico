@@ -28,6 +28,7 @@ import com.adielcalixto.ifacademico.presentation.calendar.components.EmptyCalend
 import com.adielcalixto.ifacademico.presentation.dashboard.components.AcademicRowsPreview
 import com.adielcalixto.ifacademico.presentation.diary_detail.components.AcademicDetailsPreview
 import com.adielcalixto.ifacademico.presentation.student_info.components.ChromePreview
+import com.adielcalixto.ifacademico.presentation.student_info.StudentInfoPreview
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -63,7 +64,8 @@ class CatalogRenderingTest {
             "grades",
             "grades-period",
             "grades-detail",
-            "calendar-empty"
+            "calendar-empty",
+            "profile"
         )
         compose.setContent {
             val current = LocalConfiguration.current
@@ -96,7 +98,8 @@ class CatalogRenderingTest {
                             11 -> GradesPreview()
                             12 -> GradesPeriodPreview()
                             13 -> GradesDetailPreview()
-                            else -> EmptyCalendarPreview()
+                            14 -> EmptyCalendarPreview()
+                            else -> StudentInfoPreview()
                         }
                     }
                 }

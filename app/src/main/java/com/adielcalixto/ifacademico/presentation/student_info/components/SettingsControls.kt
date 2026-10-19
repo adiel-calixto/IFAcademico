@@ -66,14 +66,20 @@ fun IFUpdateSwitch(
 }
 
 @Composable
-fun IFThemeSelector(theme: Theme, onThemeChange: (Theme) -> Unit, modifier: Modifier = Modifier) {
+fun IFThemeSelector(
+    theme: Theme,
+    onThemeChange: (Theme) -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+) {
     var expanded by remember { mutableStateOf(false) }
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     Box(modifier) {
         OutlinedButton(
             onClick = { expanded = true },
-            modifier = Modifier.fillMaxWidth().heightIn(min = IFSize.themeSelect),
+            modifier = Modifier.heightIn(min = IFSize.themeSelect)
+                .then(if (compact) Modifier else Modifier.fillMaxWidth()),
             shape = IFShapes.sm,
             border = BorderStroke(if (focused) 2.dp else 1.dp,
                 if (focused) IFTheme.colors.primary else IFTheme.colors.inputOutline),
@@ -81,8 +87,12 @@ fun IFThemeSelector(theme: Theme, onThemeChange: (Theme) -> Unit, modifier: Modi
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = IFTheme.colors.surface, contentColor = IFTheme.colors.onSurface),
         ) {
-            Text(stringResource(R.string.theme) + ": " + theme.asUiText().asString(),
-                Modifier.weight(1f), style = IFTheme.typography.labelMd)
+            Text(
+                if (compact) theme.asUiText().asString()
+                else stringResource(R.string.theme) + ": " + theme.asUiText().asString(),
+                if (compact) Modifier.padding(end = IFSpacing.xs) else Modifier.weight(1f),
+                style = IFTheme.typography.labelMd,
+            )
             Icon(IFIcon.Down.vector, null, Modifier.size(IFSize.icon))
         }
         DropdownMenu(expanded, { expanded = false }, containerColor = IFTheme.colors.surface) {

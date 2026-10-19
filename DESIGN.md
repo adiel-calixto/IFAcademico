@@ -328,7 +328,7 @@ Below the grid, Special dates shows an entry count and a flat list with fine div
 
 ### Profile and settings
 
-Profile pairs an initials avatar with student name and course, followed by enrollment ID and account type. A required password-change state uses a notice.
+Profile keeps a centered initials avatar, student name, and course above a grouped preferences panel, with the project link below. Enrollment ID and account type are shown only when supplied by the account model. A required password-change state uses a notice when available. Keep content scrollable at enlarged text sizes. Settings omit helper text; the appearance selector and logout action align to the right. Profile has no separate page heading or Back control.
 
 Theme selection offers System, Light, and Dark. Automatic updates uses a switch with a visible On/Off label. Settings labels persist, helper text stays subordinate, and the selected appearance applies consistently to panels, controls, overlays, and system foreground treatment.
 

@@ -3,7 +3,7 @@
 [DESIGN.md](../DESIGN.md) is the specification. Native Compose configuration lives directly in
 `presentation/`. Shared controls live in `presentation/components/`; page-specific
 components and previews live with their feature. `index.html` is the page redesign
-reference, now implemented for Home, Grades, and Calendar.
+reference, now implemented for Home, Grades, Calendar, and Profile.
 
 ## Theme and tokens
 
@@ -149,7 +149,17 @@ each applicable day and appear once; routine `Aula` records are excluded. Calend
 uses its existing endpoint independently of Grades and does not aggregate assessments.
 The grid and navigation remain available during loading and retryable failures;
 late responses cannot replace the current month. Month and scroll position survive
-tab/Profile navigation; changing months resets scroll. Profile retains its existing layout.
+tab/Profile navigation; changing months resets scroll.
+
+Profile preserves the centered student identity, grouped preferences panel, and
+bottom project link from the original page. It uses an initials avatar, semantic
+typography and neutral surfaces. Settings omit helper text and use a compact,
+right-aligned appearance selector and logout action. Content scrolls at small heights and enlarged text sizes; the project
+link rests at the bottom when space permits. Profile has no separate page heading
+or Back control. Logout opens the shared confirmation sheet, with cancellation
+and focus restoration. Only name and course are displayed: the current Student
+model does not supply an enrollment number, account type, or password-change state;
+its internal registration ID is not presented as an enrollment number.
 Academic preview components remain available in their owning features for subsequent redesigns. The old
 `presentation/designsystem` package has been removed; the root `design-system/`
 directory contains documentation only.
@@ -158,7 +168,8 @@ directory contains documentation only.
 `GradesPreviews.kt` provides full-page, period-picker, and subject-detail variants.
 `CalendarPreview.kt` provides full-page and empty Calendar variants with long descriptions
 and events spanning month boundaries.
-The instrumentation preview renderer exports component, Home, Grades, and Calendar images
+`StudentInfoPreview.kt` provides a full-page Profile in light, dark, and enlarged-text variants.
+The instrumentation preview renderer exports component, Home, Grades, Calendar, and Profile images
 into `presentation-previews` under the test app's external files directory.
 
 Verify changes with:

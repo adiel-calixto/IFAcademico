@@ -14,7 +14,7 @@ import com.adielcalixto.ifacademico.presentation.IFTheme
 
 @Composable
 fun IFInitialsAvatar(name: String, modifier: Modifier = Modifier) {
-    val initials = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }.take(2)
+    val initials = name.trim().split(Regex("""\s+""")).filter { it.isNotBlank() }.take(2)
         .joinToString("") { it.take(1).uppercase() }
     Box(modifier.size(IFSize.avatar).clip(CircleShape).background(IFTheme.colors.surfaceSubtle),
         contentAlignment = Alignment.Center) {
