@@ -53,17 +53,6 @@ internal fun DashboardContent(
     val detailScroll = rememberScrollState()
     val timetableFocus = remember { FocusRequester() }
     var homeOpener by remember { mutableStateOf(timetableFocus) }
-    val weeklyFocusRequesters = remember { mutableMapOf<TimeTableClass, FocusRequester>() }
-    var weeklyOpener by remember { mutableStateOf<FocusRequester?>(null) }
-    var returningToWeek by remember { mutableStateOf(false) }
-
-    LaunchedEffect(state.sheet) {
-        if (state.sheet == DashboardSheet.Timetable && returningToWeek) {
-            withFrameNanos { }
-            weeklyOpener?.requestFocus()
-            returningToWeek = false
-        }
-    }
 
     when {
         state.isLoading -> IFLoadingPlaceholder(modifier.padding(IFTheme.pageInset))
@@ -132,26 +121,16 @@ internal fun DashboardContent(
     val sheet = state.sheet
     if (sheet != DashboardSheet.Closed) {
         val detail = sheet as? DashboardSheet.ClassDetail
-        val back: (() -> Unit)? = if (detail?.fromTimetable == true) {
-            {
-                returningToWeek = true
-                onAction(DashboardAction.BackToTimetable)
-            }
-        } else null
         IFSlidingSheet(
             title = detail?.course?.className ?: stringResource(R.string.weekly_schedule),
             onDismiss = { onAction(DashboardAction.HideIndividualTimeTable) },
-            onBack = back,
             returnFocus = homeOpener,
             scrollState = if (detail == null) weeklyScroll else detailScroll,
             titleStyle = if (detail == null) IFTheme.typography.headlineSm else IFTheme.typography.titleSm
         ) {
             if (detail != null) {
-                val period = if (detail.fromTimetable) {
-                    state.currentPeriod?.let { "${it.year} / ${it.number}" }
-                } else null
                 LaunchedEffect(detail.course) { detailScroll.scrollTo(0) }
-                IFClassDetail(detail.course.displayRecord(locale, period))
+                IFClassDetail(detail.course.displayRecord(locale))
             } else {
                 when {
                     state.timetableLoading -> IFLoadingPlaceholder()
@@ -175,11 +154,7 @@ internal fun DashboardContent(
                         val classes = sortedClasses(state.individualTimeTable?.classes?.get(state.selectedWeekday).orEmpty())
                         if (classes.isEmpty()) IFEmptyState(stringResource(R.string.empty_timetable_classes))
                         classes.forEach { course ->
-                            val focus = weeklyFocusRequesters.getOrPut(course) { FocusRequester() }
-                            IFClassRow(course.displayRecord(locale), {
-                                weeklyOpener = focus
-                                onAction(DashboardAction.ShowClass(course))
-                            }, Modifier.focusRequester(focus))
+                            IFClassRow(course.displayRecord(locale))
                         }
                     }
                 }
@@ -192,13 +167,13 @@ private fun weekdayLabel(day: Int, locale: Locale, style: TextStyle): String =
     DayOfWeek.of(if (day == 1) 7 else day - 1).getDisplayName(style, locale)
 
 @Composable
-private fun TimeTableClass.displayRecord(locale: Locale, period: String? = null) = IFClassRecord(
+private fun TimeTableClass.displayRecord(locale: Locale) = IFClassRecord(
     subject = className,
     start = startTime,
     end = endTime,
     room = classRoomName.takeIf { it.isNotBlank() } ?: stringResource(R.string.room_not_supplied),
     teacher = professorName.takeIf { it.isNotBlank() } ?: stringResource(R.string.teacher_not_supplied),
     finished = finished,
-    period = period ?: academicPeriod.toString(),
+    period = academicPeriod.toString(),
     weekday = weekDay?.takeIf { it in 1..7 }?.let { weekdayLabel(it, locale, TextStyle.FULL) }
 )

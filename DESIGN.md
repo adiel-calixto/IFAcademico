@@ -266,7 +266,7 @@ Use a single-column mobile layout with a 4px spacing base. Main content has a 24
 
 The header and bottom navigation take their own space. The content region between them scrolls without passing behind either bar. Honor system safe areas. At wider widths, maintain a coherent mobile reading column rather than stretching academic rows across the entire viewport.
 
-Three equal bottom navigation items are Today, Grades, and Calendar. Profile opens from the header. The academic year/period control appears only on Grades. Returning from Profile restores the previous location and useful scroll position.
+Three equal bottom navigation items are Today, Diaries, and Calendar. Profile opens from the header. The academic year/period control appears only on Diaries (Diários in Portuguese), with single-line `year/period` labels such as `2026/2`. Returning from Profile restores the previous location and useful scroll position.
 
 Today begins with the date and coefficient panel, followed by today's classes. A Timetable action shares the section heading row with Today's classes. Grades begins with period context and a compact subject list. Calendar begins with month navigation and the month grid, followed by the full special-date list. Grades and Calendar have no redundant page titles.
 
@@ -300,9 +300,9 @@ Show the student coefficient as the dominant numeral and the class coefficient a
 
 ### Class rows and weekly timetable
 
-Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home and timetable class names use the 16sp/500 Manrope `detail-title` style, matching Grades subject names; class-detail sheet headings use the 16sp/600 `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. A trailing chevron indicates read-only detail.
+Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home and timetable class names use the 16sp/500 Manrope `detail-title` style, matching Grades subject names; class-detail sheet headings use the 16sp/600 `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. Today rows show a trailing chevron for read-only detail; weekly timetable rows are static and omit the chevron.
 
-The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Nested class details provide a return path to the timetable. The calendar page does not contain this schedule.
+The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Weekly timetable rows do not open class details. The calendar page does not contain this schedule.
 
 ### Subject rows and grade details
 

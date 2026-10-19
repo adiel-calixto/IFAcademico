@@ -101,7 +101,7 @@
     <string name="update_check_help">Checks for new versions. You choose when to install updates.</string>
     <string name="password_change_notice">Your account requires a password change. Use your institution’s account service.</string>
     <string name="timetable">Timetable</string>
-    <string name="grades_label">Grades</string>
+    <string name="grades_label">Diaries</string>
     <string name="no_classes_today">No classes listed for today.</string>
     <string name="no_academic_periods">No academic periods available.</string>
     <string name="room_not_supplied">Room not supplied</string>

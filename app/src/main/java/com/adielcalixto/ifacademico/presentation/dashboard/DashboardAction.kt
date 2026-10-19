@@ -7,7 +7,6 @@ sealed interface DashboardAction {
     data object ShowIndividualTimeTable : DashboardAction
     data object HideIndividualTimeTable : DashboardAction
     data object RetryTimetable : DashboardAction
-    data object BackToTimetable : DashboardAction
     data class SelectWeekday(val weekday: Int) : DashboardAction
     data class ShowClass(val course: TimeTableClass) : DashboardAction
 }

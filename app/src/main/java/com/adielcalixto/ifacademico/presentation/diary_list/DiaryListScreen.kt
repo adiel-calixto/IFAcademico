@@ -40,7 +40,7 @@ fun GradesPeriodControl(state: DiaryListState, onClick: () -> Unit, modifier: Mo
     val description = stringResource(R.string.choose_academic_period)
     IFTextButton(onClick, modifier.semantics { contentDescription = description },
         enabled = state.periods.isNotEmpty()) {
-        Text(state.selectedPeriod?.let { "${it.year} / ${it.number}" } ?: stringResource(R.string.period))
+        Text(state.selectedPeriod?.let { "${it.year}/${it.number}" } ?: stringResource(R.string.period))
         Icon(IFIcon.Down.vector, null, Modifier.size(IFSize.icon))
     }
 }
@@ -87,7 +87,7 @@ internal fun DiaryListContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
                         itemVerticalAlignment = Alignment.CenterVertically) {
-                        IFSectionTitle("${state.selectedPeriod.year} / ${state.selectedPeriod.number}")
+                        IFSectionTitle("${state.selectedPeriod.year}/${state.selectedPeriod.number}")
                         Text(pluralStringResource(R.plurals.subject_count, state.diaries.size, state.diaries.size),
                             style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
                     }
@@ -150,11 +150,8 @@ private fun PeriodPickerSheet(state: DiaryListState, onAction: (DiaryListAction)
                     }.heightIn(min = IFSize.touchTarget).padding(IFSpacing.md),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
-                            Text(period.year.toString(), style = IFTheme.typography.labelMd)
-                            Text(stringResource(R.string.period_number, period.number),
-                                style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
-                        }
+                        Text("${period.year}/${period.number}", Modifier.weight(1f),
+                            style = IFTheme.typography.labelMd)
                         Icon(if (selected) IFIcon.Check.vector else IFIcon.Chevron.vector, null,
                             Modifier.size(IFSize.icon), tint = IFTheme.colors.primary)
                     }

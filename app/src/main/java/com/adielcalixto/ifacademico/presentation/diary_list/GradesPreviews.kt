@@ -38,7 +38,7 @@ internal fun GradesPreview() {
             topBar = { IFHeader({}, periodControl = { GradesPeriodControl(PreviewGrades, {}) }) },
             bottomBar = {
                 IFBottomNavigation(listOf(
-                    IFNavigationItem("Hoje", IFIcon.Home), IFNavigationItem("Notas", IFIcon.Grades),
+                    IFNavigationItem("Hoje", IFIcon.Home), IFNavigationItem("Diários", IFIcon.Grades),
                     IFNavigationItem("Calendário", IFIcon.Calendar)
                 ), 1, {})
             }

@@ -60,9 +60,10 @@ data class IFClassRecord(
 )
 
 @Composable
-fun IFClassRow(record: IFClassRecord, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun IFClassRow(record: IFClassRecord, onClick: (() -> Unit)? = null, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)
+        Row(Modifier.fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
             .padding(vertical = IFSpacing.md), horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
             Column(Modifier.widthIn(max = 76.dp), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
                 Text(record.start, style = IFTheme.typography.labelMd, color = IFTheme.colors.onSurface)
@@ -76,7 +77,7 @@ fun IFClassRow(record: IFClassRecord, onClick: () -> Unit, modifier: Modifier = 
                 if (record.finished) Text(stringResource(R.string.class_finished),
                     style = IFTheme.typography.labelSm, color = IFTheme.colors.secondary)
             }
-            Icon(IFIcon.Chevron.vector, null, Modifier.size(IFSize.icon), tint = IFTheme.colors.secondary)
+            if (onClick != null) Icon(IFIcon.Chevron.vector, null, Modifier.size(IFSize.icon), tint = IFTheme.colors.secondary)
         }
         HorizontalDivider(color = IFTheme.colors.outline)
     }
@@ -118,12 +119,12 @@ fun IFWeekdaySelector(days: List<String>, selected: Int, onSelect: (Int) -> Unit
 @Composable
 fun IFTimetableContent(
     period: String, weekdays: List<String>, selectedDay: Int, classes: List<IFClassRecord>,
-    onDaySelect: (Int) -> Unit, onClassClick: (IFClassRecord) -> Unit, modifier: Modifier = Modifier,
+    onDaySelect: (Int) -> Unit, modifier: Modifier = Modifier,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
         Text(period, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
         IFWeekdaySelector(weekdays, selectedDay, onDaySelect)
         if (classes.isEmpty()) IFEmptyState(stringResource(R.string.empty_timetable_classes))
-        classes.forEach { record -> IFClassRow(record, { onClassClick(record) }) }
+        classes.forEach { record -> IFClassRow(record) }
     }
 }

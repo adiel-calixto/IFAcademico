@@ -71,7 +71,7 @@ internal fun CalendarPreview() {
                 IFBottomNavigation(
                     listOf(
                         IFNavigationItem("Hoje", IFIcon.Home),
-                        IFNavigationItem("Notas", IFIcon.Grades),
+                        IFNavigationItem("Diários", IFIcon.Grades),
                         IFNavigationItem("Calendário", IFIcon.Calendar),
                     ), 2, {})
             },

@@ -56,12 +56,12 @@ class GradesInteractionTest {
             }
         }
         compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).performClick()
-        compose.onAllNodesWithText(context.getString(R.string.period_number, 2))
+        compose.onAllNodesWithText("2026/2")
             .filterToOne(isSelected() and hasAnyAncestor(isDialog())).assertIsSelected()
-        compose.onNodeWithText(context.getString(R.string.period_number, 1)).performClick()
+        compose.onNodeWithText("2026/1").performClick()
         waitForClosedSheet()
         compose.runOnIdle { assertEquals(1, state.selectedPeriod!!.number) }
-        compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).assertTextContains("2026 / 1")
+        compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).assertTextContains("2026/1")
         compose.waitUntil(5_000) {
             compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).fetchSemanticsNode()
                 .config.getOrElse(SemanticsProperties.Focused) { false }

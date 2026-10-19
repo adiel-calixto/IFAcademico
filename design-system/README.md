@@ -98,8 +98,8 @@ and 360dp enlarged-text variants at 160% and 200%. Sample data is local and neve
 institutional account. Switch to interactive preview for control behavior.
 
 Home now follows the prototype: server date, charcoal coefficient panel, and flat
-class rows. Timetable opens a weekday sheet; class details open from either Today
-or the timetable, with nested Back navigation and focus restoration. Timetable
+class rows. Timetable opens a weekday sheet with static class rows and no detail action or
+chevron. Class details open from Today, with focus restoration on dismissal. Timetable
 loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`
 format and is right-aligned below today's classes. The header wordmark displays
 the app name without an accompanying icon. Home, timetable, and Grades rows share 16sp/500 Manrope subject names;
@@ -107,7 +107,8 @@ class-detail sheets use 16sp/600 headings; status is omitted from the detail fie
 Its period remains the first API period, independent of Grades selection.
 Missing periods have an explicit empty state.
 
-Grades now uses a flat subject list with period context and a header period picker.
+The Diaries page (Diários in Portuguese) uses a flat subject list with period context
+and a header period picker. Picker entries use a single `year/period` label such as `2026/2`.
 Both the picker and subject details use sliding sheets with focus restoration. The
 selected period and list scroll position survive navigation to Profile and other tabs;
 changing periods resets the list. Selection affects Grades only, independently of

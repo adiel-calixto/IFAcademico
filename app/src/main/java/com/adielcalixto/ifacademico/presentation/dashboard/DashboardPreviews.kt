@@ -35,7 +35,7 @@ internal fun DashboardPreview() {
             topBar = { IFHeader({}) },
             bottomBar = {
                 IFBottomNavigation(listOf(
-                    IFNavigationItem("Hoje", IFIcon.Home), IFNavigationItem("Notas", IFIcon.Grades),
+                    IFNavigationItem("Hoje", IFIcon.Home), IFNavigationItem("Diários", IFIcon.Grades),
                     IFNavigationItem("Calendário", IFIcon.Calendar)
                 ), 0, {})
             }
@@ -52,5 +52,5 @@ internal fun TimetablePreview() {
 @IFCatalogPreviews
 @Composable
 internal fun ClassDetailPreview() {
-    IFTheme { DashboardContent(PreviewDashboard.copy(sheet = DashboardSheet.ClassDetail(PreviewCourse, true)), {}) }
+    IFTheme { DashboardContent(PreviewDashboard.copy(sheet = DashboardSheet.ClassDetail(PreviewCourse)), {}) }
 }

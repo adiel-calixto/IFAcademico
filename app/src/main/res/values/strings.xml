@@ -101,7 +101,7 @@
     <string name="update_check_help">Verifica se há novas versões. As atualizações são instaladas por você.</string>
     <string name="password_change_notice">Sua conta exige uma alteração de senha. Acesse o serviço de contas da instituição.</string>
     <string name="timetable">Horário</string>
-    <string name="grades_label">Notas</string>
+    <string name="grades_label">Diários</string>
     <string name="no_classes_today">Nenhuma aula listada para hoje.</string>
     <string name="no_academic_periods">Nenhum período acadêmico disponível.</string>
     <string name="room_not_supplied">Sala não informada</string>

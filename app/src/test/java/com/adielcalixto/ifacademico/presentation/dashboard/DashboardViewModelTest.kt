@@ -132,19 +132,12 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `nested class details return to selected weekday and direct details close`() = runTest(dispatcher) {
+    fun `home class details close`() = runTest(dispatcher) {
         val model = model()
-        model.onAction(DashboardAction.ShowIndividualTimeTable)
-        runCurrent()
-        model.onAction(DashboardAction.SelectWeekday(7))
         model.onAction(DashboardAction.ShowClass(course))
-        assertEquals(DashboardSheet.ClassDetail(course, true), model.state.value.sheet)
-        model.onAction(DashboardAction.BackToTimetable)
-        assertEquals(DashboardSheet.Timetable, model.state.value.sheet)
-        assertEquals(7, model.state.value.selectedWeekday)
+        assertEquals(DashboardSheet.ClassDetail(course), model.state.value.sheet)
         model.onAction(DashboardAction.HideIndividualTimeTable)
-        model.onAction(DashboardAction.ShowClass(course))
-        assertEquals(DashboardSheet.ClassDetail(course, false), model.state.value.sheet)
+        assertEquals(DashboardSheet.Closed, model.state.value.sheet)
     }
 
     @Test

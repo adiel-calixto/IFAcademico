@@ -10,7 +10,7 @@ import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
 sealed interface DashboardSheet {
     data object Closed : DashboardSheet
     data object Timetable : DashboardSheet
-    data class ClassDetail(val course: TimeTableClass, val fromTimetable: Boolean) : DashboardSheet
+    data class ClassDetail(val course: TimeTableClass) : DashboardSheet
 }
 
 data class DashboardState(

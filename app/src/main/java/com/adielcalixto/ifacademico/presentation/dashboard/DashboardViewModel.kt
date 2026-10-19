@@ -101,12 +101,11 @@ class DashboardViewModel @Inject constructor(
                 timetableJob = null
                 _state.update { it.copy(sheet = DashboardSheet.Closed, timetableLoading = false) }
             }
-            DashboardAction.BackToTimetable -> _state.update { it.copy(sheet = DashboardSheet.Timetable) }
             is DashboardAction.SelectWeekday -> if (action.weekday in 1..7) {
                 _state.update { it.copy(selectedWeekday = action.weekday) }
             }
             is DashboardAction.ShowClass -> _state.update {
-                it.copy(sheet = DashboardSheet.ClassDetail(action.course, it.sheet == DashboardSheet.Timetable))
+                it.copy(sheet = DashboardSheet.ClassDetail(action.course))
             }
         }
     }

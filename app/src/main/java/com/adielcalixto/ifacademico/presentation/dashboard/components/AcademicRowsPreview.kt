@@ -19,5 +19,5 @@ internal fun AcademicRowsPreview() = Catalog {
     IFClassRow(SampleClass, {})
     IFClassRow(SampleClass.copy(subject = "Databases", finished = false), {})
     IFClassDetail(SampleClass)
-    IFTimetableContent("2026 · 2", listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"), 2, listOf(SampleClass), {}, {})
+    IFTimetableContent("2026 · 2", listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"), 2, listOf(SampleClass), {})
 }
