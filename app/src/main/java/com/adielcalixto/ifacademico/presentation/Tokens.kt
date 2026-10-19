@@ -15,6 +15,8 @@ data class IFColors(
     val performanceSecondary: Color, val primaryHover: Color, val error: Color,
     val notice: Color, val onNotice: Color, val scrim: Color,
     val toast: Color, val onToast: Color,
+    val calendarEventSurface: Color, val onCalendarEvent: Color,
+    val calendarAssessmentSurface: Color, val onCalendarAssessment: Color,
     val onPerformance: Color = Color.White,
 )
 
@@ -27,6 +29,8 @@ internal val LightColors = IFColors(
     performanceSurface = Color(0xFF292F2C), performanceSecondary = Color(0xFFD5DCD7),
     primaryHover = Color(0xFF174F2B), error = Color(0xFFA52B26),
     notice = Color(0xFFF2E9CC), onNotice = Color(0xFF624B16),
+    calendarEventSurface = Color(0xFFE8EEF5), onCalendarEvent = Color(0xFF345B7E),
+    calendarAssessmentSurface = Color(0xFFF0E9F3), onCalendarAssessment = Color(0xFF73517F),
     scrim = Color(0x99101512), toast = Color(0xFF252927), onToast = Color.White,
 )
 internal val DarkColors = IFColors(
@@ -38,6 +42,8 @@ internal val DarkColors = IFColors(
     performanceSurface = Color(0xFF252C27), performanceSecondary = Color(0xFFCCD6CF),
     primaryHover = Color(0xFF80BF96), error = Color(0xFFFFB4AB),
     notice = Color(0xFF40391E), onNotice = Color(0xFFF4DFA4),
+    calendarEventSurface = Color(0xFF263340), onCalendarEvent = Color(0xFF9ABBD8),
+    calendarAssessmentSurface = Color(0xFF372C3D), onCalendarAssessment = Color(0xFFC9ABD5),
     scrim = Color(0xB3080B09), toast = Color(0xFFDDE5DF), onToast = Color(0xFF171A18),
 )
 
@@ -53,6 +59,7 @@ object IFSpacing {
     val pageInset = 24.dp
     val pageInsetNarrow = 20.dp
 }
+
 object IFShapes {
     val xs = RoundedCornerShape(4.dp)
     val brand = RoundedCornerShape(6.dp)
@@ -62,6 +69,7 @@ object IFShapes {
     val sheet = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     val full = RoundedCornerShape(percent = 50)
 }
+
 object IFSize {
     val button = 48.dp
     val iconButton = 44.dp
@@ -73,6 +81,7 @@ object IFSize {
     val switchWidth = 44.dp
     val switchHeight = 24.dp
 }
+
 object IFMotion {
     const val sheetMillis = 220
     const val toggleMillis = 180

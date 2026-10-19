@@ -1,79 +1,69 @@
 package com.adielcalixto.ifacademico.presentation.calendar
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.usecases.GetSpecialDatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
-class CalendarViewModel @Inject constructor(private val getSpecialDatesUseCase: GetSpecialDatesUseCase) :
-    ViewModel() {
-    private val _monthOptions = computeMonthOptions()
-
-    private val _state = MutableStateFlow(CalendarState(_monthOptions[1]))
+class CalendarViewModel @Inject constructor(
+    private val getSpecialDatesUseCase: GetSpecialDatesUseCase,
+) : ViewModel() {
+    private val _state = MutableStateFlow(CalendarState(LocalDate.now().withDayOfMonth(1)))
     val state = _state.asStateFlow()
+    private var loadJob: Job? = null
+    private var request = 0
 
     init {
         loadSpecialDates()
     }
 
-    private fun computeMonthOptions(): List<LocalDate> {
-        val currentMonth = LocalDate.now().monthValue
-        val currentYear = LocalDate.now().year
-
-        return (currentMonth - 1..currentMonth + 3).map {
-            LocalDate.of(
-                if (it == 0) currentYear.dec() else if (it > 12) currentYear.inc() else currentYear,
-                if (it == 0 || it == 12) 12 else (it % 12),
-                1
-            )
-        }
-    }
-
-    fun getMonthOptions(): List<LocalDate> {
-        return _monthOptions
-    }
-
     private fun loadSpecialDates() {
-        _state.update { it.copy(isLoading = true) }
-
-        viewModelScope.launch {
-            val selectedDate = state.value.selectedDate
-
-            val result = getSpecialDatesUseCase.execute(
-                selectedDate.withDayOfMonth(1),
-                selectedDate.withDayOfMonth(selectedDate.lengthOfMonth())
-            )
-
+        val version = ++request
+        loadJob?.cancel()
+        val month = YearMonth.from(_state.value.selectedDate)
+        _state.update { it.copy(isLoading = true, error = null, specialDates = emptyList()) }
+        loadJob = viewModelScope.launch {
+            val result = getSpecialDatesUseCase.execute(month.atDay(1), month.atEndOfMonth())
+            // A data source may finish after cancellation; publish only the current month request.
+            if (version != request) return@launch
             when (result) {
-                is Result.Error -> {
-                    _state.update { it.copy(error = result.error) }
+                is Result.Error -> _state.update {
+                    it.copy(
+                        isLoading = false,
+                        error = result.error
+                    )
                 }
 
-                is Result.Success -> {
-                    val filteredDates = result.data.filter { it.type != "Aula" }
-                    _state.update { it.copy(specialDates = filteredDates, error = null) }
+                is Result.Success -> _state.update {
+                    it.copy(
+                        isLoading = false,
+                        specialDates = specialDatesForMonth(result.data, month)
+                    )
                 }
             }
-
-            _state.update { it.copy(isLoading = false) }
         }
     }
 
     fun onAction(action: CalendarAction) {
         when (action) {
             is CalendarAction.OnMonthChanged -> {
-                _state.update { it.copy(selectedDate = action.date) }
+                val date = action.date.withDayOfMonth(1)
+                if (date == _state.value.selectedDate) return
+                _state.update { it.copy(selectedDate = date) }
                 loadSpecialDates()
             }
+
+            CalendarAction.Retry -> if (!_state.value.isLoading) loadSpecialDates()
         }
     }
 }

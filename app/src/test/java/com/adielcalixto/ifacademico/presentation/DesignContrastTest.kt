@@ -13,6 +13,23 @@ class DesignContrastTest {
     }
 
     @Test
+    fun `calendar text markers and today outlines remain readable in each theme`() {
+        listOf(LightColors, DarkColors).forEach { colors ->
+            listOf(
+                colors.primaryContainer to colors.primary,
+                colors.notice to colors.onNotice,
+                colors.calendarEventSurface to colors.onCalendarEvent,
+                colors.calendarAssessmentSurface to colors.onCalendarAssessment,
+                colors.surfaceSubtle to colors.secondary,
+            ).forEach { (background, foreground) ->
+                assertTrue("Calendar date text", contrast(foreground, background) >= 4.5f)
+                assertTrue("Calendar underline", contrast(foreground, background) >= 3f)
+                assertTrue("Today outline", contrast(colors.primary, background) >= 3f)
+            }
+        }
+    }
+
+    @Test
     fun `text pairings meet ordinary text contrast in each appearance`() {
         listOf(LightColors, DarkColors).forEach { c ->
             listOf(c.background, c.surface, c.surfaceSubtle).forEach { surface ->
@@ -29,7 +46,10 @@ class DesignContrastTest {
                 Triple("Toast", c.onToast, c.toast),
                 Triple("Destructive button", c.background, c.error),
             ).forEach { (label, foreground, surface) ->
-                assertTrue("$label: ${contrast(foreground, surface)}", contrast(foreground, surface) >= 4.5f)
+                assertTrue(
+                    "$label: ${contrast(foreground, surface)}",
+                    contrast(foreground, surface) >= 4.5f
+                )
             }
         }
     }

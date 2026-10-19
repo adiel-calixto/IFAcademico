@@ -3,7 +3,7 @@
 [DESIGN.md](../DESIGN.md) is the specification. Native Compose configuration lives directly in
 `presentation/`. Shared controls live in `presentation/components/`; page-specific
 components and previews live with their feature. `index.html` is the page redesign
-reference, now implemented for Home and Grades.
+reference, now implemented for Home, Grades, and Calendar.
 
 ## Theme and tokens
 
@@ -65,7 +65,7 @@ layouts with enlarged text up to 200%.
   and timetable content.
 - `diary_list/components/`: subject rows; `diary_detail/components/`: attendance
   and assessment displays.
-- `calendar/components/`: month grid and event panels.
+- `calendar/components/`: static month grid and flat event rows.
 - `student_info/components/`: profile identity, settings rows, appearance selector,
   and update switch.
 
@@ -129,14 +129,36 @@ are grouped by stage, with averages inline and supplied formulas visible. Number
 and dates use the device locale. Nullable API/cached grades preserve zero as a grade.
 The previous full-screen detail route and legacy grade widgets have been removed.
 
-Calendar and Profile retain their existing layouts. Academic preview components
-remain available in their owning features for subsequent redesigns. The old
+Calendar now uses a Sunday-first, non-interactive month grid with square date
+cells sized from the available column width, matching 4dp gutters, centered
+numerals, and previous/next
+controls, passive category-colored highlights and underlines, and a today outline.
+There are no event dots or explanatory legend below the grid. Holiday/break dates use amber notice tokens; academic dates use green;
+events use blue `calendarEventSurface`/`onCalendarEvent`; final assessments use
+plum `calendarAssessmentSurface`/`onCalendarAssessment`; administrative and unknown
+types use neutral tokens. Every appearance has paired readable foregrounds.
+The caller supplies `IFMonthGrid` with a map of dates to `IFCalendarDayMarker`
+display records. The last listed overlapping event supplies its day's color;
+all distinct event types remain in accessible date descriptions. Below it,
+a single scrolling page shows compact flat special-date rows with an entry count.
+Rows match the original compact list: a narrow date column beside the full
+14sp description, 4dp vertical padding, and an 8dp column gap. Dates use day
+numbers or short month names for cross-month ranges, with full localized date
+ranges exposed to accessibility services. Extra metadata is omitted. Events overlapping the month mark
+each applicable day and appear once; routine `Aula` records are excluded. Calendar
+uses its existing endpoint independently of Grades and does not aggregate assessments.
+The grid and navigation remain available during loading and retryable failures;
+late responses cannot replace the current month. Month and scroll position survive
+tab/Profile navigation; changing months resets scroll. Profile retains its existing layout.
+Academic preview components remain available in their owning features for subsequent redesigns. The old
 `presentation/designsystem` package has been removed; the root `design-system/`
 directory contains documentation only.
 
 `DashboardPreviews.kt` provides Home, timetable, and class-detail variants.
 `GradesPreviews.kt` provides full-page, period-picker, and subject-detail variants.
-The instrumentation preview renderer exports component, Home, and Grades images
+`CalendarPreview.kt` provides full-page and empty Calendar variants with long descriptions
+and events spanning month boundaries.
+The instrumentation preview renderer exports component, Home, Grades, and Calendar images
 into `presentation-previews` under the test app's external files directory.
 
 Verify changes with:
@@ -149,6 +171,8 @@ Verify changes with:
 
 Unit tests cover migration, persistence, observing preferences, theme resolution,
 ordinary-text contrast, Grades loading/retry and stale responses, assessment
-serialization/formatting, and attendance warning boundaries. Component tests cover
+serialization/formatting, attendance warning boundaries, Calendar range clipping/formatting,
+category palettes and contrast, and month loading/retry with stale-response protection. Component tests cover
 selected/disabled states, switch semantics, modal dismissal/focus return, Grades
-period selection and retained list position, and safe confirmation cancellation.
+period selection and retained list position, Calendar navigation, static dates/rows,
+retained scroll position, retry feedback, and safe confirmation cancellation.

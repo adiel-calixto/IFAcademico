@@ -90,7 +90,6 @@
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
     <string name="today_label">Today</string>
-    <string name="event_or_assessment">Event or assessment</string>
     <string name="loading_records">Loading academic records…</string>
     <string name="cancel">Cancel</string>
     <string name="back">Back</string>
@@ -126,5 +125,10 @@
     <plurals name="subject_assessments">
         <item quantity="one">%1$d assessment · %2$d h</item>
         <item quantity="other">%1$d assessments · %2$d h</item>
+    </plurals>
+    <string name="special_date_marker">Special date</string>
+    <plurals name="special_date_count">
+        <item quantity="one">%d special date</item>
+        <item quantity="other">%d special dates</item>
     </plurals>
 </resources>

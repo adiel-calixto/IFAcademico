@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.adielcalixto.ifacademico.presentation.calendar.components.CalendarPreview
+import com.adielcalixto.ifacademico.presentation.calendar.components.EmptyCalendarPreview
 import com.adielcalixto.ifacademico.presentation.dashboard.components.AcademicRowsPreview
 import com.adielcalixto.ifacademico.presentation.diary_detail.components.AcademicDetailsPreview
 import com.adielcalixto.ifacademico.presentation.student_info.components.ChromePreview
@@ -35,26 +36,49 @@ import org.junit.Test
 
 /** Render the actual preview catalog and export review artifacts on the test device. */
 class CatalogRenderingTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule
+    val compose = createComposeRule()
 
-    @Test fun lightCatalog() = renderCatalog("light", false, 1f, 412)
-    @Test fun darkCatalog() = renderCatalog("dark", true, 1f, 412)
-    @Test fun narrowEnlargedCatalog() = renderCatalog("narrow-large-text", false, 1.6f, 360)
+    @Test
+    fun lightCatalog() = renderCatalog("light", false, 1f, 412)
+    @Test
+    fun darkCatalog() = renderCatalog("dark", true, 1f, 412)
+    @Test
+    fun narrowEnlargedCatalog() = renderCatalog("narrow-large-text", false, 1.6f, 360)
 
     private fun renderCatalog(appearance: String, dark: Boolean, fontScale: Float, width: Int) {
         var selected by mutableIntStateOf(0)
-        val names = listOf("controls", "chrome", "academic-rows", "academic-details", "calendar", "feedback", "sheet", "home", "timetable", "class-detail", "subjects", "grades", "grades-period", "grades-detail")
+        val names = listOf(
+            "controls",
+            "chrome",
+            "academic-rows",
+            "academic-details",
+            "calendar",
+            "feedback",
+            "sheet",
+            "home",
+            "timetable",
+            "class-detail",
+            "subjects",
+            "grades",
+            "grades-period",
+            "grades-detail",
+            "calendar-empty"
+        )
         compose.setContent {
             val current = LocalConfiguration.current
             val configuration = remember(current) {
                 Configuration(current).apply {
                     screenWidthDp = width
                     uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
-                        if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+                            if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
                 }
             }
             val density = Density(LocalDensity.current.density, fontScale)
-            CompositionLocalProvider(LocalConfiguration provides configuration, LocalDensity provides density) {
+            CompositionLocalProvider(
+                LocalConfiguration provides configuration,
+                LocalDensity provides density
+            ) {
                 Box(Modifier.width(width.dp)) {
                     key(selected) {
                         when (selected) {
@@ -71,7 +95,8 @@ class CatalogRenderingTest {
                             10 -> SubjectRowPreview()
                             11 -> GradesPreview()
                             12 -> GradesPeriodPreview()
-                            else -> GradesDetailPreview()
+                            13 -> GradesDetailPreview()
+                            else -> EmptyCalendarPreview()
                         }
                     }
                 }
@@ -82,18 +107,26 @@ class CatalogRenderingTest {
             compose.waitForIdle()
             val image = if (name == "sheet") {
                 val layouts = mutableListOf<TextLayoutResult>()
-                compose.onNodeWithText("Subject details").performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
-                    it(layouts)
-                }
-                assertEquals("Sheet inherits caller font scaling", fontScale, layouts.first().layoutInput.density.fontScale, .01f)
+                compose.onNodeWithText("Subject details")
+                    .performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
+                        it(layouts)
+                    }
+                assertEquals(
+                    "Sheet inherits caller font scaling",
+                    fontScale,
+                    layouts.first().layoutInput.density.fontScale,
+                    .01f
+                )
                 compose.onNode(isDialog()).assertIsDisplayed().captureToImage()
             } else if (name == "timetable" || name == "class-detail" || name == "grades-period" || name == "grades-detail") {
                 compose.onNode(isDialog()).captureToImage()
             } else compose.onRoot().captureToImage()
             assertTrue("$appearance/$name has content", image.width > 0 && image.height > 0)
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val output = File(context.getExternalFilesDir("presentation-previews"), "$appearance-$name.png")
-            output.outputStream().use { image.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
+            val output =
+                File(context.getExternalFilesDir("presentation-previews"), "$appearance-$name.png")
+            output.outputStream()
+                .use { image.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
     }
 }

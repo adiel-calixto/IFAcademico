@@ -36,6 +36,14 @@ colors:
   notice-dark: "#40391e"
   on-notice: "#624b16"
   on-notice-dark: "#f4dfa4"
+  calendar-event-surface: "#e8eef5"
+  calendar-event-surface-dark: "#263340"
+  on-calendar-event: "#345b7e"
+  on-calendar-event-dark: "#9abbd8"
+  calendar-assessment-surface: "#f0e9f3"
+  calendar-assessment-surface-dark: "#372c3d"
+  on-calendar-assessment: "#73517f"
+  on-calendar-assessment-dark: "#c9abd5"
   scrim: "#10151299"
   scrim-dark: "#080b09b3"
   toast: "#252927"
@@ -183,14 +191,13 @@ components:
     padding: "{spacing.panel}"
   performance-panel-dark:
     backgroundColor: "{colors.performance-surface-dark}"
-  event-panel:
-    backgroundColor: "{colors.surface}"
+  event-row:
     textColor: "{colors.on-surface}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.md}"
-  event-panel-dark:
-    backgroundColor: "{colors.surface-dark}"
+    borderColor: "{colors.outline}"
+    paddingVertical: "{spacing.micro}"
+  event-row-dark:
     textColor: "{colors.on-surface-dark}"
+    borderColor: "{colors.outline-dark}"
   attendance-summary:
     backgroundColor: "{colors.surface-subtle}"
     rounded: "{rounded.md}"
@@ -267,7 +274,7 @@ Sliding panels hold secondary detail. They scroll independently, retain a visibl
 
 ## Elevation & Depth
 
-Depth comes mainly from tonal separation, fine borders, and whitespace. Subject and class lists are flat, separated by thin rules. Calendar events sit on lightly bordered surfaces. Avoid shadows around every row or panel.
+Depth comes mainly from tonal separation, fine borders, and whitespace. Subject and class lists are flat, separated by thin rules. Calendar events form a flat list separated by fine rules. Avoid shadows around every row or panel.
 
 Modal panels are distinguished by a translucent scrim and rounded top edge. A toast may use a soft shadow to separate temporary feedback from content. The presentation handset and its hardware shadows are not part of the product's visual system.
 
@@ -311,11 +318,13 @@ Assessments are grouped by stage in API display order, with calculated averages
 included within their stage. Each row balances description, acronym, and date
 against grade and maximum score. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
 
-### Calendar and event panels
+### Calendar and event rows
 
-The month/year heading sits opposite previous/next controls. Weekday labels and dates share a seven-column grid. Dates are static, not selectable. Events are indicated through a soft highlight, underline, and dot; today has an outline.
+The localized month/year heading sits opposite previous/next controls, with unrestricted month navigation. Weekday labels and dates share a Sunday-first seven-column grid. Date cells are square, sized from their column width, with centered content and matching 4dp horizontal/vertical gutters. Single-line numeral leading accommodates enlarged text without imposing an interactive minimum height on static cells. Dates and event markers are static, not selectable. Events are indicated through a soft category highlight and underline; today retains a green outline. The grid flows directly into the special-date list without an explanatory legend.
 
-Below the grid, Special dates lists every event or dated assessment overlapping the month, ordered by start date. Multi-day events appear once in the list and mark all their applicable days. Each panel shows a type label, description, date or range, and optional teacher and room information. Assessment entries also identify the subject and stage. Empty months explain that no special dates are listed.
+Calendar colors adapt to each appearance: holidays and breaks use `notice`/`on-notice` (amber); teaching stages, period boundaries, enrollment adjustment, pedagogical meetings, and teaching Saturdays use `primary-container`/`primary` (green). Sports, cultural, scientific, and other academic events use `calendar-event-surface`/`on-calendar-event` (blue). Final assessments use `calendar-assessment-surface`/`on-calendar-assessment` (plum). Diary submission, course-board meetings, and unknown types use `surface-subtle`/`secondary` (neutral). Category colors are theme tokens rather than API hex values. Date text and markers use the paired foreground. For overlapping events, the last event in displayed order supplies the color; accessible date descriptions include every distinct supplied event type. Colors do not add metadata or space to the compact list.
+
+Below the grid, Special dates shows an entry count and a flat list with fine dividers. The native calendar uses the existing special-date endpoint, excluding routine Aula records; it does not aggregate Grades assessments. Include every event overlapping the month, ordered by start date and then description. Multi-day events appear once in the list and mark all their applicable days within the displayed month. Match the original compact calendar list: a narrow leading date column and a flexible description column, both at 14sp, with 4dp vertical padding and an 8dp column gap. Use day numbers within one month and short month names for ranges crossing month boundaries; expose the full localized range to accessibility services. Omit type, teacher, and room metadata from the rows. Preserve full descriptions and enlarged-text support. Empty months explain that no special dates are listed. Month controls and the unmarked grid remain available during loading and retryable failures; obsolete month responses cannot replace current content.
 
 ### Profile and settings
 
