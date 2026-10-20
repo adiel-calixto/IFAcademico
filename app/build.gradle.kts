@@ -1,18 +1,16 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.adielcalixto.ifacademico"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.adielcalixto.ifacademico"
@@ -39,8 +37,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
@@ -53,6 +51,12 @@ android {
                 "META-INF/LICENSE-notice.md",
             )
         )
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 
@@ -75,33 +79,30 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Testing
-    testImplementation("io.mockk:mockk:1.13.16")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
 
-    // Navigation
-    val nav_version = "2.9.8"
-
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    // Navigation and lifecycle
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.59.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.59.2")
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 
-    // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.3.0")
-    implementation("com.google.code.gson:gson:2.14.0")
+    // Networking
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp.client)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.client)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.gson)
 
-    // Datastore
-    implementation("androidx.datastore:datastore-preferences:1.2.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-
-    // Lifecycle
-    val lifecycle_version = "2.8.7"
-
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${lifecycle_version}")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:${lifecycle_version}")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    // Persistence and coroutines
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
 }
