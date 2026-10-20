@@ -317,7 +317,7 @@ Show the student coefficient as the dominant numeral and the class coefficient a
 
 Class rows align start/end times in a narrow leading column, followed by subject, room, and teacher. Home and timetable class names use the 16sp/500 Manrope `detail-title` style, matching Grades subject names; class-detail sheet headings use the 16sp/600 `title-sm` style. Class-detail fields omit status. A subtle green rule separates time from content. A Finished label appears when applicable. Today rows show a trailing chevron for read-only detail; weekly timetable rows are static and omit the chevron.
 
-The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Weekly timetable rows do not open class details. The calendar page does not contain this schedule.
+The weekly timetable opens from the action beside Today's classes. It presents weekday selection and class rows in a sliding panel, with academic period context. The panel is capped at 65% of the window height, with a fixed heading and close control above a scrolling body. In the native app, the timetable uses the first period returned by the API independently of Grades selection. Weekly timetable rows do not open class details. The calendar page does not contain this schedule.
 
 ### Subject rows and grade details
 
@@ -326,6 +326,8 @@ Subject rows show name, teacher, assessment count, and workload hours, with a ch
 The panel uses a wrapping 16sp/600 `title-sm` subject heading, followed by teacher and period context, then Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses a compact 12sp `label-sm` warning aligned right below the usage percentage, with amber `notice`/`on-notice` colors and 8dp horizontal/4dp vertical padding. The warning wraps at enlarged text sizes. The native
 page warns at 80% of the allowance used. When the maximum is zero, show the supplied
 counts without a usage percentage or progress bar.
+
+The details panel is capped at 65% of the window height, with a fixed heading and close control above a scrolling body.
 
 Workload hours remain in the subject list. Grade details omit a separate class-progress section.
 

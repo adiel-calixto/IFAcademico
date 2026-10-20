@@ -50,6 +50,7 @@ fun IFSlidingSheet(
     scrollState: ScrollState = rememberScrollState(),
     titleStyle: TextStyle = IFTheme.typography.headlineSm,
     dismissRequested: Boolean = false,
+    maxHeightFraction: Float = .9f,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val hostView = LocalView.current
@@ -125,7 +126,7 @@ fun IFSlidingSheet(
                     exit = slideOutVertically(tween(IFMotion.sheetMillis)) { it } + fadeOut(tween(IFMotion.sheetMillis)),
                 ) {
                     Surface(
-                        modifier.fillMaxWidth().heightIn(max = maxHeight * .9f)
+                        modifier.fillMaxWidth().heightIn(max = maxHeight * maxHeightFraction)
                             .imePadding().semantics { paneTitle = title },
                         shape = IFShapes.sheet, color = IFTheme.colors.background,
                     ) {

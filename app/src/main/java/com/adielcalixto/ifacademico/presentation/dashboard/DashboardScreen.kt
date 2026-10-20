@@ -126,7 +126,8 @@ internal fun DashboardContent(
             onDismiss = { onAction(DashboardAction.HideIndividualTimeTable) },
             returnFocus = homeOpener,
             scrollState = if (detail == null) weeklyScroll else detailScroll,
-            titleStyle = if (detail == null) IFTheme.typography.headlineSm else IFTheme.typography.titleSm
+            titleStyle = if (detail == null) IFTheme.typography.headlineSm else IFTheme.typography.titleSm,
+            maxHeightFraction = if (detail == null) .65f else .9f,
         ) {
             if (detail != null) {
                 LaunchedEffect(detail.course) { detailScroll.scrollTo(0) }

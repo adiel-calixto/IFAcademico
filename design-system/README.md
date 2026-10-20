@@ -120,7 +120,8 @@ and 360dp enlarged-text variants at 160% and 200%. Sample data is local and neve
 institutional account. Switch to interactive preview for control behavior.
 
 Home now follows the prototype: server date, charcoal coefficient panel, and flat
-class rows. Timetable opens a weekday sheet with static class rows and no detail action or
+class rows. Timetable opens a weekday sheet capped at 65% of the window height,
+with a fixed header and scrolling body, static class rows and no detail action or
 chevron. Class details open from Today, with focus restoration on dismissal. Timetable
 loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`
 format and is right-aligned below today's classes. The header wordmark displays
@@ -145,7 +146,8 @@ attendance remains available. Obsolete period/registration
 responses cannot replace current state.
 
 Subject sheets use a wrapping 16sp/600 `titleSm` heading and present attendance
-and assessments in that order; workload hours remain in subject rows. There is no
+and assessments in that order, capped at 65% of the window height with a fixed
+header and scrolling body; workload hours remain in subject rows. There is no
 separate class-progress section. The attendance warning uses compact, right-aligned
 12sp `labelSm` text in the amber notice colors below the usage percentage.
 Assessments use flat rows with a 16sp description, combined acronym/date metadata,

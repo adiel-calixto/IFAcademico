@@ -119,7 +119,8 @@ internal fun DiaryListContent(
             val period = state.selectedPeriod
             if (diary != null && period != null) key(diary.id, period) {
                 IFSlidingSheet(diary.name, onDismiss = { onAction(DiaryListAction.CloseSheet) },
-                    returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm) {
+                    returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm,
+                    maxHeightFraction = .65f) {
                     DiaryDetailContent(diary, period, state.assessments[diary.id] ?: SubjectAssessments(), locale,
                         onRetryAssessments = { onAction(DiaryListAction.RetryAssessments(diary.id)) })
                 }
