@@ -1,144 +1,164 @@
 package com.adielcalixto.ifacademico.presentation.diary_list
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.adielcalixto.ifacademico.domain.entities.Diary
-import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
-import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
-import com.adielcalixto.ifacademico.presentation.diary_list.components.PeriodsDropdown
+import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.domain.entities.Period
+import com.adielcalixto.ifacademico.presentation.IFShapes
+import com.adielcalixto.ifacademico.presentation.IFSize
+import com.adielcalixto.ifacademico.presentation.IFSpacing
+import com.adielcalixto.ifacademico.presentation.IFTheme
+import com.adielcalixto.ifacademico.presentation.asUiText
+import com.adielcalixto.ifacademico.presentation.components.*
+import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailContent
+import com.adielcalixto.ifacademico.presentation.diary_list.components.IFSubjectRecord
+import com.adielcalixto.ifacademico.presentation.diary_list.components.IFSubjectRow
+import com.adielcalixto.ifacademico.presentation.diary_list.components.SubjectsLoading
 
-fun Modifier.leftBorder(
-    borderWidth: Dp,
-    borderColor: Color,
-    cornerRadius: Dp
-): Modifier = this.drawBehind {
-    val strokeWidth = borderWidth.toPx()
-    val radius = cornerRadius.toPx()
-
-    drawRoundRect(
-        color = borderColor,
-        size = Size(strokeWidth * 2, size.height),
-        cornerRadius = CornerRadius(radius, radius),
-        style = Stroke(width = strokeWidth * 2)
-    )
+@Composable
+fun GradesPeriodControl(state: DiaryListState, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.choose_academic_period)
+    IFTextButton(onClick, modifier.semantics { contentDescription = description },
+        enabled = state.periods.isNotEmpty()) {
+        Text(state.selectedPeriod?.let { "${it.year}/${it.number}" } ?: stringResource(R.string.period))
+        Icon(IFIcon.Down.vector, null, Modifier.size(IFSize.icon))
+    }
 }
 
 @Composable
-fun DiaryListScreen(
-    viewModel: DiaryListViewModel,
-    onDiaryClick: (diaryId: Int, periodNumber: Int, periodYear: Int) -> Unit
-) {
+fun DiaryListScreen(viewModel: DiaryListViewModel, periodFocus: FocusRequester) {
     val state by viewModel.state.collectAsState()
+    DiaryListContent(state, viewModel::onAction, periodFocus = periodFocus)
+}
 
-    if (state.isLoading) {
-        LoadingComponent()
-        return
-    }
-
-    if (state.error != null) {
-        ErrorComponent(state.error!!) {
-            viewModel.onAction(DiaryListAction.LoadViewModelData)
+@Composable
+internal fun DiaryListContent(
+    state: DiaryListState,
+    onAction: (DiaryListAction) -> Unit,
+    modifier: Modifier = Modifier,
+    periodFocus: FocusRequester? = null,
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val listState = rememberLazyListState()
+    val periodKey = state.selectedPeriod?.let { "${it.year}/${it.number}" }
+    var displayedPeriod by rememberSaveable { mutableStateOf(periodKey) }
+    var subjectOpener by remember { mutableStateOf<FocusRequester?>(null) }
+    LaunchedEffect(periodKey) {
+        if (displayedPeriod != periodKey) {
+            listState.scrollToItem(0)
+            displayedPeriod = periodKey
         }
-        return
     }
 
-    Column {
-        LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
-            item {
-                PeriodsDropdown(state.periods, state.selectedPeriod) {
-                    viewModel.onAction(
-                        DiaryListAction.SelectPeriod(it)
+    // Keep the lazy list mounted under sheets and feedback so its saved position survives navigation.
+    LazyColumn(
+        modifier.fillMaxSize(), state = listState,
+        contentPadding = PaddingValues(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
+    ) {
+        when {
+            state.isLoading -> item { SubjectsLoading(periodKey) }
+            state.error != null -> item {
+                IFErrorState(state.error.asUiText().asString(), { onAction(DiaryListAction.LoadViewModelData) })
+            }
+            state.selectedPeriod == null -> item { IFEmptyState(stringResource(R.string.no_academic_periods)) }
+            else -> {
+                item(key = "period") {
+                    FlowRow(Modifier.fillMaxWidth().padding(bottom = IFSpacing.xs),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
+                        itemVerticalAlignment = Alignment.CenterVertically) {
+                        IFSectionTitle("${state.selectedPeriod.year}/${state.selectedPeriod.number}")
+                        Text(pluralStringResource(R.plurals.subject_count, state.diaries.size, state.diaries.size),
+                            style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
+                    }
+                }
+                if (state.diaries.isEmpty()) item { IFEmptyState(stringResource(R.string.no_subjects)) }
+                items(state.diaries, key = { it.id }) { diary ->
+                    val focus = remember(diary.id) { FocusRequester() }
+                    val assessments = state.assessments[diary.id]
+                    IFSubjectRow(
+                        IFSubjectRecord(
+                            diary.name, diary.professor.ifBlank { stringResource(R.string.teacher_not_supplied) },
+                            assessments?.takeIf { !it.isLoading && it.error == null }?.exams?.size, diary.hours
+                        ),
+                        onClick = {
+                            subjectOpener = focus
+                            onAction(DiaryListAction.ShowSubject(diary.id))
+                        }, modifier = Modifier.focusRequester(focus)
                     )
                 }
             }
-            items(state.diaries) { diary ->
-                DiaryItem(
-                    diary = diary,
-                    onClick = {
-                        val period = state.selectedPeriod
-                        if (period != null) {
-                            onDiaryClick(diary.id, period.number, period.year)
-                        }
-                    }
-                )
+        }
+    }
+
+    when (val sheet = state.sheet) {
+        GradesSheet.Closed -> Unit
+        GradesSheet.PeriodPicker -> PeriodPickerSheet(state, onAction, periodFocus)
+        is GradesSheet.Subject -> {
+            val diary = state.diaries.firstOrNull { it.id == sheet.diaryId }
+            val period = state.selectedPeriod
+            if (diary != null && period != null) key(diary.id, period) {
+                IFSlidingSheet(diary.name, onDismiss = { onAction(DiaryListAction.CloseSheet) },
+                    returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm,
+                    maxHeightFraction = .65f, showScrollIndicator = true) {
+                    DiaryDetailContent(diary, period, state.assessments[diary.id] ?: SubjectAssessments(), locale,
+                        onRetryAssessments = { onAction(DiaryListAction.RetryAssessments(diary.id)) })
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DiaryItem(
-    diary: Diary,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
-            .leftBorder(
-                borderWidth = 2.dp,
-                borderColor = MaterialTheme.colorScheme.primary,
-                cornerRadius = 12.dp
-            )
-            .padding(start = 16.dp, top = 12.dp, end = 12.dp, bottom = 12.dp)
+private fun PeriodPickerSheet(state: DiaryListState, onAction: (DiaryListAction) -> Unit, periodFocus: FocusRequester?) {
+    var pendingPeriod by remember { mutableStateOf<Period?>(null) }
+    IFSlidingSheet(
+        stringResource(R.string.choose_academic_period),
+        onDismiss = {
+            onAction(pendingPeriod?.let { DiaryListAction.SelectPeriod(it) } ?: DiaryListAction.CloseSheet)
+        }, returnFocus = periodFocus, dismissRequested = pendingPeriod != null
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = diary.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = diary.professor,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
+            state.periods.forEach { period ->
+                val selected = period == state.selectedPeriod
+                Surface(
+                    modifier = Modifier.fillMaxWidth(), shape = IFShapes.md,
+                    color = if (selected) IFTheme.colors.primaryContainer else IFTheme.colors.surface,
+                    border = BorderStroke(1.dp, if (selected) IFTheme.colors.primary else IFTheme.colors.outline)
+                ) {
+                    Row(Modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton) {
+                        pendingPeriod = period
+                    }.heightIn(min = IFSize.touchTarget).padding(IFSpacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
+                        Text("${period.year}/${period.number}", Modifier.weight(1f),
+                            style = IFTheme.typography.labelMd)
+                        Icon(if (selected) IFIcon.Check.vector else IFIcon.Chevron.vector, null,
+                            Modifier.size(IFSize.icon), tint = IFTheme.colors.primary)
+                    }
+                }
             }
-
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Go to details",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
         }
     }
 }

@@ -21,7 +21,7 @@ android {
         versionCode = 1
         versionName = "2.1.1"
 
-        testInstrumentationRunner = "com.adielcalixto.ifacademico.CustomTestRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     androidResources {
@@ -77,9 +77,6 @@ dependencies {
     // Testing
     testImplementation("io.mockk:mockk:1.13.16")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-
-    // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Navigation
     val nav_version = "2.9.8"

@@ -10,7 +10,7 @@ data class ExamDTO(
     @SerializedName("descricao") val description: String,
     @SerializedName("data") val date: String?,
     @SerializedName("formula") val formula: String?,
-    @SerializedName("nota") val grade: Float,
+    @SerializedName("nota") val grade: Float? = null,
     @SerializedName("ordem") val order: Int,
     @SerializedName("sigla") val sigla: String,
     @SerializedName("notaMaxima") val maxGrade: Float,

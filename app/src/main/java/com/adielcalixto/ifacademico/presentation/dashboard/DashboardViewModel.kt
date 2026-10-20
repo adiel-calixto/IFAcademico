@@ -3,18 +3,17 @@ package com.adielcalixto.ifacademico.presentation.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adielcalixto.ifacademico.domain.Result
-import com.adielcalixto.ifacademico.domain.entities.PerformanceCoefficients
-import com.adielcalixto.ifacademico.domain.entities.TimeTable
 import com.adielcalixto.ifacademico.domain.usecases.GetIndividualTimeTableUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPerformanceCoefficientsUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPeriodsUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetTimeTableUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
@@ -23,64 +22,66 @@ class DashboardViewModel @Inject constructor(
     private val getPeriodsUseCase: GetPeriodsUseCase,
     private val getIndividualTimeTableUseCase: GetIndividualTimeTableUseCase
 ) : ViewModel() {
-    private val _state = MutableStateFlow(
-        DashboardState(
-            TimeTable(emptyList(), "", ""),
-            PerformanceCoefficients(0f, 0f, 0f)
-        )
-    )
+    private val _state = MutableStateFlow(DashboardState())
     val state = _state.asStateFlow()
+    private var homeJob: Job? = null
+    private var timetableJob: Job? = null
+    private var timetableRequest = 0
 
     init {
         loadData()
     }
 
     private fun loadData() {
+        if (homeJob?.isActive == true) return
         _state.update { it.copy(isLoading = true, error = null) }
-
-        viewModelScope.launch {
-            when (val performanceCoefficientsResult = getPerformanceCoefficientsUseCase.execute()) {
-                is Result.Error -> _state.update { it.copy(error = performanceCoefficientsResult.error) }
-                is Result.Success -> _state.update { it.copy(performanceCoefficients = performanceCoefficientsResult.data) }
+        homeJob = viewModelScope.launch {
+            when (val result = getPerformanceCoefficientsUseCase.execute()) {
+                is Result.Error -> _state.update { it.copy(error = result.error) }
+                is Result.Success -> _state.update { it.copy(performanceCoefficients = result.data) }
             }
-
-            when (val timeTableResult = getTimeTableUseCase.execute()) {
-                is Result.Error -> _state.update { it.copy(error = timeTableResult.error) }
-                is Result.Success -> _state.update { it.copy(timeTable = timeTableResult.data) }
+            when (val result = getTimeTableUseCase.execute()) {
+                is Result.Error -> _state.update { it.copy(error = result.error) }
+                is Result.Success -> _state.update {
+                    it.copy(timeTable = result.data.copy(classes = sortedClasses(result.data.classes)))
+                }
             }
-
             _state.update { it.copy(isLoading = false) }
         }
     }
 
-    private suspend fun loadPeriod() {
-        when (val periodsResult = getPeriodsUseCase.execute()) {
-            is Result.Error -> {
-                _state.update { it.copy(error = periodsResult.error) }
-            }
-
-            is Result.Success -> {
-                _state.update {
-                    it.copy(currentPeriod = periodsResult.data.first())
+    private fun loadTimetable() {
+        if (timetableJob?.isActive == true) return
+        val request = ++timetableRequest
+        _state.update { it.copy(timetableLoading = true, timetableError = null) }
+        timetableJob = viewModelScope.launch {
+            val periods = getPeriodsUseCase.execute()
+            if (request != timetableRequest) return@launch
+            when (periods) {
+                is Result.Error -> _state.update {
+                    it.copy(timetableLoading = false, timetableError = periods.error)
                 }
-            }
-        }
-    }
-
-    private suspend fun loadIndividualTimeTable() {
-        loadPeriod()
-
-        val currentPeriod = _state.value.currentPeriod ?: return
-
-        when (val result =
-            getIndividualTimeTableUseCase.execute(currentPeriod.year, currentPeriod.number)) {
-            is Result.Error -> {
-                _state.update { it.copy(error = result.error) }
-            }
-
-            is Result.Success -> {
-                _state.update {
-                    it.copy(individualTimeTable = result.data)
+                is Result.Success -> {
+                    val period = periods.data.firstOrNull()
+                    _state.update { it.copy(currentPeriod = period) }
+                    if (period == null) {
+                        _state.update { it.copy(timetableLoading = false) }
+                        return@launch
+                    }
+                    val result = getIndividualTimeTableUseCase.execute(period.year, period.number)
+                    if (request != timetableRequest) return@launch
+                    when (result) {
+                        is Result.Error -> _state.update {
+                            it.copy(timetableLoading = false, timetableError = result.error)
+                        }
+                        is Result.Success -> _state.update {
+                            it.copy(
+                                individualTimeTable = result.data,
+                                selectedWeekday = result.data.weekDay.takeIf { day -> day in 1..7 } ?: 2,
+                                timetableLoading = false
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -88,19 +89,23 @@ class DashboardViewModel @Inject constructor(
 
     fun onAction(action: DashboardAction) {
         when (action) {
-            is DashboardAction.LoadViewModelData -> {
-                loadData()
+            DashboardAction.LoadViewModelData -> loadData()
+            DashboardAction.ShowIndividualTimeTable -> {
+                _state.update { it.copy(sheet = DashboardSheet.Timetable) }
+                if (_state.value.individualTimeTable == null) loadTimetable()
             }
-
-            is DashboardAction.ShowIndividualTimeTable -> {
-                viewModelScope.launch {
-                    loadIndividualTimeTable()
-                    _state.update { it.copy(showIndividualTimeTable = true) }
-                }
+            DashboardAction.RetryTimetable -> loadTimetable()
+            DashboardAction.HideIndividualTimeTable -> {
+                ++timetableRequest
+                timetableJob?.cancel()
+                timetableJob = null
+                _state.update { it.copy(sheet = DashboardSheet.Closed, timetableLoading = false) }
             }
-
-            is DashboardAction.HideIndividualTimeTable -> {
-                _state.update { it.copy(showIndividualTimeTable = false) }
+            is DashboardAction.SelectWeekday -> if (action.weekday in 1..7) {
+                _state.update { it.copy(selectedWeekday = action.weekday) }
+            }
+            is DashboardAction.ShowClass -> _state.update {
+                it.copy(sheet = DashboardSheet.ClassDetail(action.course))
             }
         }
     }

@@ -4,82 +4,126 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.usecases.GetDiariesUseCase
+import com.adielcalixto.ifacademico.domain.usecases.GetExamsUseCase
 import com.adielcalixto.ifacademico.domain.usecases.GetPeriodsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 @HiltViewModel
 class DiaryListViewModel @Inject constructor(
     private val getPeriodsUseCase: GetPeriodsUseCase,
     private val getDiariesUseCase: GetDiariesUseCase,
+    private val getExamsUseCase: GetExamsUseCase,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(DiaryListState(0))
+    private val _state = MutableStateFlow(DiaryListState())
     val state = _state.asStateFlow()
+    private var loadJob: Job? = null
+    private val retryJobs = mutableMapOf<Int, Job>()
+    private val assessmentPermits = Semaphore(4)
+    private var request = 0
 
-    init {
+    fun setRegistrationId(registrationId: Int) {
+        if (registrationId <= 0 || registrationId == _state.value.registrationId) return
+        _state.value = DiaryListState(registrationId = registrationId)
         loadData()
     }
 
-    fun setRegistrationId(registrationId: Int) {
-        _state.update { it.copy(registrationId = registrationId) }
-    }
-
     private fun loadData() {
-        _state.update { it.copy(isLoading = true) }
-
-        viewModelScope.launch {
+        val registrationId = _state.value.registrationId
+        if (registrationId <= 0) return
+        val version = ++request
+        loadJob?.cancel()
+        retryJobs.values.forEach { it.cancel() }
+        retryJobs.clear()
+        _state.update { it.copy(isLoading = true, error = null, diaries = emptyList(), assessments = emptyMap()) }
+        loadJob = viewModelScope.launch {
             if (_state.value.periods.isEmpty()) {
-                when (val periodsResult = getPeriodsUseCase.execute()) {
+                val result = getPeriodsUseCase.execute()
+                if (version != request) return@launch
+                when (result) {
                     is Result.Error -> {
-                        _state.update { it.copy(error = periodsResult.error) }
+                        _state.update { it.copy(isLoading = false, error = result.error) }
+                        return@launch
                     }
-
-                    is Result.Success -> {
-                        _state.update {
-                            it.copy(
-                                periods = periodsResult.data,
-                                selectedPeriod = periodsResult.data.first(),
-                                error = null
-                            )
+                    is Result.Success -> _state.update {
+                        it.copy(periods = result.data, selectedPeriod = result.data.firstOrNull())
+                    }
+                }
+            }
+            val period = _state.value.selectedPeriod
+            if (period == null) {
+                _state.update { it.copy(isLoading = false) }
+                return@launch
+            }
+            val result = getDiariesUseCase.execute(registrationId, period.number, period.year)
+            if (version != request) return@launch
+            when (result) {
+                is Result.Error -> _state.update { it.copy(isLoading = false, error = result.error) }
+                is Result.Success -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false, diaries = result.data,
+                            assessments = result.data.associate { diary -> diary.id to SubjectAssessments() }
+                        )
+                    }
+                    coroutineScope {
+                        result.data.forEach { diary ->
+                            launch { loadAssessments(diary.id, registrationId, version) }
                         }
                     }
                 }
             }
-
-            loadDiaries()
-            _state.update { it.copy(isLoading = false) }
         }
     }
 
-    private suspend fun loadDiaries() {
-        val selectedPeriod = state.value.selectedPeriod ?: return
-
-        val result =
-            getDiariesUseCase.execute(_state.value.registrationId, selectedPeriod.number, selectedPeriod.year)
-
-        when (result) {
-            is Result.Error -> _state.update { it.copy(error = result.error) }
-            is Result.Success -> _state.update {
-                it.copy(
-                    diaries = result.data,
-                    error = null
-                )
+    private suspend fun loadAssessments(diaryId: Int, registrationId: Int, version: Int) {
+        assessmentPermits.withPermit {
+            if (version != request) return@withPermit
+            val result = getExamsUseCase.execute(diaryId, registrationId)
+            // Some data sources can finish after cancellation; never publish an obsolete period.
+            if (version != request) return@withPermit
+            val assessments = when (result) {
+                is Result.Error -> SubjectAssessments(isLoading = false, error = result.error)
+                is Result.Success -> SubjectAssessments(exams = result.data, isLoading = false)
             }
+            _state.update { it.copy(assessments = it.assessments + (diaryId to assessments)) }
         }
     }
 
     fun onAction(action: DiaryListAction) {
         when (action) {
-            is DiaryListAction.LoadViewModelData -> {
-                loadData()
-            }
+            DiaryListAction.LoadViewModelData -> loadData()
             is DiaryListAction.SelectPeriod -> {
-                _state.update { it.copy(selectedPeriod = action.period) };
-                loadData()
+                if (action.period !in _state.value.periods) return
+                val changed = action.period != _state.value.selectedPeriod
+                _state.update { it.copy(selectedPeriod = action.period, sheet = GradesSheet.Closed) }
+                if (changed) loadData()
+            }
+            DiaryListAction.ShowPeriods -> _state.update { it.copy(sheet = GradesSheet.PeriodPicker) }
+            is DiaryListAction.ShowSubject -> {
+                if (_state.value.diaries.none { it.id == action.diaryId }) return
+                _state.update { it.copy(sheet = GradesSheet.Subject(action.diaryId)) }
+            }
+            DiaryListAction.CloseSheet -> _state.update { it.copy(sheet = GradesSheet.Closed) }
+            is DiaryListAction.RetryAssessments -> {
+                val current = _state.value
+                val assessment = current.assessments[action.diaryId] ?: return
+                if (assessment.isLoading || retryJobs[action.diaryId]?.isActive == true) return
+                _state.update {
+                    it.copy(assessments = it.assessments + (action.diaryId to SubjectAssessments()))
+                }
+                val version = request
+                retryJobs[action.diaryId] = viewModelScope.launch {
+                    loadAssessments(action.diaryId, current.registrationId, version)
+                }
             }
         }
     }

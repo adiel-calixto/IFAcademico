@@ -1,213 +1,110 @@
 package com.adielcalixto.ifacademico.presentation.calendar
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import com.adielcalixto.ifacademico.R
-import com.adielcalixto.ifacademico.domain.entities.SpecialDate
-import com.adielcalixto.ifacademico.presentation.UiText
+import com.adielcalixto.ifacademico.presentation.IFSpacing
+import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.asUiText
-import com.adielcalixto.ifacademico.presentation.calendar.components.DropdownSelect
-import java.text.DateFormatSymbols
-import java.util.Locale
-
-private fun getLocalizedDaysOfWeek(): List<String> {
-    val locale = Locale.getDefault()
-    val dateFormatSymbols = DateFormatSymbols(locale)
-    val daysOfWeek = dateFormatSymbols.weekdays
-
-    return daysOfWeek.drop(1).map { it.substring(0..2).uppercase() }
-}
-
-@Composable
-private fun specialDateColors(type: String): Pair<Color, Color> {
-    return when (type) {
-        "Feriado Nacional", "Férias", "Recesso Escolar" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        "Eventos Desportivos, Socioculturais e Científicos" -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
-        "Etapa Letiva", "Início/fim de Período Letivo" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-        "Avaliação Final (af)" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
-        "Entrega de Diário", "Reunião de Colegiado de Curso" -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
-        else -> Color.Transparent to MaterialTheme.colorScheme.onSurface
-    }
-}
-
-private fun computeSpecialDatesMap(specialDates: List<SpecialDate>): Map<Int, SpecialDate> {
-    val sdMap = HashMap<Int, SpecialDate>()
-
-    specialDates.forEach { specialDate ->
-        val startDay = specialDate.startDate.dayOfMonth
-        val endDay = if (specialDate.startDate.month <= specialDate.endDate.month) {
-            specialDate.endDate.dayOfMonth
-        } else {
-            31
-        }
-
-        (startDay..endDay).forEach { day ->
-            sdMap[day] = specialDate
-        }
-    }
-
-    return sdMap
-}
+import com.adielcalixto.ifacademico.presentation.calendar.components.IFEventRow
+import com.adielcalixto.ifacademico.presentation.calendar.components.EventsLoading
+import com.adielcalixto.ifacademico.presentation.calendar.components.IFMonthGrid
+import com.adielcalixto.ifacademico.presentation.components.*
+import java.time.LocalDate
+import java.time.YearMonth
 
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
     val state by viewModel.state.collectAsState()
-    val monthOptions = viewModel.getMonthOptions()
+    CalendarContent(state, viewModel::onAction)
+}
 
-    Column(modifier = Modifier.fillMaxSize()) {
+@Composable
+internal fun CalendarContent(
+    state: CalendarState,
+    onAction: (CalendarAction) -> Unit,
+    modifier: Modifier = Modifier,
+    today: LocalDate = LocalDate.now(),
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val month = YearMonth.from(state.selectedDate)
+    val listState = rememberLazyListState()
+    val monthKey = month.toString()
+    var displayedMonth by rememberSaveable { mutableStateOf(monthKey) }
+    LaunchedEffect(monthKey) {
+        if (displayedMonth != monthKey) {
+            listState.scrollToItem(0)
+            displayedMonth = monthKey
+        }
+    }
+    val dates =
+        remember(state.specialDates, month) { specialDatesForMonth(state.specialDates, month) }
+    val colors = IFTheme.colors
+    val dayMarkers = remember(dates, month, colors, state.isLoading, state.error) {
+        if (state.isLoading || state.error != null) emptyMap() else calendarDayMarkers(
+            dates,
+            month,
+            colors
+        )
+    }
 
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            DropdownSelect(
-                monthOptions,
-                label = UiText.StringResource(R.string.month).asString(),
-                { viewModel.onAction(CalendarAction.OnMonthChanged(it)) },
-                monthOptions.indexOf(state.selectedDate)
+    LazyColumn(
+        modifier.fillMaxSize(), state = listState,
+        contentPadding = PaddingValues(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg),
+    ) {
+        item(key = "month") {
+            IFMonthGrid(
+                month, today, dayMarkers,
+                onPrevious = {
+                    onAction(
+                        CalendarAction.OnMonthChanged(
+                            month.minusMonths(1).atDay(1)
+                        )
+                    )
+                },
+                onNext = { onAction(CalendarAction.OnMonthChanged(month.plusMonths(1).atDay(1))) },
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .height(50.dp)
-                )
-            } else if (state.error != null) {
-                Text(state.error!!.asUiText().asString())
-            } else {
-                Surface(
-                    tonalElevation = 1.dp,
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    val firstDayOfMonth = state.selectedDate.withDayOfMonth(1)
-                    val daysInMonth = state.selectedDate.lengthOfMonth()
-                    val firstWeekday = firstDayOfMonth.dayOfWeek.value % 7
-
-                    val weekDays = getLocalizedDaysOfWeek()
-
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            weekDays.forEach { day ->
-                                Text(
-                                    text = day,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Column {
-                            var dayIndex = 0
-                            val specialDatesMap = computeSpecialDatesMap(state.specialDates)
-
-                            for (week in 0..5) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    for (weekday in 0..6) {
-                                        if (week == 0 && weekday < firstWeekday || dayIndex >= daysInMonth) {
-                                            Spacer(modifier = Modifier.weight(1f))
-                                        } else {
-                                            val day = dayIndex + 1
-
-                                            val specialDate = specialDatesMap[day]
-                                            val (bgColor, textColor) = specialDate?.type?.let { specialDateColors(it) } ?: (Color.Transparent to MaterialTheme.colorScheme.onSurface)
-
-                                            Column(
-                                                modifier = Modifier
-                                                    .padding(2.dp)
-                                                    .weight(1f)
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .aspectRatio(1f)
-                                                        .background(bgColor, RoundedCornerShape(12.dp))
-                                                        .padding(2.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        day.toString(),
-                                                        color = textColor
-                                                    )
-                                                }
-                                            }
-                                            dayIndex++
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
-                            items(state.specialDates) { specialDate ->
-                                Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(0.3f)
-                                    ) {
-                                        if (specialDate.startDate.toLocalDate() == specialDate.endDate.toLocalDate()) {
-                                            Text(
-                                                specialDate.startDate.dayOfMonth.toString(),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        } else {
-                                            Text(
-                                                "${specialDate.startDate.dayOfMonth} ~ ${specialDate.endDate.dayOfMonth}",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    Text(
-                                        specialDate.description,
-                                        modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
-                    }
+            Spacer(Modifier.height(IFSpacing.lg))
+        }
+        item(key = "heading") {
+            FlowRow(
+                Modifier.fillMaxWidth().padding(bottom = IFSpacing.xs),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                IFSectionTitle(stringResource(R.string.special_dates))
+                if (!state.isLoading && state.error == null) {
+                    Text(
+                        pluralStringResource(R.plurals.special_date_count, dates.size, dates.size),
+                        style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
+                    )
                 }
+            }
+        }
+        when {
+            state.isLoading -> item { EventsLoading() }
+            state.error != null -> item {
+                IFErrorState(state.error.asUiText().asString(), { onAction(CalendarAction.Retry) })
+            }
+
+            dates.isEmpty() -> item { IFEmptyState(stringResource(R.string.no_special_dates)) }
+            else -> items(dates) { date ->
+                IFEventRow(
+                    description = date.description,
+                    date = date.formattedCompactDateRange(locale),
+                    dateDescription = date.formattedDateRange(locale),
+                )
             }
         }
     }

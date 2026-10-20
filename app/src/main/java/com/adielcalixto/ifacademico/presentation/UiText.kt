@@ -3,7 +3,7 @@ package com.adielcalixto.ifacademico.presentation
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 
 sealed class UiText {
     data class DynamicString(val value: String): UiText()
@@ -16,7 +16,7 @@ sealed class UiText {
     fun asString(): String {
         return when(this) {
             is DynamicString -> { value }
-            is StringResource ->{ LocalContext.current.getString(id, *args) }
+            is StringResource ->{ stringResource(id, *args) }
         }
     }
 
