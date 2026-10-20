@@ -13,16 +13,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
@@ -38,6 +45,7 @@ import com.adielcalixto.ifacademico.presentation.IFTheme
  * Dialog provides a separate modal focus scope and Back handling. The fixed header
  * keeps close/back available while only the body scrolls. Pass the opener's focus
  * requester when keyboard focus should return to a particular control.
+ * Opt into a persistent decorative scroll thumb with [showScrollIndicator].
  * Compose animation honors Android's animator duration scale (including zero).
  */
 @Composable
@@ -51,6 +59,7 @@ fun IFSlidingSheet(
     titleStyle: TextStyle = IFTheme.typography.headlineSm,
     dismissRequested: Boolean = false,
     maxHeightFraction: Float = .9f,
+    showScrollIndicator: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val hostView = LocalView.current
@@ -141,7 +150,13 @@ fun IFSlidingSheet(
                                     Icon(IFIcon.Close.vector, stringResource(R.string.close), Modifier.size(IFSize.icon))
                                 }
                             }
-                            Column(Modifier.weight(1f, fill = false).verticalScroll(scrollState)
+                            Column(Modifier.weight(1f, fill = false).fillMaxWidth()
+                                .then(
+                                    if (showScrollIndicator) Modifier.sheetScrollIndicator(
+                                        scrollState, IFTheme.colors.secondary.copy(alpha = .5f)
+                                    ) else Modifier
+                                )
+                                .verticalScroll(scrollState)
                                 .padding(start = IFSpacing.lg, end = IFSpacing.lg, bottom = IFSpacing.lg), content = content)
                         }
                     }
@@ -151,3 +166,24 @@ fun IFSlidingSheet(
         }
     }
 }
+
+private fun Modifier.sheetScrollIndicator(scrollState: ScrollState, color: Color): Modifier =
+    drawWithContent {
+        drawContent()
+        val scrollRange = scrollState.maxValue
+        val viewport = size.height
+        if (scrollRange <= 0 || scrollRange == Int.MAX_VALUE || viewport <= 0f) return@drawWithContent
+
+        val width = 3.dp.toPx()
+        val inset = 6.dp.toPx()
+        val thumbHeight = (viewport * (viewport / (viewport + scrollRange)))
+            .coerceIn(24.dp.toPx().coerceAtMost(viewport), viewport)
+        val top = (viewport - thumbHeight) * (scrollState.value.toFloat() / scrollRange).coerceIn(0f, 1f)
+        val left = if (layoutDirection == LayoutDirection.Ltr) size.width - inset - width else inset
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(left, top),
+            size = Size(width, thumbHeight),
+            cornerRadius = CornerRadius(width / 2f),
+        )
+    }

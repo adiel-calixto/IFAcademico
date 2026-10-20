@@ -76,6 +76,13 @@ after the exit animation; `dismissRequested` lets a selection request the same a
 close before its host applies the selection. Back can return to parent content. Android animator
 scale, including disabled animation, is respected.
 
+Timetable and subject-detail sheets opt into `showScrollIndicator`. A persistent,
+noninteractive 3dp rounded thumb sits 6dp from the body's trailing edge, using
+`secondary` at 50% opacity without a track. It reflects the visible proportion
+and scroll position, with a 24dp minimum length capped to the viewport. It is
+hidden when content fits and stays below the fixed header and above the bottom
+safe area. The default is off for other sheets.
+
 Components take display records and callbacks, never view models, repositories,
 or navigation controllers. Callers supply formatted dates/numbers, assessment
 stages, every marked calendar date, and attendance warning state. A null assessment

@@ -22,7 +22,7 @@ internal fun SheetPreview(maxWidth: Dp = Dp.Unspecified) {
         }
         if (opened) IFSlidingSheet("Subject details", { opened = false },
             modifier = if (maxWidth == Dp.Unspecified) Modifier else Modifier.widthIn(max = maxWidth),
-            returnFocus = opener, onBack = {}) {
+            returnFocus = opener, onBack = {}, showScrollIndicator = true) {
             repeat(12) { index ->
                 IFRecord("Record ${index + 1}", "Read-only academic detail")
                 Spacer(Modifier.height(IFSpacing.lg))

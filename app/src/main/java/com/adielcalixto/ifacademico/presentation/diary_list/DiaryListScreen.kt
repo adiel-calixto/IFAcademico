@@ -121,7 +121,7 @@ internal fun DiaryListContent(
             if (diary != null && period != null) key(diary.id, period) {
                 IFSlidingSheet(diary.name, onDismiss = { onAction(DiaryListAction.CloseSheet) },
                     returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm,
-                    maxHeightFraction = .65f) {
+                    maxHeightFraction = .65f, showScrollIndicator = true) {
                     DiaryDetailContent(diary, period, state.assessments[diary.id] ?: SubjectAssessments(), locale,
                         onRetryAssessments = { onAction(DiaryListAction.RetryAssessments(diary.id)) })
                 }

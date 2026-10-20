@@ -129,6 +129,7 @@ internal fun DashboardContent(
             scrollState = if (detail == null) weeklyScroll else detailScroll,
             titleStyle = if (detail == null) IFTheme.typography.headlineSm else IFTheme.typography.titleSm,
             maxHeightFraction = if (detail == null) .65f else .9f,
+            showScrollIndicator = detail == null,
         ) {
             if (detail != null) {
                 LaunchedEffect(detail.course) { detailScroll.scrollTo(0) }

@@ -272,6 +272,8 @@ Today begins with the date and coefficient panel, followed by today's classes. A
 
 Sliding panels hold secondary detail. They scroll independently, retain a visible close action, and keep titles and controls clear of system chrome.
 
+Timetable and diary-detail panels show a quiet, persistent scroll thumb along the trailing edge of the body whenever content overflows. Use a rounded 3dp thumb, inset 6dp, in the secondary text color at 50% opacity, without a track. Its length and position reflect the visible content, with a 24dp minimum length capped to the body height. Keep it below the fixed header and above the bottom safe area; it is decorative and does not accept input.
+
 ## Elevation & Depth
 
 Depth comes mainly from tonal separation, fine borders, and whitespace. Subject and class lists are flat, separated by thin rules. Calendar events form a flat list separated by fine rules. Avoid shadows around every row or panel.
