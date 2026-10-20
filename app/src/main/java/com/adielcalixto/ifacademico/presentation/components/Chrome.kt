@@ -11,6 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -66,7 +70,25 @@ fun IFBottomNavigation(
     modifier: Modifier = Modifier,
     indicatorPosition: Float? = selectedIndex.takeIf { it in items.indices }?.toFloat(),
 ) {
-    Surface(modifier, color = IFTheme.colors.surface) {
+    val shadowColor = IFTheme.colors.scrim.copy(alpha = if (IFTheme.isDark) 0.28f else 0.12f)
+    Surface(
+        modifier = modifier.drawWithCache {
+            val shadowHeight = 32.dp.toPx()
+            val shadow = Brush.verticalGradient(
+                0f to shadowColor.copy(alpha = 0f),
+                0.4f to shadowColor.copy(alpha = shadowColor.alpha * 0.12f),
+                0.7f to shadowColor.copy(alpha = shadowColor.alpha * 0.4f),
+                1f to shadowColor,
+                startY = -shadowHeight,
+                endY = 0f,
+            )
+            onDrawBehind {
+                // Draw outside the bar so the shadow does not add layout or touch area.
+                drawRect(shadow, Offset(0f, -shadowHeight), Size(size.width, shadowHeight))
+            }
+        },
+        color = IFTheme.colors.surface,
+    ) {
         BoxWithConstraints(
             Modifier.fillMaxWidth().padding(horizontal = IFSpacing.xs, vertical = IFSpacing.xs),
         ) {

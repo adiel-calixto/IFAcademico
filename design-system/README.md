@@ -56,6 +56,10 @@ layouts with enlarged text up to 200%.
 
 ## Component ownership
 
+`IFBottomNavigation` draws a cached 32dp upward shadow outside its bounds, fading
+from the neutral scrim color at 12% opacity in light mode or 28% in dark mode to
+transparent. It preserves bar height, safe areas, and tab touch targets.
+
 - `presentation/`: `IFTheme`, semantic colors, typography, spacing, shapes, sizes,
   and motion configuration; `AppTheme` still observes saved appearance.
 - `presentation/components/`: buttons, fields, icons, header/navigation, record and

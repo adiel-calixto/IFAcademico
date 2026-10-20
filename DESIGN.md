@@ -315,6 +315,8 @@ Functional icons belong to one outlined family with rounded caps and joins, a 24
 
 ### Header and navigation
 
+Bottom navigation casts a broad, diffuse shadow upward over the content: a 32dp fade to transparent, with 12% opacity at the bar edge in light mode and 28% in dark mode using the neutral scrim color. The shadow adds no layout space or touch area.
+
 The header combines the wordmark, the contextual period control, and an outlined Profile button. Bottom tabs pair an icon with a short label. Selection uses green text and a subtle green background; inactive items remain neutral. Profile has its own back control instead of becoming a fourth bottom tab.
 
 ### Coefficient panel
