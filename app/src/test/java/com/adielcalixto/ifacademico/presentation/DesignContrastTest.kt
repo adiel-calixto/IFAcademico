@@ -23,6 +23,29 @@ class DesignContrastTest {
     }
 
     @Test
+    fun `actions errors and essential indicators remain visible on neutral surfaces`() {
+        listOf(LightColors, DarkColors).forEach { colors ->
+            listOf(colors.background, colors.surface, colors.surfaceSubtle).forEach { surface ->
+                listOf(
+                    "Action" to colors.primary,
+                    "Hovered action" to colors.primaryHover,
+                    "Error" to colors.error,
+                ).forEach { (label, foreground) ->
+                    val ratio = contrast(foreground, surface)
+                    assertTrue("$label text on $surface: $ratio", ratio >= 4.5f)
+                }
+                listOf(
+                    "Focus and selection" to colors.primary,
+                    "Supporting icon" to colors.secondary,
+                ).forEach { (label, foreground) ->
+                    val ratio = contrast(foreground, surface)
+                    assertTrue("$label on $surface: $ratio", ratio >= 3f)
+                }
+            }
+        }
+    }
+
+    @Test
     fun `calendar text markers and today outlines remain readable in each theme`() {
         listOf(LightColors, DarkColors).forEach { colors ->
             listOf(

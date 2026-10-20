@@ -10,25 +10,25 @@ colors:
   primary-container: "#e8f2eb"
   primary-container-dark: "#25372b"
   background: "#f6f7f6"
-  background-dark: "#171a18"
+  background-dark: "#101310"
   surface: "#ffffff"
-  surface-dark: "#212522"
+  surface-dark: "#191d1a"
   surface-subtle: "#ecefed"
-  surface-subtle-dark: "#2b302c"
+  surface-subtle-dark: "#232824"
   on-surface: "#39423c"
-  on-surface-dark: "#ced4cf"
+  on-surface-dark: "#bac2bc"
   secondary: "#626965"
-  secondary-dark: "#9fa9a2"
+  secondary-dark: "#939e96"
   outline: "#dde1de"
-  outline-dark: "#363d38"
+  outline-dark: "#303832"
   input-outline: "#7d8981"
-  input-outline-dark: "#78867b"
+  input-outline-dark: "#6d7a70"
   performance-surface: "#292f2c"
-  performance-surface-dark: "#252c27"
+  performance-surface-dark: "#1d251f"
   on-performance: "#e0e6e1"
-  on-performance-dark: "#ced4cf"
+  on-performance-dark: "#bac2bc"
   performance-secondary: "#b9c4bc"
-  performance-secondary-dark: "#b0b8b2"
+  performance-secondary-dark: "#9faaa2"
   primary-hover: "#174f2b"
   primary-hover-dark: "#80bf96"
   error: "#a52b26"
@@ -52,9 +52,9 @@ colors:
   scrim: "#10151299"
   scrim-dark: "#080b09b3"
   toast: "#39423c"
-  toast-dark: "#b0b8b2"
+  toast-dark: "#9faaa2"
   on-toast: "#e0e6e1"
-  on-toast-dark: "#171a18"
+  on-toast-dark: "#101310"
 typography:
   headline-lg:
     fontFamily: Manrope
@@ -242,7 +242,7 @@ IFAcademico is a mobile academic companion for students checking classes, assess
 
 Neutral backgrounds carry the content. Green identifies actions and selected states. Manrope gives headings and identity a clear, contemporary voice; system sans-serif keeps academic records familiar and readable. Information density is moderate, with compact metadata and deliberate space between sections.
 
-Light and dark appearances share the same hierarchy. Dark mode uses charcoal surfaces and a moderately saturated green: neither pale mint nor vivid neon.
+Light and dark appearances share the same hierarchy. Dark mode uses near-black charcoal for the page, with progressively lighter panels and inset surfaces. Muted off-white text and a moderately saturated green keep the appearance restrained.
 
 ## Colors
 
@@ -256,7 +256,7 @@ Errors and logout use the `error` pair. Low attendance allowance uses the amber 
 
 Tokens without a `-dark` suffix define light mode. The matching suffixed token supplies the dark value. Coefficient foregrounds are explicit in each appearance so dark panels never inherit pure-white text. Focus outlines use the active primary color; interactive text uses the appropriate `primary-hover` value on hover.
 
-Neutral text uses softened charcoal in light mode and muted off-white in dark mode. Keep supporting text subordinate without reducing it below 4.5:1 on any supported neutral surface. Input outlines must reach 3:1 against the field fill and surrounding neutral surfaces. WCAG ratios are minimum readability requirements, not visual-comfort targets or maximums; assess perceived brightness in rendered screens as well.
+Neutral text uses softened charcoal in light mode and muted off-white in dark mode. Keep supporting text subordinate without reducing it below 4.5:1 on any supported neutral surface. Input outlines must reach 3:1 against the field fill and surrounding neutral surfaces. WCAG ratios are minimum readability requirements, not visual-comfort targets or maximums. Review rendered pages, sheets, loading states, and feedback at normal and low display brightness, including narrow layouts and 200% text. Surface levels, focus, selection, and pressed states must remain distinguishable. Fine decorative dividers may remain subdued; essential control boundaries and indicators must reach 3:1 against adjacent surfaces.
 
 ## Typography
 

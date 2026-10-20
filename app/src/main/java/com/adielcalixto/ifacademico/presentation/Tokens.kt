@@ -38,18 +38,18 @@ internal val LightColors = IFColors(
 )
 internal val DarkColors = IFColors(
     primary = Color(0xFF68AD80), onPrimary = Color(0xFF14251A),
-    primaryContainer = Color(0xFF25372B), background = Color(0xFF171A18),
-    surface = Color(0xFF212522), surfaceSubtle = Color(0xFF2B302C),
-    onSurface = Color(0xFFCED4CF), secondary = Color(0xFF9FA9A2),
-    outline = Color(0xFF363D38), inputOutline = Color(0xFF78867B),
-    performanceSurface = Color(0xFF252C27), performanceSecondary = Color(0xFFB0B8B2),
-    onPerformance = Color(0xFFCED4CF),
+    primaryContainer = Color(0xFF25372B), background = Color(0xFF101310),
+    surface = Color(0xFF191D1A), surfaceSubtle = Color(0xFF232824),
+    onSurface = Color(0xFFBAC2BC), secondary = Color(0xFF939E96),
+    outline = Color(0xFF303832), inputOutline = Color(0xFF6D7A70),
+    performanceSurface = Color(0xFF1D251F), performanceSecondary = Color(0xFF9FAAA2),
+    onPerformance = Color(0xFFBAC2BC),
     primaryHover = Color(0xFF80BF96), error = Color(0xFFFFB4AB),
     notice = Color(0xFF40391E), onNotice = Color(0xFFF4DFA4),
     calendarHolidaySurface = Color(0xFF402B29), onCalendarHoliday = Color(0xFFFFB4AB),
     calendarEventSurface = Color(0xFF263340), onCalendarEvent = Color(0xFF9ABBD8),
     calendarAssessmentSurface = Color(0xFF372C3D), onCalendarAssessment = Color(0xFFC9ABD5),
-    scrim = Color(0xB3080B09), toast = Color(0xFFB0B8B2), onToast = Color(0xFF171A18),
+    scrim = Color(0xB3080B09), toast = Color(0xFF9FAAA2), onToast = Color(0xFF101310),
 )
 
 object IFSpacing {
