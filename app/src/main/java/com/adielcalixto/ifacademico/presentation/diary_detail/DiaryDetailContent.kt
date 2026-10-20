@@ -50,8 +50,13 @@ internal fun DiaryDetailContent(
             style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
         )
         IFAttendanceSummary(IFAttendanceRecord(
-            diary.absences, diary.maxAbsences, diary.remainingAbsences, diary.excusedAbsences,
-            hasLowAllowance(diary.absences, diary.maxAbsences)
+            absences = diary.absences,
+            maximum = diary.maxAbsences,
+            excused = diary.excusedAbsences,
+            lowAllowance = hasLowAllowance(diary.absences, diary.maxAbsences),
+            plannedClasses = diary.plannedClasses,
+            taughtClasses = diary.taughtClasses,
+            pendingClasses = diary.pendingClasses,
         ))
         when {
             assessments.isLoading -> AssessmentsLoading()

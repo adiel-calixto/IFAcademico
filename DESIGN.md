@@ -331,9 +331,7 @@ The weekly timetable opens from the action beside Today's classes. It presents w
 
 Subject rows show name, teacher, assessment count, and workload hours, with a chevron. Names use the same 16sp/500 `detail-title` style as Home class rows. Keep the main list compact; tapping opens the detailed panel.
 
-The panel uses a wrapping 16sp/600 `title-sm` subject heading, followed by teacher and period context, then Attendance and Assessments in that order. Attendance shows absences, maximum allowance, remaining allowance, and excused absences. A small progress bar is accompanied by numeric usage text. Low allowance uses a compact 12sp `label-sm` warning aligned right below the usage percentage, with amber `notice`/`on-notice` colors and 8dp horizontal/4dp vertical padding. The warning wraps at enlarged text sizes. The native
-page warns at 80% of the allowance used. When the maximum is zero, show the supplied
-counts without a usage percentage or progress bar.
+The panel uses a wrapping 16sp/600 `title-sm` subject heading, followed by teacher and period context, then Attendance and Assessments in that order. Attendance shows absences, maximum allowance, and excused absences. A two-segment class bar spans 0 to the supplied planned class count: completed classes first in `primary`, then pending classes in `secondary`, with any unused range in `outline`. A wrapping legend supplies both labels and counts. Segment widths are clamped to the available range; displayed counts retain the supplied values. Nonpositive planned totals omit the proportional bar while retaining both counts. Low allowance uses a compact 12sp `label-sm` warning aligned right below class progress, with amber `notice`/`on-notice` colors and 8dp horizontal/4dp vertical padding. The warning wraps at enlarged text sizes. The native page warns at 80% of the absence allowance used.
 
 The details panel is capped at 65% of the window height, with a fixed heading and close control above a scrolling body.
 

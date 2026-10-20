@@ -174,15 +174,20 @@ Subject sheets use a wrapping 16sp/600 `titleSm` heading and present attendance
 and assessments in that order, capped at 65% of the window height with a fixed
 header and scrolling body; workload hours remain in subject rows. There is no
 separate class-progress section. The attendance warning uses compact, right-aligned
-12sp `labelSm` text in the amber notice colors below the usage percentage.
+12sp `labelSm` text in the amber notice colors below class progress.
 Assessments use flat rows with a 16sp description, combined acronym/date metadata,
 and a 16sp semibold system-font labeled grade with a smaller maximum below it. Missing grades retain a
 separate “Not graded” label and maximum. Below 280dp multiplied by the font scale,
 scores move below descriptions and metadata; wider rows limit scores to 40% of the
 available width. Formulas remain in subtle inset blocks. Shared sheet and notice
 defaults are unchanged.
-Attendance uses supplied counts and warns at 80% allowance usage; a zero maximum
-omits the percentage and progress bar. Assessments follow API display order and
+Attendance shows absences, maximum allowance, and excused absences, and warns at
+80% allowance usage. Remaining absences and absence-usage percentages are omitted.
+Its class bar spans 0 to planned classes, with adjacent completed (`primary`) and
+pending (`secondary`) segments and an `outline` track for any unused range. The
+wrapping legend shows supplied counts; only segment widths are clamped. Nonpositive
+planned totals omit the bar and retain the class counts. The bar exposes an
+accessible description of completed, pending, and planned counts. Assessments follow API display order and
 are grouped by stage, with averages inline and supplied formulas visible. Numbers
 and dates use the device locale. Nullable API/cached grades preserve zero as a grade.
 The previous full-screen detail route and legacy grade widgets have been removed.

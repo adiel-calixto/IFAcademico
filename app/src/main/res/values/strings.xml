@@ -139,4 +139,6 @@
     <string name="loading_timetable">Carregando horário…</string>
     <string name="loading_assessments">Carregando avaliações…</string>
     <string name="loading_profile">Carregando perfil…</string>
+    <string name="class_progress_count">%1$s: %2$s</string>
+    <string name="class_progress_description">%1$s aulas realizadas, %2$s aulas pendentes, %3$s aulas previstas</string>
 </resources>

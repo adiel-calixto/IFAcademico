@@ -13,9 +13,11 @@ private val SampleAssessment = IFAssessmentRecord(
 @IFCatalogPreviews
 @Composable
 internal fun AcademicDetailsPreview() = Catalog {
-    IFAttendanceSummary(IFAttendanceRecord(2, 20, 18, 1, false))
-    IFAttendanceSummary(IFAttendanceRecord(18, 20, 2, 1, true))
-    IFAttendanceSummary(IFAttendanceRecord(0, 0, 0, 0, false))
+    IFAttendanceSummary(IFAttendanceRecord(2, 20, 1, false, 80, 40, 20))
+    IFAttendanceSummary(IFAttendanceRecord(18, 20, 1, true, 80, 80, 0))
+    IFAttendanceSummary(IFAttendanceRecord(0, 0, 0, false, 0, 0, 0))
+    IFAttendanceSummary(IFAttendanceRecord(0, 20, 0, false, 80, 0, 80))
+    IFAttendanceSummary(IFAttendanceRecord(2, 20, 0, false, 80, 90, 10))
     IFAssessments(listOf(
         IFAssessmentStage("Stage 1", listOf(
             SampleAssessment.copy(formula = null),

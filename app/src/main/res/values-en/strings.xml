@@ -139,4 +139,6 @@
     <string name="loading_timetable">Loading timetable…</string>
     <string name="loading_assessments">Loading assessments…</string>
     <string name="loading_profile">Loading profile…</string>
+    <string name="class_progress_count">%1$s: %2$s</string>
+    <string name="class_progress_description">%1$s classes held, %2$s classes pending, %3$s planned classes</string>
 </resources>
