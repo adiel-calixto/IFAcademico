@@ -33,7 +33,7 @@ import com.adielcalixto.ifacademico.presentation.SignedInShell
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
-import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
+import com.adielcalixto.ifacademico.presentation.components.IFSessionLoading
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardViewModel
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListAction
@@ -42,6 +42,7 @@ import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListViewModel
 import com.adielcalixto.ifacademico.presentation.diary_list.GradesPeriodControl
 import com.adielcalixto.ifacademico.presentation.login.LoginScreen
 import com.adielcalixto.ifacademico.presentation.login.LoginViewModel
+import com.adielcalixto.ifacademico.presentation.student_info.StudentInfoLoading
 import com.adielcalixto.ifacademico.presentation.student_info.StudentInfoScreen
 import com.adielcalixto.ifacademico.presentation.update.UpdateDialog
 import com.adielcalixto.ifacademico.presentation.update.UpdateViewModel
@@ -146,7 +147,7 @@ fun App(
                     else -> Unit
                 }
             }
-            LoadingComponent()
+            IFSessionLoading()
         }
         composable<Screen.Login> {
             val loginViewModel: LoginViewModel = hiltViewModel()
@@ -182,7 +183,7 @@ fun App(
                 profileContent = {
                     val student = state.student
                     if (student == null) {
-                        LoadingComponent()
+                        StudentInfoLoading()
                     } else {
                         StudentInfoScreen(
                             student = student,

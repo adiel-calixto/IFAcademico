@@ -54,10 +54,7 @@ internal fun DiaryDetailContent(
             hasLowAllowance(diary.absences, diary.maxAbsences)
         ))
         when {
-            assessments.isLoading -> Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-                IFSectionTitle(stringResource(R.string.exams), detail = true)
-                IFLoadingPlaceholder(rows = 2)
-            }
+            assessments.isLoading -> AssessmentsLoading()
             assessments.error != null -> Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
                 IFSectionTitle(stringResource(R.string.exams), detail = true)
                 IFErrorState(assessments.error.asUiText().asString(), onRetryAssessments)

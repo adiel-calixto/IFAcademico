@@ -107,8 +107,8 @@ class CalendarInteractionTest {
         compose.onNodeWithContentDescription(dayLabel(19, today = true)).assertExists()
         compose.onNodeWithContentDescription(label(R.string.next_month)).assertIsEnabled()
         compose.onNode(hasScrollAction())
-            .performScrollToNode(hasText(label(R.string.loading_records)))
-        compose.onNodeWithText(label(R.string.loading_records)).assertIsDisplayed()
+            .performScrollToNode(hasContentDescription(label(R.string.loading_special_dates)))
+        compose.onNodeWithContentDescription(label(R.string.loading_special_dates)).assertIsDisplayed()
         compose.runOnIdle { state = state.copy(isLoading = false, error = IOError) }
         compose.onNodeWithText(label(R.string.retry)).performScrollTo().performClick()
         compose.runOnIdle { assertEquals(CalendarAction.Retry, action) }

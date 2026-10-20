@@ -47,8 +47,18 @@ class CatalogRenderingTest {
     @Test
     fun narrowEnlargedCatalog() = renderCatalog("narrow-large-text", false, 1.6f, 360)
 
-    private fun renderCatalog(appearance: String, dark: Boolean, fontScale: Float, width: Int) {
-        var selected by mutableIntStateOf(0)
+    @Test
+    fun narrowMaximumTextLoadingCatalog() =
+        renderCatalog("narrow-200-loading", false, 2f, 360, loadingOnly = true)
+
+    private fun renderCatalog(
+        appearance: String,
+        dark: Boolean,
+        fontScale: Float,
+        width: Int,
+        loadingOnly: Boolean = false,
+    ) {
+        var selected by mutableIntStateOf(if (loadingOnly) 16 else 0)
         val names = listOf(
             "controls",
             "chrome",
@@ -65,7 +75,14 @@ class CatalogRenderingTest {
             "grades-period",
             "grades-detail",
             "calendar-empty",
-            "profile"
+            "profile",
+            "session-loading",
+            "home-loading",
+            "grades-loading",
+            "calendar-loading",
+            "timetable-loading",
+            "assessments-loading",
+            "profile-loading"
         )
         compose.setContent {
             val current = LocalConfiguration.current
@@ -99,13 +116,20 @@ class CatalogRenderingTest {
                             12 -> GradesPeriodPreview()
                             13 -> GradesDetailPreview()
                             14 -> EmptyCalendarPreview()
-                            else -> StudentInfoPreview()
+                            15 -> StudentInfoPreview()
+                            16 -> SessionLoadingPreview()
+                            17 -> HomeLoadingPreview()
+                            18 -> GradesLoadingPreview()
+                            19 -> CalendarLoadingPreview()
+                            20 -> TimetableLoadingPreview()
+                            21 -> AssessmentsLoadingPreview()
+                            else -> ProfileLoadingPreview()
                         }
                     }
                 }
             }
         }
-        names.forEachIndexed { index, name ->
+        names.withIndex().filter { !loadingOnly || it.index >= 16 }.forEach { (index, name) ->
             compose.runOnIdle { selected = index }
             compose.waitForIdle()
             val image = if (name == "sheet") {
@@ -121,7 +145,10 @@ class CatalogRenderingTest {
                     .01f
                 )
                 compose.onNode(isDialog()).assertIsDisplayed().captureToImage()
-            } else if (name == "timetable" || name == "class-detail" || name == "grades-period" || name == "grades-detail") {
+            } else if (name in setOf(
+                    "timetable", "class-detail", "grades-period", "grades-detail",
+                    "timetable-loading", "assessments-loading",
+                )) {
                 compose.onNode(isDialog()).captureToImage()
             } else compose.onRoot().captureToImage()
             assertTrue("$appearance/$name has content", image.width > 0 && image.height > 0)

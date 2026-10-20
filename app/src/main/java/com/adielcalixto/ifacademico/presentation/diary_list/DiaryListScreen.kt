@@ -34,6 +34,7 @@ import com.adielcalixto.ifacademico.presentation.components.*
 import com.adielcalixto.ifacademico.presentation.diary_detail.DiaryDetailContent
 import com.adielcalixto.ifacademico.presentation.diary_list.components.IFSubjectRecord
 import com.adielcalixto.ifacademico.presentation.diary_list.components.IFSubjectRow
+import com.adielcalixto.ifacademico.presentation.diary_list.components.SubjectsLoading
 
 @Composable
 fun GradesPeriodControl(state: DiaryListState, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -76,7 +77,7 @@ internal fun DiaryListContent(
         contentPadding = PaddingValues(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
     ) {
         when {
-            state.isLoading -> item { IFLoadingPlaceholder() }
+            state.isLoading -> item { SubjectsLoading(periodKey) }
             state.error != null -> item {
                 IFErrorState(state.error.asUiText().asString(), { onAction(DiaryListAction.LoadViewModelData) })
             }

@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 @IFCatalogPreviews
 @Composable
 internal fun FeedbackPreview() = Catalog {
-    IFLoadingPlaceholder()
     IFErrorState("Unable to load your academic records. Check your connection and try again.", {})
     IFEmptyState("No classes scheduled for this day.")
     IFToast("Appearance saved")

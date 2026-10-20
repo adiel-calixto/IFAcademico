@@ -17,6 +17,7 @@ import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.calendar.components.IFEventRow
+import com.adielcalixto.ifacademico.presentation.calendar.components.EventsLoading
 import com.adielcalixto.ifacademico.presentation.calendar.components.IFMonthGrid
 import com.adielcalixto.ifacademico.presentation.components.*
 import java.time.LocalDate
@@ -92,7 +93,7 @@ internal fun CalendarContent(
             }
         }
         when {
-            state.isLoading -> item { IFLoadingPlaceholder() }
+            state.isLoading -> item { EventsLoading() }
             state.error != null -> item {
                 IFErrorState(state.error.asUiText().asString(), { onAction(CalendarAction.Retry) })
             }

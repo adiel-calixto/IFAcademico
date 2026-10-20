@@ -115,6 +115,21 @@ to programmatic transitions, including zero; direct finger dragging remains enab
 
 ## Reviewing and extending
 
+Session loading uses `IFSessionLoading`: a centered progress indicator and localized
+label without page placeholders or signed-in chrome. Academic loading uses
+feature-owned skeleton layouts built from `IFSkeletonLine` and `IFSkeletonBlock`.
+Lines reserve typography-based, font-scaled height. `IFLoadingRegion` provides a
+single localized indeterminate loading status while preserving real heading
+semantics. Skeleton shapes are static and noninteractive; they contain no fake data.
+Known period context, Calendar controls, sheet close controls, and loaded attendance
+remain available. Home's timetable action is disabled during initial Home loading.
+
+`LoadingPreview.kt` covers session, Home, Diaries, Calendar, timetable, assessments,
+and Profile loading in light/dark and narrow 160%/200% text variants. The existing
+instrumentation renderer exports these variants, including a loading-only 200%
+catalog. Loading interaction tests cover accessibility, content/error transitions,
+and sheet dismissal during a request.
+
 Open the feature and shared `*Preview.kt` files in Android Studio. Preview groups have light, dark,
 and 360dp enlarged-text variants at 160% and 200%. Sample data is local and never connects to an
 institutional account. Switch to interactive preview for control behavior.

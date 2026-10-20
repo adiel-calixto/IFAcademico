@@ -4,10 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.IFShapes
@@ -15,14 +20,43 @@ import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
 
 @Composable
-fun IFLoadingPlaceholder(modifier: Modifier = Modifier, rows: Int = 3) {
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-        Text(stringResource(R.string.loading_records), Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-            style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
-        repeat(rows.coerceAtLeast(0)) {
-            Box(Modifier.fillMaxWidth(if (it % 2 == 0) 1f else .75f)
-                .height(48.dp).clip(IFShapes.md).background(IFTheme.colors.surfaceSubtle))
-        }
+fun IFLoadingRegion(
+    label: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier.fillMaxWidth().semantics {
+            contentDescription = label
+            liveRegion = LiveRegionMode.Polite
+            progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate
+        },
+        content = content,
+    )
+}
+
+@Composable
+fun IFSkeletonBlock(
+    modifier: Modifier,
+    shape: Shape = IFShapes.xs,
+    color: Color = IFTheme.colors.surfaceSubtle,
+) {
+    Box(modifier.clip(shape).background(color))
+}
+
+/** Reserve the real line box, including font scaling, without rendering fake text. */
+@Composable
+fun IFSkeletonLine(
+    fraction: Float,
+    modifier: Modifier = Modifier,
+    style: TextStyle = IFTheme.typography.bodySm,
+    color: Color = IFTheme.colors.surfaceSubtle,
+) {
+    val density = LocalDensity.current
+    val lineHeight = with(density) { style.lineHeight.toDp() }
+    val barHeight = with(density) { style.fontSize.toDp() * .65f }
+    Box(modifier.fillMaxWidth(fraction).height(lineHeight), contentAlignment = Alignment.CenterStart) {
+        IFSkeletonBlock(Modifier.fillMaxWidth().height(barHeight), color = color)
     }
 }
 

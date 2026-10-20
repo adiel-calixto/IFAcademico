@@ -360,7 +360,21 @@ Logout is visually distinct and opens a confirmation panel with a safe cancel ac
 
 Buttons have visible focus and pressed states. Modal panels keep keyboard focus inside while open and return it to the opener on close. Selected navigation and toggle states are exposed through text and control semantics.
 
-Use subdued placeholder blocks while loading, actionable retry messages for failures, and descriptive empty states. Maintain readable contrast in each theme independently: at least 4.5:1 for ordinary text and 3:1 for large text and essential graphics.
+Session resolution uses only the theme background, a centered small progress indicator,
+and a short localized label. Show the appropriate page and navigation after the
+authentication state is known.
+
+Academic loading uses static, subdued skeletons shaped like the content they replace:
+coefficient values and class rows on Today, subject rows on Diaries, compact event
+rows below the Calendar grid, and assessment rows inside subject details. Profile
+loading follows the centered identity and grouped preferences layout. Preserve known
+headings and period context; unavailable values and counts remain placeholders.
+Skeletons use the same spacing and font-scaled line boxes as content, without shimmer
+or pulsing. Decorative shapes expose no actions or academic values; each loading
+region has one localized accessible indeterminate status. Keep Calendar navigation,
+sheet dismissal, and already loaded attendance available during loading.
+
+Use actionable retry messages for failures and descriptive empty states. Maintain readable contrast in each theme independently: at least 4.5:1 for ordinary text and 3:1 for large text and essential graphics.
 
 ## Do's and Don'ts
 

@@ -92,7 +92,6 @@
     <string name="previous_month">Mês anterior</string>
     <string name="next_month">Próximo mês</string>
     <string name="today_label">Hoje</string>
-    <string name="loading_records">Carregando registros acadêmicos…</string>
     <string name="cancel">Cancelar</string>
     <string name="back">Voltar</string>
     <string name="no_special_dates">Nenhuma data especial neste mês</string>
@@ -133,4 +132,11 @@
         <item quantity="one">%d data especial</item>
         <item quantity="other">%d datas especiais</item>
     </plurals>
+    <string name="checking_session">Verificando sessão…</string>
+    <string name="loading_home">Carregando resumo acadêmico…</string>
+    <string name="loading_subjects">Carregando diários…</string>
+    <string name="loading_special_dates">Carregando datas especiais…</string>
+    <string name="loading_timetable">Carregando horário…</string>
+    <string name="loading_assessments">Carregando avaliações…</string>
+    <string name="loading_profile">Carregando perfil…</string>
 </resources>

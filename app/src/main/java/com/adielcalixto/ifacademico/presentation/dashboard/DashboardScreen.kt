@@ -22,7 +22,8 @@ import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.IFEmptyState
 import com.adielcalixto.ifacademico.presentation.components.IFErrorState
 import com.adielcalixto.ifacademico.presentation.components.IFIcon
-import com.adielcalixto.ifacademico.presentation.components.IFLoadingPlaceholder
+import com.adielcalixto.ifacademico.presentation.dashboard.components.DashboardLoading
+import com.adielcalixto.ifacademico.presentation.dashboard.components.TimetableLoading
 import com.adielcalixto.ifacademico.presentation.components.IFSectionTitle
 import com.adielcalixto.ifacademico.presentation.components.IFSlidingSheet
 import com.adielcalixto.ifacademico.presentation.components.IFTextButton
@@ -55,7 +56,7 @@ internal fun DashboardContent(
     var homeOpener by remember { mutableStateOf(timetableFocus) }
 
     when {
-        state.isLoading -> IFLoadingPlaceholder(modifier.padding(IFTheme.pageInset))
+        state.isLoading -> DashboardLoading(modifier)
         state.error != null -> ErrorComponent(state.error) {
             onAction(DashboardAction.LoadViewModelData)
         }
@@ -134,7 +135,9 @@ internal fun DashboardContent(
                 IFClassDetail(detail.course.displayRecord(locale))
             } else {
                 when {
-                    state.timetableLoading -> IFLoadingPlaceholder()
+                    state.timetableLoading -> TimetableLoading(state.currentPeriod?.let {
+                        stringResource(R.string.timetable_period, it.year, it.number)
+                    })
                     state.timetableError != null -> IFErrorState(
                         state.timetableError.asUiText().asString(),
                         { onAction(DashboardAction.RetryTimetable) }
