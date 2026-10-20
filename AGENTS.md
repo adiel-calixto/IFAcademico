@@ -20,7 +20,7 @@ Retrofit/OkHttp, and Preferences DataStore.
 - `MainActivity.kt`: app composition, typed `Screen` routes, and navigation wiring.
 - `DESIGN.md`: visual specification. `design-system/README.md` explains the native
   implementation and migration status; `design-system/` is documentation, not a
-  Gradle module. Root `index.html` is a page-redesign reference.
+  Gradle module.
 
 ## Setup and commands
 
