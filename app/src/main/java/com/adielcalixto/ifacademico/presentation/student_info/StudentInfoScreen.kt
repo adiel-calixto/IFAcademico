@@ -21,8 +21,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import com.adielcalixto.ifacademico.domain.Error
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Student
+import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.IFSize
 import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
@@ -39,6 +41,9 @@ fun StudentInfoScreen(
     isUpdateCheckEnabled: Boolean,
     onUpdateCheckEnabledChange: (Boolean) -> Unit,
     onLogout: () -> Unit,
+    error: Error.DataError? = null,
+    isLoading: Boolean = false,
+    onRetry: () -> Unit = {},
 ) {
     val themeViewModel: ThemeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
     val theme by themeViewModel.theme.collectAsState()
@@ -47,6 +52,7 @@ fun StudentInfoScreen(
         student, theme, themeViewModel::changeTheme,
         isUpdateCheckEnabled, onUpdateCheckEnabledChange, onLogout,
         onOpenProject = { uriHandler.openUri("https://github.com/adiel-calixto/IFAcademico") },
+        error = error, isLoading = isLoading, onRetry = onRetry,
     )
 }
 
@@ -60,6 +66,9 @@ internal fun StudentInfoContent(
     onLogout: () -> Unit,
     onOpenProject: () -> Unit,
     modifier: Modifier = Modifier,
+    error: Error.DataError? = null,
+    isLoading: Boolean = false,
+    onRetry: () -> Unit = {},
 ) {
     var showLogout by rememberSaveable { mutableStateOf(false) }
     var dismissLogout by remember { mutableStateOf(false) }
@@ -73,18 +82,36 @@ internal fun StudentInfoContent(
                 .padding(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            IFInitialsAvatar(student.name)
-            Spacer(Modifier.height(IFSpacing.md))
-            Text(
-                student.name, Modifier.semantics { heading() },
-                style = IFTheme.typography.titleLg, color = IFTheme.colors.onSurface,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(IFSpacing.micro))
-            Text(
-                student.courseName, style = IFTheme.typography.bodySm,
-                color = IFTheme.colors.secondary, textAlign = TextAlign.Center,
-            )
+            when {
+                isLoading -> IFLoadingRegion(stringResource(R.string.loading_profile)) {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IFSkeletonBlock(Modifier.size(IFSize.avatar), shape = IFTheme.shapes.full)
+                        Spacer(Modifier.height(IFSpacing.md))
+                        IFSkeletonLine(.7f, style = IFTheme.typography.titleLg)
+                        Spacer(Modifier.height(IFSpacing.micro))
+                        IFSkeletonLine(.85f)
+                    }
+                }
+
+                error != null -> IFErrorState(error.asUiText().asString(), onRetry)
+                else -> {
+                    IFInitialsAvatar(student.name)
+                    Spacer(Modifier.height(IFSpacing.md))
+                    Text(
+                        student.name, Modifier.semantics { heading() },
+                        style = IFTheme.typography.titleLg, color = IFTheme.colors.onSurface,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(IFSpacing.micro))
+                    Text(
+                        student.courseName, style = IFTheme.typography.bodySm,
+                        color = IFTheme.colors.secondary, textAlign = TextAlign.Center,
+                    )
+                }
+            }
             Spacer(Modifier.height(IFSpacing.xl))
             Surface(
                 Modifier.fillMaxWidth(), shape = IFTheme.shapes.lg,

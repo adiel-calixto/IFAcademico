@@ -70,12 +70,9 @@ internal fun DiaryDetailContent(
                 pendingClasses = diary.pendingClasses,
             )
         )
-        if (assessments.error != null && assessments.exams.isNotEmpty()) {
-            IFErrorState(assessments.error.asUiText().asString(), onRetryAssessments)
-        }
         when {
-            assessments.isLoading && assessments.exams.isEmpty() -> AssessmentsLoading()
-            assessments.error != null && assessments.exams.isEmpty() -> Column(
+            assessments.isLoading -> AssessmentsLoading()
+            assessments.error != null -> Column(
                 verticalArrangement = Arrangement.spacedBy(
                     IFSpacing.md
                 )

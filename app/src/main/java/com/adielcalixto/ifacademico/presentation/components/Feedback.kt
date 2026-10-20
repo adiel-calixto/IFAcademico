@@ -1,5 +1,6 @@
 package com.adielcalixto.ifacademico.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,8 +14,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.adielcalixto.ifacademico.R
+import com.adielcalixto.ifacademico.presentation.IFSize
 import com.adielcalixto.ifacademico.presentation.IFShapes
 import com.adielcalixto.ifacademico.presentation.IFSpacing
 import com.adielcalixto.ifacademico.presentation.IFTheme
@@ -71,14 +74,45 @@ fun IFEmptyState(message: String, modifier: Modifier = Modifier) {
     )
 }
 
+/** Fills only the failed region; page/section insets belong to the caller. */
 @Composable
-fun IFErrorState(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-        Text(
-            message, Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-            style = IFTheme.typography.bodyMd, color = IFTheme.colors.onSurface
-        )
-        IFButton(onRetry) { Text(stringResource(R.string.retry)) }
+fun IFErrorState(
+    message: String, onRetry: () -> Unit, modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.content_load_error),
+) {
+    Surface(
+        modifier.fillMaxWidth(),
+        color = IFTheme.colors.surfaceSubtle,
+        shape = IFTheme.shapes.lg
+    ) {
+        Column(
+            Modifier.padding(IFSpacing.lg),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(IFSpacing.sm),
+        ) {
+            Icon(IFIcon.Warning.vector, null, Modifier.size(28.dp), tint = IFTheme.colors.error)
+            Column(
+                Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
+            ) {
+                Text(
+                    title, style = IFTheme.typography.titleSm,
+                    color = IFTheme.colors.onSurface, textAlign = TextAlign.Center
+                )
+                Text(
+                    message, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary,
+                    textAlign = TextAlign.Center
+                )
+            }
+            OutlinedButton(
+                onClick = onRetry,
+                modifier = Modifier.heightIn(min = IFSize.touchTarget),
+                shape = IFTheme.shapes.md,
+                border = BorderStroke(1.dp, IFTheme.colors.primary),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = IFTheme.colors.primary),
+            ) { Text(stringResource(R.string.retry)) }
+        }
     }
 }
 
@@ -107,16 +141,4 @@ fun IFConfirmationContent(
         ) { Text(confirmLabel) }
         IFTextButton(onCancel, Modifier.fillMaxWidth()) { Text(stringResource(R.string.cancel)) }
     }
-}
-
-@Composable
-fun IFRefreshStatus() {
-    Text(
-        stringResource(R.string.refreshing_data),
-        Modifier.semantics {
-            liveRegion = LiveRegionMode.Polite; progressBarRangeInfo =
-            ProgressBarRangeInfo.Indeterminate
-        },
-        style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
-    )
 }

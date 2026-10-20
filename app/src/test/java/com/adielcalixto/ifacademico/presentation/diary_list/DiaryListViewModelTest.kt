@@ -245,4 +245,57 @@ class DiaryListViewModelTest {
             assertEquals(9f, model.state.value.assessments[1]!!.exams.single().grade)
             assertEquals(GradesSheet.Subject(1), model.state.value.sheet)
         }
+
+    @Test
+    fun `assessment Retry reloads only that subject and leaves attendance source and other subjects intact`() =
+        runTest(dispatcher) {
+            val model = DiaryListViewModel(periods, diaries, exams)
+            model.setRegistrationId(42)
+            runCurrent()
+            model.onAction(DiaryListAction.RetryAssessments(1))
+            runCurrent()
+            coVerify(exactly = 1) { periods.execute() }
+            coVerify(exactly = 1) { diaries.execute(42, 2, 2026) }
+            coVerify(exactly = 2) { exams.execute(1, 42) }
+            assertEquals(listOf(diary), model.state.value.diaries)
+        }
+
+    @Test
+    fun `initial batch completion does not reveal old assessments while an independent Retry is pending`() =
+        runTest(dispatcher) {
+            val batch = CompletableDeferred<Unit>()
+            val retry = CompletableDeferred<Unit>()
+            coEvery { diaries.execute(any(), any(), any()) } returns Result.Success(
+                listOf(
+                    diary,
+                    diary.copy(id = 2)
+                )
+            )
+            coEvery { exams.execute(1, 42) } returns Result.Error(IOError)
+            coEvery {
+                exams.execute(
+                    2,
+                    42
+                )
+            } coAnswers { batch.await(); Result.Success(listOf(exam)) }
+            val model = model()
+            model.setRegistrationId(42)
+            runCurrent()
+            coEvery {
+                exams.execute(
+                    1,
+                    42
+                )
+            } coAnswers { retry.await(); Result.Success(listOf(exam.copy(grade = 9f))) }
+            model.onAction(DiaryListAction.RetryAssessments(1))
+            runCurrent()
+            batch.complete(Unit)
+            runCurrent()
+            assertTrue(model.state.value.assessments.getValue(1).isLoading)
+            assertFalse(model.state.value.assessments.getValue(2).isLoading)
+            retry.complete(Unit)
+            runCurrent()
+            assertFalse(model.state.value.assessments.getValue(1).isLoading)
+            assertEquals(9f, model.state.value.assessments.getValue(1).exams.single().grade)
+        }
 }

@@ -23,7 +23,8 @@ import org.junit.Rule
 import org.junit.Test
 
 class GradesInteractionTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule
+    val compose = createComposeRule()
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
     private fun label(id: Int) = context.getString(id)
 
@@ -35,7 +36,11 @@ class GradesInteractionTest {
         IFTheme {
             Column {
                 IFHeader({}, periodControl = {
-                    GradesPeriodControl(state, { onAction(DiaryListAction.ShowPeriods) }, Modifier.focusRequester(focus))
+                    GradesPeriodControl(
+                        state,
+                        { onAction(DiaryListAction.ShowPeriods) },
+                        Modifier.focusRequester(focus)
+                    )
                 })
                 DiaryListContent(state, onAction, Modifier.weight(1f), periodFocus = focus)
             }
@@ -49,7 +54,11 @@ class GradesInteractionTest {
             Host(state) { action ->
                 state = when (action) {
                     DiaryListAction.ShowPeriods -> state.copy(sheet = GradesSheet.PeriodPicker)
-                    is DiaryListAction.SelectPeriod -> state.copy(selectedPeriod = action.period, sheet = GradesSheet.Closed)
+                    is DiaryListAction.SelectPeriod -> state.copy(
+                        selectedPeriod = action.period,
+                        sheet = GradesSheet.Closed
+                    )
+
                     DiaryListAction.CloseSheet -> state.copy(sheet = GradesSheet.Closed)
                     else -> state
                 }
@@ -61,9 +70,11 @@ class GradesInteractionTest {
         compose.onNodeWithText("2026/1").performClick()
         waitForClosedSheet()
         compose.runOnIdle { assertEquals(1, state.selectedPeriod!!.number) }
-        compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).assertTextContains("2026/1")
+        compose.onNodeWithContentDescription(label(R.string.choose_academic_period))
+            .assertTextContains("2026/1")
         compose.waitUntil(5_000) {
-            compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).fetchSemanticsNode()
+            compose.onNodeWithContentDescription(label(R.string.choose_academic_period))
+                .fetchSemanticsNode()
                 .config.getOrElse(SemanticsProperties.Focused) { false }
         }
     }
@@ -115,7 +126,11 @@ class GradesInteractionTest {
         compose.onNodeWithText("Profile").assertIsDisplayed()
         compose.runOnIdle { showingGrades = true }
         compose.onNodeWithText("Subject 18").assertIsDisplayed()
-        assertEquals(before, compose.onNodeWithText("Subject 18").fetchSemanticsNode().boundsInRoot.top, 2f)
+        assertEquals(
+            before,
+            compose.onNodeWithText("Subject 18").fetchSemanticsNode().boundsInRoot.top,
+            2f
+        )
         compose.runOnIdle { state = state.copy(selectedPeriod = state.periods[1]) }
         compose.onNodeWithText("Subject 1").assertIsDisplayed()
     }
@@ -124,10 +139,12 @@ class GradesInteractionTest {
     fun assessmentFailureKeepsOtherDetailsAndRetryIsLocal() {
         var action: DiaryListAction? = null
         compose.setContent {
-            Host(PreviewGrades.copy(
-                sheet = GradesSheet.Subject(1),
-                assessments = mapOf(1 to SubjectAssessments(isLoading = false, error = IOError))
-            )) { action = it }
+            Host(
+                PreviewGrades.copy(
+                    sheet = GradesSheet.Subject(1),
+                    assessments = mapOf(1 to SubjectAssessments(isLoading = false, error = IOError))
+                )
+            ) { action = it }
         }
         compose.onNodeWithText(label(R.string.attendance)).assertIsDisplayed()
         compose.onNodeWithText(label(R.string.class_progress)).assertDoesNotExist()
@@ -149,12 +166,15 @@ class GradesInteractionTest {
                 }
             }
         }
-        compose.onNodeWithText(context.getString(R.string.assessment_score, "0")).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.assessment_score, "0")).performScrollTo()
+            .assertIsDisplayed()
         compose.onAllNodesWithText(label(R.string.not_graded)).assertCountEquals(2)
-        compose.onAllNodesWithText(label(R.string.date_not_supplied), substring = true).assertCountEquals(0)
+        compose.onAllNodesWithText(label(R.string.date_not_supplied), substring = true)
+            .assertCountEquals(0)
         compose.onNodeWithText("(A1 + A2) / 2").assertDoesNotExist()
         compose.onNodeWithText("Média da primeira etapa").performScrollTo().performClick()
-        compose.onNodeWithText(label(R.string.date_not_supplied), substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(label(R.string.date_not_supplied), substring = true)
+            .performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("(A1 + A2) / 2").performScrollTo().assertIsDisplayed()
         Espresso.pressBack()
         waitForClosedSheet()
@@ -171,7 +191,36 @@ class GradesInteractionTest {
             state = DiaryListState(isLoading = false)
         }
         compose.onNodeWithText(label(R.string.no_academic_periods)).assertIsDisplayed()
-        compose.onNodeWithContentDescription(label(R.string.choose_academic_period)).assertIsNotEnabled()
+        compose.onNodeWithContentDescription(label(R.string.choose_academic_period))
+            .assertIsNotEnabled()
+    }
+
+
+    @Test
+    fun listRefreshFailureReplacesPreviousSubjectsButKeepsPeriodControl() {
+        var action: DiaryListAction? = null
+        compose.setContent { Host(PreviewGrades.copy(error = IOError)) { action = it } }
+        compose.onNodeWithText(PreviewSubject.name).assertDoesNotExist()
+        compose.onNodeWithContentDescription(label(R.string.choose_academic_period))
+            .assertIsEnabled()
+        compose.onNodeWithText(label(R.string.retry)).performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(DiaryListAction.LoadViewModelData, action) }
+    }
+
+    @Test
+    fun assessmentFailureReplacesPreviousGradesButKeepsAttendance() {
+        val failed = PreviewGrades.assessments.getValue(1).copy(error = IOError)
+        compose.setContent {
+            Host(
+                PreviewGrades.copy(
+                    sheet = GradesSheet.Subject(1),
+                    assessments = mapOf(1 to failed)
+                )
+            ) {}
+        }
+        compose.onNodeWithText(label(R.string.attendance)).assertExists()
+        compose.onNodeWithText(PreviewAssessments.first().description).assertDoesNotExist()
+        compose.onNodeWithText(label(R.string.retry)).performScrollTo().assertHasClickAction()
     }
 
     private fun waitForClosedSheet() {

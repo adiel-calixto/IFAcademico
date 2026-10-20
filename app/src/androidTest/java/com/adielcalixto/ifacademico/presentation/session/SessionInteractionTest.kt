@@ -22,24 +22,30 @@ class SessionInteractionTest {
     val compose = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun recoveryFeedbackKeepsSelectedPageAndContentAndOffersAccessibleRetry() {
+    fun sessionFailureReplacesItsRegionOnceAndPreservesTheSelectedPage() {
         var error by mutableStateOf<com.adielcalixto.ifacademico.domain.Error.DataError?>(null)
         var retries = 0
         compose.setContent {
             IFTheme(darkTheme = false) {
                 SignedInShell(
                     periodControl = {},
-                    pageContent = { tab, _ -> Text("Academic content ${tab.name}") },
+                    pageContent = { tab, _ ->
+                        val failure = LocalAcademicError.current
+                        if (failure == null || !LocalAcademicVisible.current) Text("Academic content ${tab.name}")
+                        else com.adielcalixto.ifacademico.presentation.components.IFErrorState(
+                            failure.asUiText().asString(), { retries++; error = null })
+                    },
                     profileContent = { Text("Student profile") },
                     sessionError = error,
-                    onRetrySession = { retries++; error = null },
                 )
             }
         }
         val calendar = compose.activity.getString(R.string.calendar)
         compose.onNode(hasText(calendar) and hasClickAction()).performClick().assertIsSelected()
         compose.runOnIdle { error = IOError }
-        compose.onNodeWithText("Academic content Calendar").assertIsDisplayed()
+        compose.onNodeWithText("Academic content Calendar").assertDoesNotExist()
+        compose.onAllNodesWithText(compose.activity.getString(R.string.content_load_error))
+            .assertCountEquals(1)
         compose.onNodeWithText(compose.activity.getString(R.string.retry)).assertHasClickAction()
             .performClick()
         compose.onNode(hasText(calendar) and hasClickAction()).assertIsSelected()

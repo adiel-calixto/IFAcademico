@@ -73,10 +73,10 @@ class DashboardViewModelTest {
             )
         )
         val model = model()
-        assertTrue(model.state.value.isLoading)
+        assertTrue((model.state.value.coefficientsLoading || model.state.value.classesLoading))
         runCurrent()
-        assertFalse(model.state.value.isLoading)
-        assertNull(model.state.value.error)
+        assertFalse((model.state.value.coefficientsLoading || model.state.value.classesLoading))
+        assertNull(model.state.value.classesError)
         assertEquals(0f, model.state.value.performanceCoefficients.studentPerformance)
         assertEquals(
             listOf("08:00", "15:00"),
@@ -88,12 +88,12 @@ class DashboardViewModelTest {
         coEvery { today.execute() } returns Result.Error(IOError)
         val model = model()
         runCurrent()
-        assertEquals(IOError, model.state.value.error)
+        assertEquals(IOError, model.state.value.classesError)
         coEvery { today.execute() } returns Result.Success(TimeTable(emptyList(), "", ""))
-        model.onAction(DashboardAction.LoadViewModelData)
+        model.onAction(DashboardAction.RetryClasses)
         runCurrent()
-        assertNull(model.state.value.error)
-        assertFalse(model.state.value.isLoading)
+        assertNull(model.state.value.classesError)
+        assertFalse((model.state.value.coefficientsLoading || model.state.value.classesLoading))
     }
 
     @Test
@@ -133,7 +133,7 @@ class DashboardViewModelTest {
         model.onAction(DashboardAction.ShowIndividualTimeTable)
         runCurrent()
         assertEquals(IOError, model.state.value.timetableError)
-        assertNull(model.state.value.error)
+        assertNull(model.state.value.classesError)
         coEvery { periods.execute() } returns Result.Success(listOf(Period(2026, 2)))
         coEvery { weekly.execute(2026, 2) } returns Result.Error(IOError)
         model.onAction(DashboardAction.RetryTimetable)
@@ -221,13 +221,99 @@ class DashboardViewModelTest {
             model.refreshIfStale(1)
             model.refreshIfStale(1)
             runCurrent()
-            assertTrue(model.state.value.hasContent)
             assertEquals(listOf(course), model.state.value.timeTable.classes)
-            assertEquals(IOError, model.state.value.error)
-            assertFalse(model.state.value.isLoading)
+            assertEquals(IOError, model.state.value.classesError)
+            assertFalse((model.state.value.coefficientsLoading || model.state.value.classesLoading))
             model.onAction(DashboardAction.ShowIndividualTimeTable)
             runCurrent()
             coVerify(exactly = 2) { weekly.execute(2026, 2) }
             assertEquals(6, model.state.value.selectedWeekday)
+        }
+
+    @Test
+    fun `coefficient failure leaves classes available and retry only requests coefficients`() =
+        runTest(dispatcher) {
+            coEvery { coefficients.execute() } returns Result.Error(IOError)
+            val model = model()
+            runCurrent()
+            assertEquals(IOError, model.state.value.coefficientsError)
+            assertNull(model.state.value.classesError)
+            assertEquals(listOf(course), model.state.value.timeTable.classes)
+            coEvery { coefficients.execute() } returns Result.Success(
+                PerformanceCoefficients(
+                    8f,
+                    7f,
+                    9f
+                )
+            )
+            model.onAction(DashboardAction.RetryCoefficients)
+            model.onAction(DashboardAction.RetryCoefficients)
+            runCurrent()
+            assertNull(model.state.value.coefficientsError)
+            assertEquals(8f, model.state.value.performanceCoefficients.studentPerformance)
+            coVerify(exactly = 2) { coefficients.execute() }
+            coVerify(exactly = 1) { today.execute() }
+        }
+
+    @Test
+    fun `classes finish independently while coefficient request is suspended`() =
+        runTest(dispatcher) {
+            val release = CompletableDeferred<Unit>()
+            coEvery { coefficients.execute() } coAnswers { release.await(); Result.Error(IOError) }
+            val model = model()
+            runCurrent()
+            assertTrue(model.state.value.coefficientsLoading)
+            assertFalse(model.state.value.classesLoading)
+            assertEquals(listOf(course), model.state.value.timeTable.classes)
+            release.complete(Unit)
+            runCurrent()
+            assertFalse(model.state.value.coefficientsLoading)
+        }
+
+    @Test
+    fun `retry loads data and consumes its freshness revision without reloading other sections`() =
+        runTest(dispatcher) {
+            val release = CompletableDeferred<Unit>()
+            val freshness = com.adielcalixto.ifacademico.data.session.AcademicFreshness()
+            val model = DashboardViewModel(coefficients, today, periods, weekly, freshness)
+            runCurrent()
+            coEvery { today.execute() } coAnswers {
+                release.await()
+                freshness.invalidate()
+                Result.Success(TimeTable(listOf(course), "2026-10-19", "09:00"))
+            }
+            model.onAction(DashboardAction.RetryClasses)
+            runCurrent()
+            assertTrue(model.state.value.classesLoading)
+            coVerify(exactly = 2) { today.execute() }
+            release.complete(Unit)
+            runCurrent()
+            model.refreshIfStale(freshness.revision.value)
+            runCurrent()
+            assertFalse(model.state.value.classesLoading)
+            coVerify(exactly = 1) { coefficients.execute() }
+            coVerify(exactly = 2) { today.execute() }
+        }
+
+    @Test
+    fun `targeted retry after authentication renewal also marks the retained timetable stale`() =
+        runTest(dispatcher) {
+            val freshness = com.adielcalixto.ifacademico.data.session.AcademicFreshness()
+            val model = DashboardViewModel(coefficients, today, periods, weekly, freshness)
+            runCurrent()
+            coEvery { today.execute() } coAnswers {
+                freshness.invalidate()
+                Result.Success(TimeTable(listOf(course), "2026-10-19", "09:00"))
+            }
+            model.onAction(DashboardAction.ShowIndividualTimeTable)
+            runCurrent()
+            model.onAction(DashboardAction.HideIndividualTimeTable)
+            model.onAction(DashboardAction.RetryClasses)
+            runCurrent()
+            model.refreshIfStale(freshness.revision.value)
+            model.onAction(DashboardAction.ShowIndividualTimeTable)
+            runCurrent()
+            coVerify(exactly = 2) { weekly.execute(2026, 2) }
+            coVerify(exactly = 1) { coefficients.execute() }
         }
 }

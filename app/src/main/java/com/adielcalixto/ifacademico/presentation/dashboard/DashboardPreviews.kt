@@ -18,13 +18,22 @@ internal val PreviewCourse = TimeTableClass(
 )
 internal val PreviewDashboard = DashboardState(
     timeTable = TimeTable(
-        listOf(PreviewCourse, PreviewCourse.copy(id = 2, className = "Banco de dados", startTime = "10:00", endTime = "11:40", finished = false)),
+        listOf(
+            PreviewCourse,
+            PreviewCourse.copy(
+                id = 2,
+                className = "Banco de dados",
+                startTime = "10:00",
+                endTime = "11:40",
+                finished = false
+            )
+        ),
         "2026-10-19", "2026-10-19T09:41:00-03:00"
     ),
     performanceCoefficients = PerformanceCoefficients(8.72f, 7.94f, 9.3f),
     currentPeriod = Period(2026, 2),
     individualTimeTable = IndividualTimeTable(mapOf(2 to listOf(PreviewCourse)), 2),
-    isLoading = false
+    coefficientsLoading = false, classesLoading = false
 )
 
 @IFCatalogPreviews
@@ -34,10 +43,12 @@ internal fun DashboardPreview() {
         Scaffold(
             topBar = { IFHeader({}) },
             bottomBar = {
-                IFBottomNavigation(listOf(
-                    IFNavigationItem("Hoje", IFIcon.Home), IFNavigationItem("Diários", IFIcon.Grades),
-                    IFNavigationItem("Calendário", IFIcon.Calendar)
-                ), 0, {})
+                IFBottomNavigation(
+                    listOf(
+                        IFNavigationItem("Hoje", IFIcon.Home),
+                        IFNavigationItem("Diários", IFIcon.Grades),
+                        IFNavigationItem("Calendário", IFIcon.Calendar)
+                    ), 0, {})
             }
         ) { padding -> DashboardContent(PreviewDashboard, {}, Modifier.padding(padding)) }
     }
@@ -52,5 +63,12 @@ internal fun TimetablePreview() {
 @IFCatalogPreviews
 @Composable
 internal fun ClassDetailPreview() {
-    IFTheme { DashboardContent(PreviewDashboard.copy(sheet = DashboardSheet.ClassDetail(PreviewCourse)), {}) }
+    IFTheme {
+        DashboardContent(
+            PreviewDashboard.copy(
+                sheet = DashboardSheet.ClassDetail(
+                    PreviewCourse
+                )
+            ), {})
+    }
 }

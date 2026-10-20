@@ -2,6 +2,7 @@ package com.adielcalixto.ifacademico.presentation
 
 import com.adielcalixto.ifacademico.data.remote.AcademicoAPI
 import com.adielcalixto.ifacademico.data.session.*
+import com.adielcalixto.ifacademico.domain.NetworkError
 import com.adielcalixto.ifacademico.domain.IOError
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.entities.Student
@@ -76,6 +77,23 @@ class MainViewModelTest {
         }
 
     @Test
+    fun `startup Retry restores failed storage before loading identity`() = runTest(dispatcher) {
+        val preferences = MemoryPreferences(savedSession(clock)).apply { failRead = true }
+        val session = coordinator(preferences, api, clock, backgroundScope)
+        val model = MainViewModel(session, student)
+        runCurrent()
+        assertEquals(NetworkError.Storage, model.state.value.error)
+        coVerify(exactly = 0) { student.execute() }
+        preferences.failRead = false
+        model.retryStartup()
+        runCurrent()
+        assertNull(model.state.value.error)
+        assertEquals(SessionState.Valid, model.state.value.sessionState)
+        coVerify(exactly = 1) { student.execute() }
+        coVerify(exactly = 0) { api.login(any()) }
+    }
+
+    @Test
     fun `warm profile failure retains content and logout rejects non cancellable late identity`() =
         runTest(dispatcher) {
             val session =
@@ -87,7 +105,8 @@ class MainViewModelTest {
             runCurrent()
             assertEquals(identity, model.state.value.student)
             assertEquals(SessionState.Valid, model.state.value.sessionState)
-            assertEquals(IOError, model.state.value.error)
+            assertEquals(IOError, model.state.value.profileError)
+            assertNull(model.state.value.sessionError)
             val release = CompletableDeferred<Unit>()
             coEvery { student.execute() } coAnswers {
                 withContext(NonCancellable) { release.await() }; Result.Success(

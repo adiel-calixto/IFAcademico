@@ -26,12 +26,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
+import com.adielcalixto.ifacademico.presentation.asUiText
 import com.adielcalixto.ifacademico.presentation.AppTheme
 import com.adielcalixto.ifacademico.presentation.MainTab
 import com.adielcalixto.ifacademico.presentation.MainViewModel
 import com.adielcalixto.ifacademico.presentation.SignedInShell
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
+import com.adielcalixto.ifacademico.presentation.components.IFErrorState
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.IFSessionLoading
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
@@ -129,14 +131,17 @@ fun App(
         modifier = Modifier.fillMaxSize().navigationBarsPadding().statusBarsPadding(),
     ) {
         composable<Screen.Splash> {
-            if (state.error != null) ErrorComponent(state.error!!, viewModel::retryLoadingData)
+            if (state.error != null) ErrorComponent(state.error!!, viewModel::retryStartup)
             else IFSessionLoading()
         }
         composable<Screen.Login> {
             val loginViewModel: LoginViewModel = hiltViewModel()
             Column {
                 if (state.error == NetworkError.Storage) {
-                    ErrorComponent(state.error!!, viewModel::retryLoadingData)
+                    IFErrorState(
+                        state.error!!.asUiText().asString(),
+                        viewModel::retryStartup,
+                    )
                 }
                 LoginScreen(loginViewModel)
             }
@@ -144,8 +149,7 @@ fun App(
         composable<Screen.SignedIn> { shellEntry ->
             SignedInShell(
                 refreshRevision = revision,
-                sessionError = state.error,
-                onRetrySession = viewModel::retryLoadingData,
+                sessionError = state.sessionError,
                 periodControl = { focus ->
                     val model: DiaryListViewModel = hiltViewModel(shellEntry)
                     val gradesState by model.state.collectAsState()
@@ -186,6 +190,9 @@ fun App(
                     } else {
                         StudentInfoScreen(
                             student = student,
+                            error = state.profileError ?: state.sessionError,
+                            isLoading = state.profileLoading,
+                            onRetry = viewModel::retryLoadingData,
                             isUpdateCheckEnabled = updateState.isUpdateCheckEnabled,
                             onUpdateCheckEnabledChange = updateViewModel::setUpdateCheckEnabled,
                             onLogout = {

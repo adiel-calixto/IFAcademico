@@ -51,7 +51,6 @@ class SessionCoordinator @Inject constructor(
     private var pendingRegistration: String? = null
     private var monotonicLogin: Long? = null
     private var retryAt: Long? = null
-    private var authFailed = false
     private var cleanupPending = false
     private var rejectedAuthentication: Long? = null
     private var cleanupRequest = 0L
@@ -229,7 +228,8 @@ class SessionCoordinator @Inject constructor(
     private suspend fun ensureSession(rejectedVersion: Long? = null) {
         val task = synchronized(guard) {
             if (record.password.isBlank()) throw SessionFailure(NetworkError.LoginRequired)
-            if (auth?.isCompleted == true && !authFailed) auth = null
+            // Waiters keep their attempt's result; a later request may try authentication again.
+            if (auth?.isCompleted == true) auth = null
             auth?.takeIf { it.isActive } ?: if (
                 (rejectedVersion != null && rejectedVersion != version && usable()) ||
                 (rejectedVersion == null && usable())
@@ -252,7 +252,6 @@ class SessionCoordinator @Inject constructor(
         manual: Boolean
     ): Deferred<Result<Unit, Error.DataError>> {
         val owner = generation
-        authFailed = false
         _state.value = snapshot(SessionPhase.Authenticating)
         return scope.async(start = CoroutineStart.LAZY) {
             try {
@@ -320,7 +319,6 @@ class SessionCoordinator @Inject constructor(
                 val error = errorOf(e)
                 synchronized(guard) {
                     checkOwner(owner)
-                    authFailed = true
                     if (!manual && error == NetworkError.InvalidCredentials) requireLogin()
                     else fail(error, manual)
                 }

@@ -72,10 +72,12 @@ No automated publishing or release-signing workflow is configured in the build f
   protected requests and shares one recovery/retry on HTTP 401. Cookie attachment
   uses request ownership tickets; login bypasses the protected gate. `MainViewModel`
   observes session state and waits for current-account student identity before
-  opening academic screens. Temporary failures retain credentials and loaded data.
+  opening academic screens. Temporary failures retain credentials; failed UI regions
+  replace stale values with scoped error placeholders and Retry.
 - Academic cache keys include account generation, freshness revision, and query
   parameters. Foreground returns invalidate freshness; visible and subsequently
-  opened tabs and detail sheets refresh without discarding successful content.
+  opened tabs and detail sheets refresh. Failures replace only their affected regions;
+  unrelated successful content, navigation, and academic selections remain available.
 - Session data includes credentials and cookies and is encrypted through
   `EncryptionUtil` before DataStore persistence. Preserve this storage boundary.
   The LRU cache is process-local, stores JSON strings, and returns `""` on a miss.

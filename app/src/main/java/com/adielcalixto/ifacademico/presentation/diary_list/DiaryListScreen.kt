@@ -55,7 +55,12 @@ fun DiaryListScreen(viewModel: DiaryListViewModel, periodFocus: FocusRequester) 
     val revision = com.adielcalixto.ifacademico.presentation.LocalAcademicRevision.current
     val visible = com.adielcalixto.ifacademico.presentation.LocalAcademicVisible.current
     LaunchedEffect(visible, revision) { if (visible) viewModel.refreshIfStale(revision) }
-    DiaryListContent(state, viewModel::onAction, periodFocus = periodFocus)
+    val sessionError = com.adielcalixto.ifacademico.presentation.LocalAcademicError.current
+    DiaryListContent(
+        state.copy(error = state.error ?: sessionError),
+        viewModel::onAction,
+        periodFocus = periodFocus
+    )
 }
 
 @Composable
@@ -82,18 +87,19 @@ internal fun DiaryListContent(
         modifier.fillMaxSize(), state = listState,
         contentPadding = PaddingValues(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
     ) {
-        if (state.hasContent && state.error != null) item {
-            IFErrorState(
-                state.error.asUiText().asString(),
-                { onAction(DiaryListAction.LoadViewModelData) })
-        }
-        if (state.hasContent && state.isLoading) item { IFRefreshStatus() }
         when {
-            state.isLoading && !state.hasContent -> item { SubjectsLoading(periodKey) }
-            state.error != null && !state.hasContent -> item {
-                IFErrorState(
-                    state.error.asUiText().asString(),
-                    { onAction(DiaryListAction.LoadViewModelData) })
+            state.isLoading -> item { SubjectsLoading(periodKey) }
+            state.error != null && state.sheet is GradesSheet.Subject -> item { Spacer(Modifier.fillParentMaxHeight()) }
+            state.error != null -> item {
+                Column(
+                    Modifier.fillParentMaxHeight().fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    periodKey?.let { IFSectionTitle(it, Modifier.padding(bottom = IFSpacing.sm)) }
+                    IFErrorState(
+                        state.error.asUiText().asString(),
+                        { onAction(DiaryListAction.LoadViewModelData) })
+                }
             }
 
             state.selectedPeriod == null -> item { IFEmptyState(stringResource(R.string.no_academic_periods)) }
@@ -149,9 +155,31 @@ internal fun DiaryListContent(
                     returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm,
                     maxHeightFraction = .65f, showScrollIndicator = true
                 ) {
-                    DiaryDetailContent(
-                        diary, period, state.assessments[diary.id] ?: SubjectAssessments(), locale,
-                        onRetryAssessments = { onAction(DiaryListAction.RetryAssessments(diary.id)) })
+                    when {
+                        state.isLoading -> IFLoadingRegion(stringResource(R.string.loading_subjects)) {
+                            IFSkeletonLine(.6f)
+                            IFSkeletonLine(.8f)
+                        }
+
+                        state.error != null -> IFErrorState(
+                            state.error.asUiText().asString(),
+                            { onAction(DiaryListAction.LoadViewModelData) })
+
+                        else -> {
+                            DiaryDetailContent(
+                                diary,
+                                period,
+                                state.assessments[diary.id] ?: SubjectAssessments(),
+                                locale,
+                                onRetryAssessments = {
+                                    onAction(
+                                        DiaryListAction.RetryAssessments(
+                                            diary.id
+                                        )
+                                    )
+                                })
+                        }
+                    }
                 }
             }
         }

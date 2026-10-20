@@ -25,8 +25,10 @@ recovery and one retry; a late old-version 401 can reuse a newer authentication
 without another login. A current-version retry 401, or the documented empty-key
 HTTP 400 `Senha Inválida!` login response, requires manual login. Unknown 400s,
 malformed responses, timeouts, server failures, and throttling preserve credentials.
-Retry and subsequent foreground transitions can restart failed recovery, respecting
-`Retry-After` rather than spinning automatically.
+A later protected request or foreground transition can restart failed recovery,
+respecting `Retry-After`. Requests waiting on the same authentication attempt share
+its result; a failure ends those requests without an automatic retry loop. Ordinary
+academic timeouts and server errors do not trigger login while the session is usable.
 
 ## Ownership, storage, and logout
 
@@ -60,15 +62,34 @@ with that return.
 Visible tabs react to the revision. Other retained tabs refresh when settled into
 view. Profile checks its revision on opening, and timetable data refreshes while
 open or on its next opening. Calendar month, selected academic period, weekday,
-scroll state, and available same-account content survive refresh failures. Retry
-is shown for errors; successful screens do not gain a general refresh action.
+and scroll state survive refresh failures. Failed regions replace their previous
+values with an error placeholder; unrelated successful regions remain visible.
+Values may remain in memory for continuity and selection bookkeeping, but failed or
+refreshing regions do not render stale records. This supersedes the earlier policy
+of displaying old values next to refresh errors.
+
+The shell supplies recoverable session failures to the affected page rather than
+rendering a global error block. Today handles coefficients and classes independently;
+a session failure affecting the entire page has one placeholder. Profile errors are
+separate from session errors and replace only identity content. Calendar hides stale
+markers and counts; assessments fail locally without hiding attendance. Modal errors
+replace their body without a second copy of the same failure behind the sheet.
+
+Each region's Retry clears its error and calls the same data operation again.
+Session recovery happens automatically inside the protected request gate when
+needed; feature view models do not request recovery or pass retry policies.
+Startup restoration and failed logout cleanup remain application-level actions.
+Retries coalesce the authentication freshness change
+so other successful sections are not reloaded by that action. Other retained pages
+still observe the new revision when opened. Successful screens do not gain a general
+refresh action.
 
 ## Verification
 
 The JVM suite covers expiry boundaries and clock changes, recovery/retry budgets,
 shared concurrent login, late 401s, domain error classification, logout/account
 races, serialized storage cleanup, encrypted record migration/corruption, startup
-identity readiness, and retained feature data. MockWebServer exercises the production
+identity readiness, independent section failures, and targeted Retry. MockWebServer exercises the production
 client and Retrofit gate, including concurrency, scoped cookies, throttling, malformed
 payloads, and a bounded timeout. Instrumentation includes real activity lifecycle
 transitions, accessible recovery feedback, and preservation of the visible tab.

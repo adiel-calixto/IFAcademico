@@ -1,6 +1,8 @@
 package com.adielcalixto.ifacademico.data.remote
 
 import com.adielcalixto.ifacademico.data.session.*
+import com.adielcalixto.ifacademico.data.usecases.AcademicLoad
+import com.adielcalixto.ifacademico.data.usecases.GetPeriodsUseCaseImpl
 import com.adielcalixto.ifacademico.domain.NetworkError
 import com.adielcalixto.ifacademico.domain.Result
 import kotlinx.coroutines.*
@@ -76,6 +78,62 @@ class HttpCompatibilityTest {
             assertNull(auth.headers["Cookie"])
             assertEquals("session=new; route=keep", retry.headers["Cookie"])
             assertEquals(SessionPhase.Authenticated, session.state.value.phase)
+        }
+
+    @Test
+    fun `repeating a failed academic operation after HTTP 500 keeps the usable session`() =
+        runTest {
+            val cache = MemoryCache()
+            val session = coordinator(
+                preferences, raw, clock, backgroundScope, cache,
+                url = server.url("/webapp/api/").toString()
+            )
+            val getPeriods = GetPeriodsUseCaseImpl(
+                SessionAcademicoAPI(raw, session),
+                AcademicLoad(cache, session)
+            )
+            session.restore()
+            server.enqueue(MockResponse.Builder().code(500).body("{}").build())
+            assertEquals(NetworkError.Http(500), (getPeriods.execute() as Result.Error).error)
+            server.enqueue(periods())
+            val result = getPeriods.execute()
+            assertTrue(result is Result.Success)
+            assertEquals(2026, (result as Result.Success).data.single().year)
+            assertEquals(2, server.requestCount)
+            repeat(2) {
+                assertFalse(
+                    server.takeRequest(
+                        5,
+                        TimeUnit.SECONDS
+                    )!!.url.encodedPath.endsWith("signin")
+                )
+            }
+        }
+
+    @Test
+    fun `repeating the same data operation automatically retries failed authentication`() =
+        runTest {
+            val cache = MemoryCache()
+            val session = coordinator(
+                preferences, raw, clock, backgroundScope, cache,
+                url = server.url("/webapp/api/").toString()
+            )
+            val getPeriods = GetPeriodsUseCaseImpl(
+                SessionAcademicoAPI(raw, session),
+                AcademicLoad(cache, session)
+            )
+            session.restore()
+            clock.advance(SessionCoordinator.LOGIN_WINDOW)
+            server.enqueue(MockResponse.Builder().code(503).body("{}").build())
+            assertEquals(NetworkError.Http(503), (getPeriods.execute() as Result.Error).error)
+            assertEquals(1, server.requestCount)
+            assertEquals("synthetic-password", preferences.saved.password)
+            server.enqueue(login())
+            server.enqueue(periods())
+            assertTrue(getPeriods.execute() is Result.Success)
+            assertEquals(3, server.requestCount)
+            assertEquals(SessionPhase.Authenticated, session.state.value.phase)
+            assertNull(session.state.value.error)
         }
 
     @Test
@@ -182,7 +240,7 @@ class HttpCompatibilityTest {
         }
 
     @Test
-    fun `Retry After prevents immediate authentication loops and allows a later explicit retry`() =
+    fun `Retry After prevents immediate authentication loops and allows a later data retry`() =
         runTest {
             preferences.saved = preferences.saved.copy(loggedInAt = null)
             val session = coordinator(
@@ -195,14 +253,18 @@ class HttpCompatibilityTest {
             server.enqueue(
                 MockResponse.Builder().code(429).addHeader("Retry-After", "60").body("{}").build()
             )
+            val getPeriods = GetPeriodsUseCaseImpl(
+                SessionAcademicoAPI(raw, session), AcademicLoad(MemoryCache(), session)
+            )
             assertTrue(session.restore() is Result.Error)
-            assertTrue(session.retry() is Result.Error)
+            assertTrue(getPeriods.execute() is Result.Error)
             assertEquals(1, server.requestCount)
             assertEquals("synthetic-password", preferences.saved.password)
             clock.advance(60000)
             server.enqueue(login())
-            assertTrue(session.retry() is Result.Success)
-            assertEquals(2, server.requestCount)
+            server.enqueue(periods())
+            assertTrue(getPeriods.execute() is Result.Success)
+            assertEquals(3, server.requestCount)
         }
 
     @Test

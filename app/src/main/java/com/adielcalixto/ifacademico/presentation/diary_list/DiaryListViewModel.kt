@@ -25,7 +25,7 @@ class DiaryListViewModel @Inject constructor(
     private val getPeriodsUseCase: GetPeriodsUseCase,
     private val getDiariesUseCase: GetDiariesUseCase,
     private val getExamsUseCase: GetExamsUseCase,
-    freshness: AcademicFreshness = AcademicFreshness(),
+    private val freshness: AcademicFreshness = AcademicFreshness(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiaryListState())
     val state = _state.asStateFlow()
@@ -33,12 +33,16 @@ class DiaryListViewModel @Inject constructor(
     private val retryJobs = mutableMapOf<Int, Job>()
     private val assessmentPermits = Semaphore(4)
     private var request = 0
+    private var listRetrying = false
+    private var periodsStale = false
     private var revision: Long = freshness.revision.value
 
     fun refreshIfStale(currentRevision: Long) {
         val previous = revision
         revision = currentRevision
-        if (previous != currentRevision) loadData(refresh = true)
+        if (previous != currentRevision && !(listRetrying && loadJob?.isActive == true) &&
+            retryJobs.values.none { it.isActive }
+        ) loadData(refresh = true)
     }
 
     fun setRegistrationId(registrationId: Int) {
@@ -47,9 +51,11 @@ class DiaryListViewModel @Inject constructor(
         loadData()
     }
 
-    private fun loadData(refresh: Boolean = false, clear: Boolean = false) {
+    private fun loadData(refresh: Boolean = false, clear: Boolean = false, retry: Boolean = false) {
         val registrationId = _state.value.registrationId
         if (registrationId <= 0) return
+        if (retry && _state.value.isLoading && loadJob?.isActive == true) return
+        if (refresh) periodsStale = true
         val version = ++request
         loadJob?.cancel()
         retryJobs.values.forEach { it.cancel() }
@@ -59,16 +65,17 @@ class DiaryListViewModel @Inject constructor(
                 isLoading = true,
                 error = null,
                 diaries = if (clear) emptyList() else it.diaries,
-                assessments = if (clear) emptyMap() else it.assessments,
-                hasContent = !clear && it.hasContent
+                assessments = if (clear) emptyMap() else it.assessments
             )
         }
+        listRetrying = retry
         loadJob = viewModelScope.launch {
             try {
-                if (refresh || _state.value.periods.isEmpty()) {
+                if (periodsStale || _state.value.periods.isEmpty()) {
                     val result = getPeriodsUseCase.execute()
                     currentCoroutineContext().ensureActive()
                     if (version != request) return@launch
+                    if (result is Result.Success) periodsStale = false
                     when (result) {
                         is Result.Error -> {
                             _state.update { it.copy(isLoading = false, error = result.error) }
@@ -85,7 +92,7 @@ class DiaryListViewModel @Inject constructor(
                 }
                 val period = _state.value.selectedPeriod
                 if (period == null) {
-                    _state.update { it.copy(isLoading = false, hasContent = true) }
+                    _state.update { it.copy(isLoading = false) }
                     return@launch
                 }
                 val result = getDiariesUseCase.execute(registrationId, period.number, period.year)
@@ -102,7 +109,7 @@ class DiaryListViewModel @Inject constructor(
                     is Result.Success -> {
                         _state.update {
                             it.copy(
-                                isLoading = false, hasContent = true, diaries = result.data,
+                                isLoading = false, diaries = result.data,
                                 assessments = result.data.associate { diary ->
                                     diary.id to (it.assessments[diary.id]?.copy(
                                         isLoading = true,
@@ -119,11 +126,13 @@ class DiaryListViewModel @Inject constructor(
                     }
                 }
             } finally {
+                if (retry && version == request) revision = freshness.revision.value
                 if (version == request) _state.update { current ->
                     current.copy(
                         isLoading = false,
-                        assessments = current.assessments.mapValues { (_, assessment) ->
-                            assessment.copy(
+                        // Individual retries can outlive the initial assessment batch.
+                        assessments = current.assessments.mapValues { (id, assessment) ->
+                            if (retryJobs[id]?.isActive == true) assessment else assessment.copy(
                                 isLoading = false
                             )
                         })
@@ -154,7 +163,7 @@ class DiaryListViewModel @Inject constructor(
 
     fun onAction(action: DiaryListAction) {
         when (action) {
-            DiaryListAction.LoadViewModelData -> loadData()
+            DiaryListAction.LoadViewModelData -> loadData(retry = true)
             is DiaryListAction.SelectPeriod -> {
                 if (action.period !in _state.value.periods) return
                 val changed = action.period != _state.value.selectedPeriod
@@ -188,7 +197,19 @@ class DiaryListViewModel @Inject constructor(
                 }
                 val version = request
                 retryJobs[action.diaryId] = viewModelScope.launch {
-                    loadAssessments(action.diaryId, current.registrationId, version)
+                    try {
+                        loadAssessments(action.diaryId, current.registrationId, version)
+                    } finally {
+                        if (version == request) revision = freshness.revision.value
+                        if (version == request) _state.update {
+                            val latest = it.assessments[action.diaryId] ?: return@update it
+                            it.copy(
+                                assessments = it.assessments + (action.diaryId to latest.copy(
+                                    isLoading = false
+                                ))
+                            )
+                        }
+                    }
                 }
             }
         }

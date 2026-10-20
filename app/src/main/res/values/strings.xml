@@ -152,6 +152,10 @@
     <string name="session_protocol_error">Não foi possível interpretar a resposta do servidor. Tente novamente.</string>
     <string name="session_storage_error">Não foi possível salvar a alteração da sessão. Tente novamente para concluir.</string>
     <string name="session_throttled">Muitas tentativas. Aguarde um pouco antes de tentar novamente.</string>
-    <string name="session_server_error">O servidor está indisponível. Seus dados foram mantidos. Tente novamente.</string>
+    <string name="session_server_error">O servidor está indisponível. Tente novamente em instantes.</string>
     <string name="refreshing_data">Atualizando dados</string>
+    <string name="content_load_error">Não foi possível carregar</string>
+    <string name="loading_coefficients">Carregando coeficientes…</string>
+    <string name="loading_classes">Carregando aulas…</string>
+    <string name="coefficients_load_error">Não foi possível carregar os coeficientes</string>
 </resources>

@@ -1,8 +1,6 @@
 package com.adielcalixto.ifacademico.presentation.dashboard.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,67 +16,20 @@ import com.adielcalixto.ifacademico.presentation.IFTheme
 import com.adielcalixto.ifacademico.presentation.components.*
 
 @Composable
-internal fun DashboardLoading(modifier: Modifier = Modifier) {
-    IFLoadingRegion(
-        stringResource(R.string.loading_home),
-        modifier.fillMaxSize().verticalScroll(rememberScrollState())
-            .padding(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg),
-    ) {
-        IFSkeletonLine(.45f, style = IFTheme.typography.labelSm)
-        Spacer(Modifier.height(IFSpacing.lg))
-        Surface(
-            color = IFTheme.colors.performanceSurface,
-            shape = IFTheme.shapes.lg,
-        ) {
-            val placeholder = IFTheme.colors.performanceSecondary.copy(alpha = .18f)
-            Column(Modifier.fillMaxWidth().padding(IFSpacing.panel),
-                verticalArrangement = Arrangement.spacedBy(IFSpacing.xs)) {
-                Text(stringResource(R.string.student_coefficient),
-                    style = IFTheme.typography.labelSm, color = IFTheme.colors.performanceSecondary)
-                FlowRow(
-                    Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalArrangement = Arrangement.spacedBy(IFSpacing.sm),
-                    itemVerticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IFSkeletonLine(1f, Modifier.width(88.dp),
-                        style = if (IFTheme.pageInset == IFSpacing.pageInsetNarrow)
-                            IFTheme.typography.coefficientNarrow else IFTheme.typography.coefficient,
-                        color = placeholder)
-                    Column(Modifier.widthIn(max = 180.dp), horizontalAlignment = Alignment.End) {
-                        Text(stringResource(R.string.class_coefficient),
-                            style = IFTheme.typography.labelSm,
-                            color = IFTheme.colors.performanceSecondary)
-                        IFSkeletonLine(1f, Modifier.width(56.dp),
-                            style = IFTheme.typography.coefficientComparison, color = placeholder)
-                    }
-                }
-            }
-        }
-        Spacer(Modifier.height(IFSpacing.lg))
-        FlowRow(
-            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
-            itemVerticalAlignment = Alignment.CenterVertically,
-        ) {
-            IFSectionTitle(stringResource(R.string.today_classes))
-            IFTextButton({}, enabled = false) {
-                Text(stringResource(R.string.timetable))
-                androidx.compose.material3.Icon(IFIcon.Arrow.vector, null, Modifier.size(IFSize.icon))
-            }
-        }
-        repeat(3) { ClassRowSkeleton(showTeacher = false) }
-    }
-}
-
-@Composable
 internal fun TimetableLoading(period: String?) {
     IFLoadingRegion(stringResource(R.string.loading_timetable)) {
         if (period == null) IFSkeletonLine(.4f)
         else Text(period, style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
         Spacer(Modifier.height(IFSpacing.md))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(IFSpacing.micro)
+        ) {
             repeat(7) {
-                Box(Modifier.weight(1f).heightIn(min = IFSize.touchTarget), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier.weight(1f).heightIn(min = IFSize.touchTarget),
+                    contentAlignment = Alignment.Center
+                ) {
                     IFSkeletonLine(.65f, style = IFTheme.typography.labelMd)
                 }
             }
@@ -105,4 +56,62 @@ private fun ClassRowSkeleton(showTeacher: Boolean = true) {
         }
     }
     HorizontalDivider(color = IFTheme.colors.outline)
+}
+
+@Composable
+internal fun CoefficientsLoading() {
+    IFLoadingRegion(stringResource(R.string.loading_coefficients)) { CoefficientsSkeleton() }
+}
+
+@Composable
+internal fun ClassesLoading() {
+    IFLoadingRegion(stringResource(R.string.loading_classes)) {
+        repeat(3) {
+            ClassRowSkeleton(
+                showTeacher = false
+            )
+        }
+    }
+}
+
+@Composable
+private fun CoefficientsSkeleton() {
+    Surface(
+        color = IFTheme.colors.performanceSurface,
+        shape = IFTheme.shapes.lg,
+    ) {
+        val placeholder = IFTheme.colors.performanceSecondary.copy(alpha = .18f)
+        Column(
+            Modifier.fillMaxWidth().padding(IFSpacing.panel),
+            verticalArrangement = Arrangement.spacedBy(IFSpacing.xs)
+        ) {
+            Text(
+                stringResource(R.string.student_coefficient),
+                style = IFTheme.typography.labelSm, color = IFTheme.colors.performanceSecondary
+            )
+            FlowRow(
+                Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(IFSpacing.sm),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                IFSkeletonLine(
+                    1f, Modifier.width(88.dp),
+                    style = if (IFTheme.pageInset == IFSpacing.pageInsetNarrow)
+                        IFTheme.typography.coefficientNarrow else IFTheme.typography.coefficient,
+                    color = placeholder
+                )
+                Column(Modifier.widthIn(max = 180.dp), horizontalAlignment = Alignment.End) {
+                    Text(
+                        stringResource(R.string.class_coefficient),
+                        style = IFTheme.typography.labelSm,
+                        color = IFTheme.colors.performanceSecondary
+                    )
+                    IFSkeletonLine(
+                        1f, Modifier.width(56.dp),
+                        style = IFTheme.typography.coefficientComparison, color = placeholder
+                    )
+                }
+            }
+        }
+    }
 }

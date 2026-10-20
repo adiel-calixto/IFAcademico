@@ -29,7 +29,8 @@ fun CalendarScreen(viewModel: CalendarViewModel) {
     val revision = com.adielcalixto.ifacademico.presentation.LocalAcademicRevision.current
     val visible = com.adielcalixto.ifacademico.presentation.LocalAcademicVisible.current
     LaunchedEffect(visible, revision) { if (visible) viewModel.refreshIfStale(revision) }
-    CalendarContent(state, viewModel::onAction)
+    val sessionError = com.adielcalixto.ifacademico.presentation.LocalAcademicError.current
+    CalendarContent(state.copy(error = state.error ?: sessionError), viewModel::onAction)
 }
 
 @Composable
@@ -54,7 +55,7 @@ internal fun CalendarContent(
         remember(state.specialDates, month) { specialDatesForMonth(state.specialDates, month) }
     val colors = IFTheme.colors
     val dayMarkers = remember(dates, month, colors, state.isLoading, state.error) {
-        if (!state.hasContent && (state.isLoading || state.error != null)) emptyMap() else calendarDayMarkers(
+        if (state.isLoading || state.error != null) emptyMap() else calendarDayMarkers(
             dates,
             month,
             colors
@@ -95,13 +96,9 @@ internal fun CalendarContent(
                 }
             }
         }
-        if (state.hasContent && state.error != null) item {
-            IFErrorState(state.error.asUiText().asString(), { onAction(CalendarAction.Retry) })
-        }
-        if (state.hasContent && state.isLoading) item { IFRefreshStatus() }
         when {
-            state.isLoading && !state.hasContent -> item { EventsLoading() }
-            state.error != null && !state.hasContent -> item {
+            state.isLoading -> item { EventsLoading() }
+            state.error != null -> item {
                 IFErrorState(state.error.asUiText().asString(), { onAction(CalendarAction.Retry) })
             }
 

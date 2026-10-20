@@ -17,8 +17,11 @@ import org.junit.Rule
 import org.junit.Test
 
 class LoadingInteractionTest {
-    @get:Rule val compose = createComposeRule()
-    private fun label(id: Int) = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+    @get:Rule
+    val compose = createComposeRule()
+    private fun label(id: Int) =
+        InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+
     private val loading = SemanticsMatcher.expectValue(
         SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo.Indeterminate,
     )
@@ -35,15 +38,23 @@ class LoadingInteractionTest {
 
     @Test
     fun homeLoadingKeepsHeadingsButDoesNotExposeStaleAcademicData() {
-        var state by mutableStateOf(PreviewDashboard.copy(isLoading = true))
+        var state by mutableStateOf(
+            PreviewDashboard.copy(
+                coefficientsLoading = true,
+                classesLoading = true
+            )
+        )
         compose.setContent { IFTheme { DashboardContent(state, {}) } }
-        compose.onNodeWithContentDescription(label(R.string.loading_home)).assert(loading)
-        compose.onAllNodes(loading).assertCountEquals(1)
+        compose.onNodeWithContentDescription(label(R.string.loading_coefficients)).assert(loading)
+        compose.onNodeWithContentDescription(label(R.string.loading_classes)).assert(loading)
+        compose.onAllNodes(loading).assertCountEquals(2)
         compose.onNodeWithText(label(R.string.student_coefficient)).assertExists()
         compose.onNodeWithText(label(R.string.today_classes)).assertExists()
-        compose.onNodeWithText(label(R.string.timetable)).assertIsNotEnabled()
+        compose.onNodeWithText(label(R.string.timetable)).assertIsEnabled()
         compose.onNodeWithText(PreviewCourse.className).assertDoesNotExist()
-        compose.runOnIdle { state = state.copy(isLoading = false) }
+        compose.runOnIdle {
+            state = state.copy(coefficientsLoading = false, classesLoading = false)
+        }
         compose.onAllNodes(loading).assertCountEquals(0)
         compose.onNodeWithText(PreviewCourse.className).assertExists()
         compose.onNodeWithText(label(R.string.timetable)).assertIsEnabled()
@@ -70,15 +81,24 @@ class LoadingInteractionTest {
 
     @Test
     fun assessmentLoadingLeavesAttendanceAvailableAndHasLocalFailure() {
-        var state by mutableStateOf(PreviewGrades.copy(
-            sheet = GradesSheet.Subject(1), assessments = mapOf(1 to SubjectAssessments()),
-        ))
+        var state by mutableStateOf(
+            PreviewGrades.copy(
+                sheet = GradesSheet.Subject(1), assessments = mapOf(1 to SubjectAssessments()),
+            )
+        )
         compose.setContent { IFTheme { DiaryListContent(state, {}) } }
         compose.onNodeWithText(label(R.string.attendance)).assertExists()
         compose.onNodeWithContentDescription(label(R.string.loading_assessments)).assert(loading)
         compose.onAllNodes(loading).assertCountEquals(1)
         compose.runOnIdle {
-            state = state.copy(assessments = mapOf(1 to SubjectAssessments(isLoading = false, error = IOError)))
+            state = state.copy(
+                assessments = mapOf(
+                    1 to SubjectAssessments(
+                        isLoading = false,
+                        error = IOError
+                    )
+                )
+            )
         }
         compose.onAllNodes(loading).assertCountEquals(0)
         compose.onNodeWithText(label(R.string.attendance)).assertExists()
@@ -87,9 +107,11 @@ class LoadingInteractionTest {
 
     @Test
     fun timetableCanBeDismissedWhileLoading() {
-        var state by mutableStateOf(PreviewDashboard.copy(
-            sheet = DashboardSheet.Timetable, timetableLoading = true,
-        ))
+        var state by mutableStateOf(
+            PreviewDashboard.copy(
+                sheet = DashboardSheet.Timetable, timetableLoading = true,
+            )
+        )
         compose.setContent {
             IFTheme {
                 DashboardContent(state, { action ->

@@ -20,25 +20,26 @@ import javax.inject.Inject
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val getSpecialDatesUseCase: GetSpecialDatesUseCase,
-    freshness: AcademicFreshness = AcademicFreshness(),
+    private val freshness: AcademicFreshness = AcademicFreshness(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(CalendarState(LocalDate.now().withDayOfMonth(1)))
     val state = _state.asStateFlow()
     private var loadJob: Job? = null
     private var request = 0
+    private var retrying = false
     private var revision: Long = freshness.revision.value
 
     fun refreshIfStale(currentRevision: Long) {
         val previous = revision
         revision = currentRevision
-        if (previous != currentRevision) loadSpecialDates()
+        if (previous != currentRevision && !retrying) loadSpecialDates()
     }
 
     init {
         loadSpecialDates()
     }
 
-    private fun loadSpecialDates(clear: Boolean = false) {
+    private fun loadSpecialDates(clear: Boolean = false, retry: Boolean = false) {
         val version = ++request
         loadJob?.cancel()
         val month = YearMonth.from(_state.value.selectedDate)
@@ -46,10 +47,10 @@ class CalendarViewModel @Inject constructor(
             it.copy(
                 isLoading = true,
                 error = null,
-                specialDates = if (clear) emptyList() else it.specialDates,
-                hasContent = !clear && it.hasContent
+                specialDates = if (clear) emptyList() else it.specialDates
             )
         }
+        retrying = retry
         loadJob = viewModelScope.launch {
             try {
                 val result = getSpecialDatesUseCase.execute(month.atDay(1), month.atEndOfMonth())
@@ -67,13 +68,16 @@ class CalendarViewModel @Inject constructor(
                     is Result.Success -> _state.update {
                         it.copy(
                             isLoading = false,
-                            hasContent = true,
                             specialDates = specialDatesForMonth(result.data, month)
                         )
                     }
                 }
             } finally {
-                if (version == request) _state.update { it.copy(isLoading = false) }
+                if (version == request) {
+                    if (retry) revision = freshness.revision.value
+                    retrying = false
+                    _state.update { it.copy(isLoading = false) }
+                }
             }
         }
     }
@@ -87,7 +91,7 @@ class CalendarViewModel @Inject constructor(
                 loadSpecialDates(clear = true)
             }
 
-            CalendarAction.Retry -> if (!_state.value.isLoading) loadSpecialDates()
+            CalendarAction.Retry -> if (!_state.value.isLoading) loadSpecialDates(retry = true)
         }
     }
 }

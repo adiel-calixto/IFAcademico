@@ -9,7 +9,8 @@ import com.adielcalixto.ifacademico.domain.usecases.GetStudentUseCase
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -25,6 +26,7 @@ class MainViewModel @Inject constructor(
     val state = _state.asStateFlow()
     val freshness = session.freshness.revision
     private var profileJob: Job? = null
+    private var recoveryJob: Job? = null
     private var profileOwner = -1L
     private var loadedRevision = -1L
 
@@ -49,6 +51,7 @@ class MainViewModel @Inject constructor(
                     SessionPhase.RecoverableFailure -> _state.update {
                         it.copy(
                             error = snapshot.error,
+                            sessionError = snapshot.error,
                             isFirstLoad = false
                         )
                     }
@@ -57,6 +60,7 @@ class MainViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 error = null,
+                                sessionError = null,
                                 isFirstLoad = false,
                                 isResolvingIdentity = it.student == null
                             )
@@ -72,16 +76,26 @@ class MainViewModel @Inject constructor(
     }
 
     fun retryLoadingData() {
-        _state.update { it.copy(error = null) }
-        viewModelScope.launch {
-            if (session.retry() is Result.Success && session.state.value.hasSession) loadStudent(
-                force = true
-            )
+        loadStudent(force = true)
+    }
+
+    fun retryStartup() {
+        if (recoveryJob?.isActive == true) return
+        _state.update { it.copy(error = null, profileError = null, profileLoading = true) }
+        recoveryJob = viewModelScope.launch {
+            try {
+                if (session.retry() is Result.Success && session.state.value.hasSession) loadStudent(
+                    force = true
+                )
+            } finally {
+                if (profileJob?.isActive != true) _state.update { it.copy(profileLoading = false) }
+            }
         }
     }
 
     fun onLogout() {
         session.logout()
+        recoveryJob?.cancel()
         profileJob?.cancel()
         _state.value = MainState(isFirstLoad = false, sessionState = SessionState.Invalid)
     }
@@ -94,16 +108,18 @@ class MainViewModel @Inject constructor(
         if (profileJob?.isActive == true || (!force && _state.value.student != null)) return
         val owner = session.currentGeneration()
         val revision = freshness.value
-        _state.update { it.copy(error = null) }
+        _state.update { it.copy(error = null, profileError = null, profileLoading = true) }
         profileJob = viewModelScope.launch {
             try {
                 session.owned {
                     val result = getStudentUseCase.execute()
+                    currentCoroutineContext().ensureActive()
                     session.publish(owner) {
                         when (result) {
                             is Result.Error -> _state.update {
                                 it.copy(
-                                    error = result.error,
+                                    error = if (it.student == null) result.error else null,
+                                    profileError = result.error,
                                     isFirstLoad = false
                                 )
                             }
@@ -123,8 +139,8 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-            } catch (e: CancellationException) {
-                throw e
+            } finally {
+                if (session.isCurrent(owner)) _state.update { it.copy(profileLoading = false) }
             }
         }
     }

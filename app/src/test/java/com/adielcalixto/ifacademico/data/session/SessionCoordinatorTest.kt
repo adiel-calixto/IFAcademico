@@ -208,7 +208,7 @@ class SessionCoordinatorTest {
         }
 
     @Test
-    fun `transient authentication failure is shared until explicit retry and then clears errors`() =
+    fun `transient authentication failure is shared and a later data request recovers automatically`() =
         runTest {
             val release = CompletableDeferred<Unit>()
             coEvery { api.login(any()) } coAnswers { release.await(); throw java.io.IOException("offline") }
@@ -221,14 +221,64 @@ class SessionCoordinatorTest {
                 runCatching { session.protectedRequest { httpResponse(Unit) } }
             }
             release.complete(Unit)
-            restore.await()
-            request.await()
+            assertTrue(restore.await() is Result.Error)
+            assertTrue(request.await().isFailure)
             coVerify(exactly = 1) { api.login(any()) }
             assertEquals("synthetic-password", preferences.saved.password)
             coEvery { api.login(any()) } answers { loginResponse() }
-            assertTrue(session.retry() is Result.Success)
+            assertTrue(session.protectedRequest { httpResponse(Unit) }.isSuccessful)
+            coVerify(exactly = 2) { api.login(any()) }
             assertNull(session.state.value.error)
             assertEquals(SessionPhase.Authenticated, session.state.value.phase)
+        }
+
+    @Test
+    fun `concurrent later requests share a new failed authentication attempt without looping`() =
+        runTest {
+            var release = CompletableDeferred<Unit>()
+            coEvery { api.login(any()) } coAnswers {
+                release.await()
+                throw java.io.IOException("offline")
+            }
+            val session = coordinator(
+                MemoryPreferences(savedSession(clock, SessionCoordinator.LOGIN_WINDOW)),
+                api, clock, backgroundScope
+            )
+            val restore = async { session.restore() }
+            runCurrent()
+            release.complete(Unit)
+            assertTrue(restore.await() is Result.Error)
+            release = CompletableDeferred()
+            val requests = List(3) {
+                async { runCatching { session.protectedRequest<Unit> { error("Must not load without a session") } } }
+            }
+            runCurrent()
+            coVerify(exactly = 2) { api.login(any()) }
+            release.complete(Unit)
+            requests.forEach { assertTrue(it.await().exceptionOrNull() is SessionFailure) }
+            coVerify(exactly = 2) { api.login(any()) }
+        }
+
+    @Test
+    fun `academic timeout followed by another load does not authenticate a usable session`() =
+        runTest {
+            val cache = MemoryCache()
+            val session = coordinator(
+                MemoryPreferences(savedSession(clock)),
+                api,
+                clock,
+                backgroundScope,
+                cache
+            )
+            val load = AcademicLoad(cache, session)
+            session.restore()
+            assertTrue(load.cached<Unit, Unit>("timeout", {
+                session.protectedRequest<Unit> { throw java.net.SocketTimeoutException("timeout") }
+            }, { it }) is Result.Error)
+            assertTrue(load.cached<Unit, Unit>("timeout", {
+                session.protectedRequest { httpResponse(Unit) }
+            }, { it }) is Result.Success)
+            coVerify(exactly = 0) { api.login(any()) }
         }
 
     @Test

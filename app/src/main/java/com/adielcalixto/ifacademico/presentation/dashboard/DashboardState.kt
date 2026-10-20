@@ -22,7 +22,8 @@ data class DashboardState(
     val selectedWeekday: Int = 2,
     val timetableLoading: Boolean = false,
     val timetableError: Error.DataError? = null,
-    val hasContent: Boolean = false,
-    val error: Error.DataError? = null,
-    val isLoading: Boolean = true
+    val coefficientsError: Error.DataError? = null,
+    val classesError: Error.DataError? = null,
+    val coefficientsLoading: Boolean = true,
+    val classesLoading: Boolean = true
 )
