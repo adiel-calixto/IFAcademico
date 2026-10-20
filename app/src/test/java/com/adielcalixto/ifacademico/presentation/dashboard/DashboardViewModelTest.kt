@@ -23,15 +23,38 @@ class DashboardViewModelTest {
     private val today = mockk<GetTimeTableUseCase>()
     private val periods = mockk<GetPeriodsUseCase>()
     private val weekly = mockk<GetIndividualTimeTableUseCase>()
-    private val course = TimeTableClass(1, "Algorithms", "Teacher", 2, "08:00", "09:40", "204", false, 2)
+    private val course =
+        TimeTableClass(1, "Algorithms", "Teacher", 2, "08:00", "09:40", "204", false, 2)
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
-        coEvery { coefficients.execute() } returns Result.Success(PerformanceCoefficients(0f, 7.8f, 9f))
-        coEvery { today.execute() } returns Result.Success(TimeTable(listOf(course), "2026-10-19", "09:00"))
-        coEvery { periods.execute() } returns Result.Success(listOf(Period(2026, 2), Period(2026, 1)))
-        coEvery { weekly.execute(2026, 2) } returns Result.Success(IndividualTimeTable(mapOf(2 to listOf(course)), 2))
+        coEvery { coefficients.execute() } returns Result.Success(
+            PerformanceCoefficients(
+                0f,
+                7.8f,
+                9f
+            )
+        )
+        coEvery { today.execute() } returns Result.Success(
+            TimeTable(
+                listOf(course),
+                "2026-10-19",
+                "09:00"
+            )
+        )
+        coEvery { periods.execute() } returns Result.Success(
+            listOf(
+                Period(2026, 2),
+                Period(2026, 1)
+            )
+        )
+        coEvery {
+            weekly.execute(
+                2026,
+                2
+            )
+        } returns Result.Success(IndividualTimeTable(mapOf(2 to listOf(course)), 2))
     }
 
     @After
@@ -41,14 +64,23 @@ class DashboardViewModelTest {
 
     @Test
     fun `loads home and retains a supplied zero coefficient`() = runTest(dispatcher) {
-        coEvery { today.execute() } returns Result.Success(TimeTable(listOf(course.copy(startTime = "15:00"), course), "", ""))
+        coEvery { today.execute() } returns Result.Success(
+            TimeTable(
+                listOf(
+                    course.copy(startTime = "15:00"),
+                    course
+                ), "", ""
+            )
+        )
         val model = model()
         assertTrue(model.state.value.isLoading)
         runCurrent()
         assertFalse(model.state.value.isLoading)
         assertNull(model.state.value.error)
         assertEquals(0f, model.state.value.performanceCoefficients.studentPerformance)
-        assertEquals(listOf("08:00", "15:00"), model.state.value.timeTable.classes.map { it.startTime })
+        assertEquals(
+            listOf("08:00", "15:00"),
+            model.state.value.timeTable.classes.map { it.startTime })
     }
 
     @Test
@@ -82,16 +114,17 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `empty periods leave an empty sheet without requesting a timetable`() = runTest(dispatcher) {
-        coEvery { periods.execute() } returns Result.Success(emptyList())
-        val model = model()
-        model.onAction(DashboardAction.ShowIndividualTimeTable)
-        runCurrent()
-        assertNull(model.state.value.currentPeriod)
-        assertFalse(model.state.value.timetableLoading)
-        assertNull(model.state.value.timetableError)
-        coVerify(exactly = 0) { weekly.execute(any(), any()) }
-    }
+    fun `empty periods leave an empty sheet without requesting a timetable`() =
+        runTest(dispatcher) {
+            coEvery { periods.execute() } returns Result.Success(emptyList())
+            val model = model()
+            model.onAction(DashboardAction.ShowIndividualTimeTable)
+            runCurrent()
+            assertNull(model.state.value.currentPeriod)
+            assertFalse(model.state.value.timetableLoading)
+            assertNull(model.state.value.timetableError)
+            coVerify(exactly = 0) { weekly.execute(any(), any()) }
+        }
 
     @Test
     fun `period and timetable failures stay in sheet and can retry`() = runTest(dispatcher) {
@@ -106,7 +139,12 @@ class DashboardViewModelTest {
         model.onAction(DashboardAction.RetryTimetable)
         runCurrent()
         assertEquals(IOError, model.state.value.timetableError)
-        coEvery { weekly.execute(2026, 2) } returns Result.Success(IndividualTimeTable(emptyMap(), 1))
+        coEvery { weekly.execute(2026, 2) } returns Result.Success(
+            IndividualTimeTable(
+                emptyMap(),
+                1
+            )
+        )
         model.onAction(DashboardAction.RetryTimetable)
         runCurrent()
         assertNull(model.state.value.timetableError)
@@ -115,13 +153,24 @@ class DashboardViewModelTest {
 
     @Test
     fun `late response after dismissal cannot overwrite a new request`() = runTest(dispatcher) {
-        val delayed = CompletableDeferred<Result<IndividualTimeTable, com.adielcalixto.ifacademico.domain.Error.DataError>>()
-        coEvery { weekly.execute(2026, 2) } coAnswers { withContext(NonCancellable) { delayed.await() } }
+        val delayed =
+            CompletableDeferred<Result<IndividualTimeTable, com.adielcalixto.ifacademico.domain.Error.DataError>>()
+        coEvery {
+            weekly.execute(
+                2026,
+                2
+            )
+        } coAnswers { withContext(NonCancellable) { delayed.await() } }
         val model = model()
         model.onAction(DashboardAction.ShowIndividualTimeTable)
         runCurrent()
         model.onAction(DashboardAction.HideIndividualTimeTable)
-        coEvery { weekly.execute(2026, 2) } returns Result.Success(IndividualTimeTable(emptyMap(), 7))
+        coEvery { weekly.execute(2026, 2) } returns Result.Success(
+            IndividualTimeTable(
+                emptyMap(),
+                7
+            )
+        )
         model.onAction(DashboardAction.ShowIndividualTimeTable)
         runCurrent()
         delayed.complete(Result.Success(IndividualTimeTable(emptyMap(), 5)))
@@ -142,7 +191,12 @@ class DashboardViewModelTest {
 
     @Test
     fun `invalid initial weekday defaults to Monday`() = runTest(dispatcher) {
-        coEvery { weekly.execute(2026, 2) } returns Result.Success(IndividualTimeTable(emptyMap(), 0))
+        coEvery { weekly.execute(2026, 2) } returns Result.Success(
+            IndividualTimeTable(
+                emptyMap(),
+                0
+            )
+        )
         val model = model()
         model.onAction(DashboardAction.ShowIndividualTimeTable)
         runCurrent()
@@ -150,4 +204,30 @@ class DashboardViewModelTest {
         model.onAction(DashboardAction.SelectWeekday(8))
         assertEquals(2, model.state.value.selectedWeekday)
     }
+
+    @Test
+    fun `foreground refresh preserves content on failure and refreshes stale timetable when reopened`() =
+        runTest(dispatcher) {
+            val model = model()
+            runCurrent()
+            model.refreshIfStale(0)
+            runCurrent()
+            coVerify(exactly = 1) { today.execute() }
+            model.onAction(DashboardAction.ShowIndividualTimeTable)
+            runCurrent()
+            model.onAction(DashboardAction.SelectWeekday(6))
+            model.onAction(DashboardAction.HideIndividualTimeTable)
+            coEvery { today.execute() } returns Result.Error(IOError)
+            model.refreshIfStale(1)
+            model.refreshIfStale(1)
+            runCurrent()
+            assertTrue(model.state.value.hasContent)
+            assertEquals(listOf(course), model.state.value.timeTable.classes)
+            assertEquals(IOError, model.state.value.error)
+            assertFalse(model.state.value.isLoading)
+            model.onAction(DashboardAction.ShowIndividualTimeTable)
+            runCurrent()
+            coVerify(exactly = 2) { weekly.execute(2026, 2) }
+            assertEquals(6, model.state.value.selectedWeekday)
+        }
 }

@@ -13,26 +13,42 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val useCase: LoginUseCase) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val useCase: LoginUseCase,
+    private val session: com.adielcalixto.ifacademico.data.session.SessionCoordinator,
+) : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
+
+    init {
+        _state.update {
+            it.copy(
+                registration = session.state.value.registration,
+                error = session.state.value.error?.asUiText()
+            )
+        }
+    }
 
     fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.LoginClicked -> {
+                if (_state.value.loading) return
+                _state.update { it.copy(loading = true, error = null) }
                 viewModelScope.launch {
-                    _state.update { it.copy(loading = true) }
+                    try {
 
-                    val result = useCase.execute(_state.value.registration, _state.value.password)
-                    when (result) {
-                        is Result.Error -> _state.update { it.copy(error = result.error.asUiText()) }
-                        is Result.Success -> {
-                            action.callback.invoke()
-                            _state.update { it.copy(registration = "", password = "") }
+                        val result =
+                            useCase.execute(_state.value.registration, _state.value.password)
+                        when (result) {
+                            is Result.Error -> _state.update { it.copy(error = result.error.asUiText()) }
+                            is Result.Success -> {
+                                _state.update { it.copy(registration = "", password = "") }
+                            }
                         }
-                    }
 
-                    _state.update { it.copy(loading = false) }
+                    } finally {
+                        _state.update { it.copy(loading = false) }
+                    }
                 }
             }
 

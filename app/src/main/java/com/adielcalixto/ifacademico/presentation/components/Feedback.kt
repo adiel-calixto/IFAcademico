@@ -55,31 +55,40 @@ fun IFSkeletonLine(
     val density = LocalDensity.current
     val lineHeight = with(density) { style.lineHeight.toDp() }
     val barHeight = with(density) { style.fontSize.toDp() * .65f }
-    Box(modifier.fillMaxWidth(fraction).height(lineHeight), contentAlignment = Alignment.CenterStart) {
+    Box(
+        modifier.fillMaxWidth(fraction).height(lineHeight),
+        contentAlignment = Alignment.CenterStart
+    ) {
         IFSkeletonBlock(Modifier.fillMaxWidth().height(barHeight), color = color)
     }
 }
 
 @Composable
 fun IFEmptyState(message: String, modifier: Modifier = Modifier) {
-    Text(message, modifier.padding(vertical = IFSpacing.md),
-        style = IFTheme.typography.bodyMd, color = IFTheme.colors.secondary)
+    Text(
+        message, modifier.padding(vertical = IFSpacing.md),
+        style = IFTheme.typography.bodyMd, color = IFTheme.colors.secondary
+    )
 }
 
 @Composable
 fun IFErrorState(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-        Text(message, Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-            style = IFTheme.typography.bodyMd, color = IFTheme.colors.onSurface)
+        Text(
+            message, Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            style = IFTheme.typography.bodyMd, color = IFTheme.colors.onSurface
+        )
         IFButton(onRetry) { Text(stringResource(R.string.retry)) }
     }
 }
 
 @Composable
 fun IFToast(message: String, modifier: Modifier = Modifier) {
-    Surface(modifier.semantics { liveRegion = LiveRegionMode.Polite },
+    Surface(
+        modifier.semantics { liveRegion = LiveRegionMode.Polite },
         color = IFTheme.colors.toast, contentColor = IFTheme.colors.onToast,
-        shape = IFShapes.md, shadowElevation = 4.dp) {
+        shape = IFShapes.md, shadowElevation = 4.dp
+    ) {
         Text(message, Modifier.padding(IFSpacing.md), style = IFTheme.typography.bodySm)
     }
 }
@@ -91,7 +100,23 @@ fun IFConfirmationContent(
 ) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
         Text(message, style = IFTheme.typography.bodyMd)
-        IFButton(onConfirm, Modifier.fillMaxWidth(), destructive = destructive) { Text(confirmLabel) }
+        IFButton(
+            onConfirm,
+            Modifier.fillMaxWidth(),
+            destructive = destructive
+        ) { Text(confirmLabel) }
         IFTextButton(onCancel, Modifier.fillMaxWidth()) { Text(stringResource(R.string.cancel)) }
     }
+}
+
+@Composable
+fun IFRefreshStatus() {
+    Text(
+        stringResource(R.string.refreshing_data),
+        Modifier.semantics {
+            liveRegion = LiveRegionMode.Polite; progressBarRangeInfo =
+            ProgressBarRangeInfo.Indeterminate
+        },
+        style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
+    )
 }

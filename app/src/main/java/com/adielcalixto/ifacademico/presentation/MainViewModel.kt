@@ -1,117 +1,130 @@
 package com.adielcalixto.ifacademico.presentation
 
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adielcalixto.ifacademico.domain.IOError
+import com.adielcalixto.ifacademico.data.session.SessionCoordinator
+import com.adielcalixto.ifacademico.data.session.SessionPhase
 import com.adielcalixto.ifacademico.domain.Result
 import com.adielcalixto.ifacademico.domain.usecases.GetStudentUseCase
-import com.adielcalixto.ifacademico.domain.usecases.LogoutUseCase
-import com.adielcalixto.ifacademico.domain.usecases.RefreshSessionUseCase
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
-import com.adielcalixto.ifacademico.domain.usecases.VerifySessionUseCase
-import com.adielcalixto.ifacademico.observers.UnauthorizedApiErrorObserver
-import com.adielcalixto.ifacademico.observers.UnauthorizedApiErrorSubscriber
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val logoutUseCase: LogoutUseCase,
-    private val verifySessionUseCase: VerifySessionUseCase,
+    private val session: SessionCoordinator,
     private val getStudentUseCase: GetStudentUseCase,
-    private val refreshSessionUseCase: RefreshSessionUseCase,
-    unauthorizedApiErrorObserver: UnauthorizedApiErrorObserver
-) : ViewModel(), UnauthorizedApiErrorSubscriber, DefaultLifecycleObserver {
-
-    private val _state = MutableStateFlow(MainState(isFirstLoad = true))
+) : ViewModel() {
+    private val _state = MutableStateFlow(MainState())
     val state = _state.asStateFlow()
-
-    private val sessionMutex = Mutex()
+    val freshness = session.freshness.revision
+    private var profileJob: Job? = null
+    private var profileOwner = -1L
+    private var loadedRevision = -1L
 
     init {
-        unauthorizedApiErrorObserver.subscribe(this)
+        viewModelScope.launch {
+            session.state.collect { snapshot ->
+                if (snapshot.generation != profileOwner) {
+                    profileJob?.cancel()
+                    profileOwner = snapshot.generation
+                    loadedRevision = -1
+                    _state.value = MainState(isFirstLoad = false)
+                }
+                when (snapshot.phase) {
+                    SessionPhase.LoginRequired -> _state.update {
+                        it.copy(
+                            sessionState = SessionState.Invalid,
+                            student = null,
+                            error = snapshot.error
+                        )
+                    }
 
-        viewModelScope.launch { loadSession() }
-        _state.update { it.copy(isFirstLoad = false) }
+                    SessionPhase.RecoverableFailure -> _state.update {
+                        it.copy(
+                            error = snapshot.error,
+                            isFirstLoad = false
+                        )
+                    }
+
+                    SessionPhase.Authenticated -> {
+                        _state.update {
+                            it.copy(
+                                error = null,
+                                isFirstLoad = false,
+                                isResolvingIdentity = it.student == null
+                            )
+                        }
+                        if (_state.value.student == null) loadStudent()
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+        viewModelScope.launch { session.restore() }
     }
 
     fun retryLoadingData() {
-        viewModelScope.launch { loadSession() }
-    }
-
-    fun onLogin() {
-        viewModelScope.launch { login() }
+        _state.update { it.copy(error = null) }
+        viewModelScope.launch {
+            if (session.retry() is Result.Success && session.state.value.hasSession) loadStudent(
+                force = true
+            )
+        }
     }
 
     fun onLogout() {
-        logout()
+        session.logout()
+        profileJob?.cancel()
+        _state.value = MainState(isFirstLoad = false, sessionState = SessionState.Invalid)
     }
 
-    override fun onResume(owner: LifecycleOwner) {
-        if (_state.value.isFirstLoad) return
-        viewModelScope.launch { loadSession() }
+    fun refreshProfile(revision: Long) {
+        if (revision != loadedRevision) loadStudent(force = true)
     }
 
-    override fun onUnauthorizedError() {
-        logout()
-    }
+    private fun loadStudent(force: Boolean = false) {
+        if (profileJob?.isActive == true || (!force && _state.value.student != null)) return
+        val owner = session.currentGeneration()
+        val revision = freshness.value
+        _state.update { it.copy(error = null) }
+        profileJob = viewModelScope.launch {
+            try {
+                session.owned {
+                    val result = getStudentUseCase.execute()
+                    session.publish(owner) {
+                        when (result) {
+                            is Result.Error -> _state.update {
+                                it.copy(
+                                    error = result.error,
+                                    isFirstLoad = false
+                                )
+                            }
 
-    private suspend fun loadSession() {
-        sessionMutex.withLock {
-            val sessionState = verifySessionUseCase.execute()
-            _state.update { it.copy(sessionState = sessionState) }
-
-            when (sessionState) {
-                SessionState.Invalid -> {}
-                SessionState.Valid -> {
-                    if (_state.first().student == null) loadStudent()
+                            is Result.Success -> {
+                                loadedRevision = revision
+                                _state.update {
+                                    it.copy(
+                                        student = result.data,
+                                        error = null,
+                                        isResolvingIdentity = false,
+                                        sessionState = SessionState.Valid,
+                                        isFirstLoad = false
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-
-                SessionState.CanRefresh -> refreshSession()
-            }
-        }
-    }
-
-    private suspend fun refreshSession() {
-        when (val result = refreshSessionUseCase.execute()) {
-            is Result.Error -> {
-                if (result.error is IOError) {
-                    _state.update { it.copy(error = result.error) }
-                } else {
-                    logout()
-                }
-            }
-
-            is Result.Success -> {
-                login()
-            }
-        }
-    }
-
-    private fun logout() {
-        logoutUseCase.execute()
-        _state.update { it.copy(sessionState = SessionState.Invalid) }
-    }
-
-    private suspend fun login() {
-        loadStudent()
-        _state.update { it.copy(sessionState = SessionState.Valid) }
-    }
-
-    private suspend fun loadStudent() {
-        when (val result = getStudentUseCase.execute()) {
-            is Result.Error -> _state.update { it.copy(error = result.error) }
-            is Result.Success -> {
-                _state.update { it.copy(student = result.data, error = null) }
+            } catch (e: CancellationException) {
+                throw e
             }
         }
     }

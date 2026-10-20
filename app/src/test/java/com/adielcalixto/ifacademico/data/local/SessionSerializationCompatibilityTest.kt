@@ -1,36 +1,41 @@
 package com.adielcalixto.ifacademico.data.local
 
+import com.adielcalixto.ifacademico.domain.entities.Session
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class SessionSerializationCompatibilityTest {
     @Test
-    fun `legacy session JSON retains cookies expiry and credentials`() {
-        // Synthetic values in the format persisted before the dependency upgrade.
-        val legacy = """{"cookies":["session=fake","route=test"],"expiresAt":1792440000000,"registration":"test-student","password":"synthetic-password"}"""
-
-        val stored = Json.decodeFromString<SerializableSession>(legacy)
-        val session = stored.toDomain()
-
-        assertEquals(setOf("session=fake", "route=test"), session.cookies)
-        assertEquals(1792440000000L, session.expiresAt)
+    fun `legacy credentials migrate but old cookies and synthetic expiry are discarded`() {
+        val legacy =
+            """{"cookies":["session=fake","route=test"],"expiresAt":1792440000000,"registration":"test-student","password":"synthetic-password"}"""
+        val session = Json.decodeFromString<SerializableSession>(legacy).toDomain()
         assertEquals("test-student", session.registration)
         assertEquals("synthetic-password", session.password)
-        assertEquals(
-            Json.parseToJsonElement(legacy),
-            Json.parseToJsonElement(Json.encodeToString(SerializableSession.fromDomain(session)))
-        )
+        assertTrue(session.cookies.isEmpty())
+        assertNull(session.loggedInAt)
+        assertEquals(0L, session.expiresAt)
     }
 
     @Test
-    fun `empty session retains all persisted keys`() {
-        val legacy = """{"cookies":[],"expiresAt":0,"registration":"","password":""}"""
-        val stored = Json.decodeFromString<SerializableSession>(legacy)
-        val encoded = Json.parseToJsonElement(Json.encodeToString(stored)).jsonObject
+    fun `new schema round trips successful login time scoped cookies and credentials`() {
+        val session = Session(
+            cookies = setOf("session=fake; Path=/; Secure; HttpOnly"),
+            registration = "test-student",
+            password = "synthetic-password",
+            loggedInAt = 1792440000000L
+        )
+        val encoded = Json.encodeToString(SerializableSession.fromDomain(session))
+        assertEquals(session, Json.decodeFromString<SerializableSession>(encoded).toDomain())
+    }
 
-        assertEquals(setOf("cookies", "expiresAt", "registration", "password"), encoded.keys)
-        assertEquals(Json.parseToJsonElement(legacy), encoded)
+    @Test
+    fun `unrecognized schema cannot restore cookies or login time`() {
+        val future =
+            """{"schemaVersion":10,"cookies":["session=old"],"loggedInAt":1792440000000,"registration":"test-student","password":"synthetic-password"}"""
+        val session = Json.decodeFromString<SerializableSession>(future).toDomain()
+        assertTrue(session.cookies.isEmpty())
+        assertNull(session.loggedInAt)
     }
 }

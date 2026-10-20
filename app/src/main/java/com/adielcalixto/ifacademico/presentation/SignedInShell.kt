@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** Tab order is also the pager order; swipes never add entries to navigation history. */
+internal val LocalAcademicRevision = staticCompositionLocalOf { 0L }
+internal val LocalAcademicVisible = staticCompositionLocalOf { true }
+
 enum class MainTab { Today, Diaries, Calendar }
 
 @Composable
@@ -43,6 +48,9 @@ internal fun SignedInShell(
     periodControl: @Composable (FocusRequester) -> Unit,
     pageContent: @Composable (MainTab, FocusRequester) -> Unit,
     profileContent: @Composable () -> Unit,
+    refreshRevision: Long = 0,
+    sessionError: com.adielcalixto.ifacademico.domain.Error.DataError? = null,
+    onRetrySession: () -> Unit = {},
 ) {
     val navController = rememberNavController()
     val entry by navController.currentBackStackEntryAsState()
@@ -105,47 +113,56 @@ internal fun SignedInShell(
             )
         },
     ) { padding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Tabs,
-            modifier = Modifier.padding(padding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None },
-        ) {
-            composable<Screen.Tabs>(
-                exitTransition = {
-                    fadeOut(tween(IFMotion.profileMillis)) +
-                        slideOutHorizontally(tween(IFMotion.profileMillis)) { -travel }
-                },
-                popEnterTransition = {
-                    fadeIn(tween(IFMotion.profileMillis)) +
-                        slideInHorizontally(tween(IFMotion.profileMillis)) { -travel }
-                },
+        androidx.compose.foundation.layout.Column(Modifier.padding(padding)) {
+            if (sessionError != null) com.adielcalixto.ifacademico.presentation.components.ErrorComponent(
+                sessionError,
+                onRetrySession
+            )
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Tabs,
+                modifier = Modifier.weight(1f),
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None },
             ) {
-                HorizontalPager(
-                    state = pager,
-                    modifier = Modifier.fillMaxSize(),
-                    key = { MainTab.entries[it].name },
-                ) { index ->
-                    val tab = MainTab.entries[index]
-                    tabState.SaveableStateProvider(tab.name) {
-                        pageContent(tab, periodFocus)
+                composable<Screen.Tabs>(
+                    exitTransition = {
+                        fadeOut(tween(IFMotion.profileMillis)) +
+                                slideOutHorizontally(tween(IFMotion.profileMillis)) { -travel }
+                    },
+                    popEnterTransition = {
+                        fadeIn(tween(IFMotion.profileMillis)) +
+                                slideInHorizontally(tween(IFMotion.profileMillis)) { -travel }
+                    },
+                ) {
+                    HorizontalPager(
+                        state = pager,
+                        modifier = Modifier.fillMaxSize(),
+                        key = { MainTab.entries[it].name },
+                    ) { index ->
+                        val tab = MainTab.entries[index]
+                        tabState.SaveableStateProvider(tab.name) {
+                            CompositionLocalProvider(
+                                LocalAcademicRevision provides refreshRevision,
+                                LocalAcademicVisible provides (!showingProfile && tab == settledTab),
+                            ) { pageContent(tab, periodFocus) }
+                        }
                     }
                 }
-            }
-            composable<Screen.StudentInfo>(
-                enterTransition = {
-                    fadeIn(tween(IFMotion.profileMillis)) +
-                        slideInHorizontally(tween(IFMotion.profileMillis)) { travel }
-                },
-                popExitTransition = {
-                    fadeOut(tween(IFMotion.profileMillis)) +
-                        slideOutHorizontally(tween(IFMotion.profileMillis)) { travel }
-                },
-            ) {
-                profileContent()
+                composable<Screen.StudentInfo>(
+                    enterTransition = {
+                        fadeIn(tween(IFMotion.profileMillis)) +
+                                slideInHorizontally(tween(IFMotion.profileMillis)) { travel }
+                    },
+                    popExitTransition = {
+                        fadeOut(tween(IFMotion.profileMillis)) +
+                                slideOutHorizontally(tween(IFMotion.profileMillis)) { travel }
+                    },
+                ) {
+                    profileContent()
+                }
             }
         }
     }

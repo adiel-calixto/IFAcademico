@@ -7,6 +7,7 @@ import java.time.LocalDate
 data class CalendarState(
     val selectedDate: LocalDate,
     val specialDates: List<SpecialDate> = emptyList(),
+    val hasContent: Boolean = false,
     val error: Error.DataError? = null,
     val isLoading: Boolean = false
 )

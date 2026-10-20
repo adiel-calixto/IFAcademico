@@ -12,12 +12,6 @@ import com.adielcalixto.ifacademico.data.AndroidLogger
 import com.adielcalixto.ifacademico.data.Logger
 import com.adielcalixto.ifacademico.data.remote.AcademicoAPI
 import com.adielcalixto.ifacademico.data.remote.GitHubAPI
-import com.adielcalixto.ifacademico.data.remote.interceptors.AddCookiesInterceptor
-import com.adielcalixto.ifacademico.data.remote.interceptors.CookieInterceptor
-import com.adielcalixto.ifacademico.data.remote.interceptors.UnauthorizedErrorInterceptor
-import com.adielcalixto.ifacademico.domain.usecases.GetSessionUseCase
-import com.adielcalixto.ifacademico.domain.usecases.SaveSessionUseCase
-import com.adielcalixto.ifacademico.observers.UnauthorizedApiErrorObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,37 +51,36 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUnauthorizedErrorObserver(): UnauthorizedApiErrorObserver {
-        return UnauthorizedApiErrorObserver()
-    }
+    fun provideSessionClock(): com.adielcalixto.ifacademico.data.session.SessionClock =
+        com.adielcalixto.ifacademico.data.session.SystemSessionClock()
+
+    @Provides
+    @Named("academicUrl")
+    fun provideAcademicUrl(): String = AcademicoAPI.BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("sessionScope")
+    fun provideSessionScope(): kotlinx.coroutines.CoroutineScope =
+        kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO,
+        )
+
+    @Provides
+    @Singleton
+    @Named("raw")
+    fun provideRawAcademicoApi(): AcademicoAPI = Retrofit.Builder()
+        .baseUrl(AcademicoAPI.BASE_URL)
+        .client(com.adielcalixto.ifacademico.data.remote.academicHttpClient())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(AcademicoAPI::class.java)
 
     @Provides
     @Singleton
     fun provideAcademicoApi(
-        saveSessionUseCase: SaveSessionUseCase,
-        getSessionUseCase: GetSessionUseCase,
-        unauthorizedApiErrorObserver: UnauthorizedApiErrorObserver,
-        cacheService: CacheService
-    ): AcademicoAPI {
-        return Retrofit.Builder()
-            .baseUrl(AcademicoAPI.BASE_URL)
-            .client(
-                OkHttpClient.Builder()
-                    .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-                    .addInterceptor(
-                        UnauthorizedErrorInterceptor(
-                            unauthorizedApiErrorObserver,
-                            cacheService
-                        )
-                    )
-                    .addInterceptor(CookieInterceptor(saveSessionUseCase))
-                    .addInterceptor(AddCookiesInterceptor(getSessionUseCase))
-                    .build()
-            )
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AcademicoAPI::class.java)
-    }
+        @Named("raw") raw: AcademicoAPI,
+        session: com.adielcalixto.ifacademico.data.session.SessionCoordinator,
+    ): AcademicoAPI = com.adielcalixto.ifacademico.data.remote.SessionAcademicoAPI(raw, session)
 
     @Provides
     @Singleton

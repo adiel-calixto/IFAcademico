@@ -1,19 +1,11 @@
 package com.adielcalixto.ifacademico.domain.entities
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-
-data class Session (
-    val cookies: Set<String>,
-    val expiresAt: Long = getExpirationDate(),
-    val registration: String,
-    val password: String
-) {
-    val isExpired: Boolean get() = expiresAt < LocalDateTime.now().atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
-
-    companion object {
-        fun getExpirationDate(dateTime: LocalDateTime = LocalDateTime.now()): Long {
-            return dateTime.plusMinutes(15).atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
-        }
-    }
-}
+/** Epoch milliseconds refer to successful authentication, never cookie traffic. */
+data class Session(
+    val cookies: Set<String> = emptySet(),
+    val expiresAt: Long = 0, // Legacy schema only; never used as an authentication clock.
+    val registration: String = "",
+    val password: String = "",
+    val loggedInAt: Long? = null,
+    val schemaVersion: Int = 2,
+)

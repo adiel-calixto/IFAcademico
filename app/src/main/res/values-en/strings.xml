@@ -147,4 +147,11 @@
     <string name="assessment_collapsed">Collapsed</string>
     <string name="expand_assessment">Show details for %1$s</string>
     <string name="collapse_assessment">Hide details for %1$s</string>
+    <string name="invalid_credentials">Invalid password. Check your password and try again.</string>
+    <string name="session_login_required">Your session ended. Sign in again to continue.</string>
+    <string name="session_protocol_error">The server response could not be read. Try again.</string>
+    <string name="session_storage_error">The session change could not be saved. Retry to finish.</string>
+    <string name="session_throttled">Too many attempts. Wait a little before trying again.</string>
+    <string name="session_server_error">The server is unavailable. Your data has been kept. Try again.</string>
+    <string name="refreshing_data">Updating data</string>
 </resources>

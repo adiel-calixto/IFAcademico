@@ -130,4 +130,28 @@ class CalendarViewModelTest {
             assertNull(model.state.value.error)
             assertFalse(model.state.value.isLoading)
         }
+
+    @Test
+    fun `foreground refresh retains month events during failure and retry updates current month`() =
+        runTest(dispatcher) {
+            val month = LocalDate.of(2024, 2, 1)
+            val event = calendarEvent("2024-02-10")
+            coEvery { dates.execute(month, any()) } returns Result.Success(listOf(event))
+            val model = CalendarViewModel(dates)
+            model.onAction(CalendarAction.OnMonthChanged(month))
+            runCurrent()
+            coEvery { dates.execute(month, any()) } returns Result.Error(IOError)
+            model.refreshIfStale(1)
+            assertEquals(listOf(event), model.state.value.specialDates)
+            runCurrent()
+            assertEquals(month, model.state.value.selectedDate)
+            assertEquals(listOf(event), model.state.value.specialDates)
+            assertEquals(IOError, model.state.value.error)
+            assertFalse(model.state.value.isLoading)
+            coEvery { dates.execute(month, any()) } returns Result.Success(emptyList())
+            model.onAction(CalendarAction.Retry)
+            runCurrent()
+            assertNull(model.state.value.error)
+            assertTrue(model.state.value.specialDates.isEmpty())
+        }
 }

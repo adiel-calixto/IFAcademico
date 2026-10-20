@@ -12,6 +12,7 @@ data class DiaryListState(
     val diaries: List<Diary> = emptyList(),
     val assessments: Map<Int, SubjectAssessments> = emptyMap(),
     val isLoading: Boolean = true,
+    val hasContent: Boolean = false,
     val error: Error.DataError? = null,
     val sheet: GradesSheet = GradesSheet.Closed,
 )

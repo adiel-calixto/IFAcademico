@@ -5,6 +5,7 @@ import com.adielcalixto.ifacademico.domain.entities.Student
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 
 data class MainState(
+    val isResolvingIdentity: Boolean = false,
     val isFirstLoad: Boolean = true,
     val sessionState: SessionState? = null,
     val student: Student? = null,
