@@ -37,6 +37,11 @@ The Material bridge keeps existing screens usable during migration:
 Use the named design styles directly for new components, especially `detailTitle`,
 `coefficient`, `coefficientNarrow`, `coefficientComparison`, and `wordmark`.
 Keep ordinary borders on `outline` and form outlines on the stronger `inputOutline`.
+Neutral text uses softened charcoal in light mode and muted off-white in dark mode.
+Coefficient foregrounds are explicit per appearance, including supporting labels.
+Text pairings retain at least 4.5:1 contrast; input outlines retain at least 3:1
+against all three neutral surfaces. Contrast minimums do not establish visual comfort;
+review foreground brightness in the light and dark catalogs too.
 Default elevated Material surfaces are neutral;
 avoid adding tonal elevation to ordinary rows.
 

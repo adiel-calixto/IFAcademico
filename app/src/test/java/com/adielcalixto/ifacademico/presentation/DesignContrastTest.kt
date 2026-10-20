@@ -13,6 +13,16 @@ class DesignContrastTest {
     }
 
     @Test
+    fun `input boundaries remain visible on neutral surfaces in each appearance`() {
+        listOf(LightColors, DarkColors).forEach { colors ->
+            listOf(colors.background, colors.surface, colors.surfaceSubtle).forEach { surface ->
+                val ratio = contrast(colors.inputOutline, surface)
+                assertTrue("Input boundary on $surface: $ratio", ratio >= 3f)
+            }
+        }
+    }
+
+    @Test
     fun `calendar text markers and today outlines remain readable in each theme`() {
         listOf(LightColors, DarkColors).forEach { colors ->
             listOf(

@@ -15,19 +15,20 @@ colors:
   surface-dark: "#212522"
   surface-subtle: "#ecefed"
   surface-subtle-dark: "#2b302c"
-  on-surface: "#252927"
-  on-surface-dark: "#e8ece9"
+  on-surface: "#39423c"
+  on-surface-dark: "#ced4cf"
   secondary: "#626965"
-  secondary-dark: "#b0b8b2"
+  secondary-dark: "#9fa9a2"
   outline: "#dde1de"
   outline-dark: "#363d38"
-  input-outline: "#a5afa8"
-  input-outline-dark: "#68746b"
+  input-outline: "#7d8981"
+  input-outline-dark: "#78867b"
   performance-surface: "#292f2c"
   performance-surface-dark: "#252c27"
-  on-performance: "#ffffff"
-  performance-secondary: "#d5dcd7"
-  performance-secondary-dark: "#ccd6cf"
+  on-performance: "#e0e6e1"
+  on-performance-dark: "#ced4cf"
+  performance-secondary: "#b9c4bc"
+  performance-secondary-dark: "#b0b8b2"
   primary-hover: "#174f2b"
   primary-hover-dark: "#80bf96"
   error: "#a52b26"
@@ -50,9 +51,9 @@ colors:
   on-calendar-assessment-dark: "#c9abd5"
   scrim: "#10151299"
   scrim-dark: "#080b09b3"
-  toast: "#252927"
-  toast-dark: "#dde5df"
-  on-toast: "#ffffff"
+  toast: "#39423c"
+  toast-dark: "#b0b8b2"
+  on-toast: "#e0e6e1"
   on-toast-dark: "#171a18"
 typography:
   headline-lg:
@@ -195,6 +196,7 @@ components:
     padding: "{spacing.panel}"
   performance-panel-dark:
     backgroundColor: "{colors.performance-surface-dark}"
+    textColor: "{colors.on-performance-dark}"
   event-row:
     textColor: "{colors.on-surface}"
     borderColor: "{colors.outline}"
@@ -248,11 +250,13 @@ The primary palette is Academic Green: `primary` in light mode and `primary-dark
 
 The neutral palette separates Page Gray (`background`), Panel White or Charcoal (`surface`), and Inset Gray (`surface-subtle`). These broad surfaces remain neutral. Primary text uses `on-surface`; supporting text uses `secondary`. Fine separators use `outline`, while form controls use the stronger `input-outline`.
 
-The coefficient panel uses Deep Charcoal (`performance-surface`) with white primary text and softer `performance-secondary` labels. It is a focused information anchor rather than a colored promotional banner.
+The coefficient panel uses Deep Charcoal (`performance-surface`) with soft off-white primary text and softer `performance-secondary` labels. It is a focused information anchor rather than a colored promotional banner.
 
 Errors and logout use the `error` pair. Low attendance allowance uses the amber `notice` pair with `on-notice` text. Pair every status color with a label. Event colors may distinguish academic event types, but the description and type remain readable without the color cue.
 
-Tokens without a `-dark` suffix define light mode. The matching suffixed token supplies the dark value. Shared values, such as white coefficient text, apply to both appearances. Focus outlines use the active primary color; interactive text uses the appropriate `primary-hover` value on hover.
+Tokens without a `-dark` suffix define light mode. The matching suffixed token supplies the dark value. Coefficient foregrounds are explicit in each appearance so dark panels never inherit pure-white text. Focus outlines use the active primary color; interactive text uses the appropriate `primary-hover` value on hover.
+
+Neutral text uses softened charcoal in light mode and muted off-white in dark mode. Keep supporting text subordinate without reducing it below 4.5:1 on any supported neutral surface. Input outlines must reach 3:1 against the field fill and surrounding neutral surfaces. WCAG ratios are minimum readability requirements, not visual-comfort targets or maximums; assess perceived brightness in rendered screens as well.
 
 ## Typography
 
