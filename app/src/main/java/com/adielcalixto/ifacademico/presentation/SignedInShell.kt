@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -48,6 +49,8 @@ internal fun SignedInShell(
     val showingProfile = entry?.destination?.hasRoute<Screen.StudentInfo>() == true
     // The pager survives the Tabs destination being saved while Profile is open.
     val pager = rememberPagerState { MainTab.entries.size }
+    // Keep offscreen tabs' state when navigation disposes the entire lazy pager.
+    val tabState = rememberSaveableStateHolder()
     val periodFocus = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
     var tabJob by remember { mutableStateOf<Job?>(null) }
@@ -126,7 +129,10 @@ internal fun SignedInShell(
                     modifier = Modifier.fillMaxSize(),
                     key = { MainTab.entries[it].name },
                 ) { index ->
-                    pageContent(MainTab.entries[index], periodFocus)
+                    val tab = MainTab.entries[index]
+                    tabState.SaveableStateProvider(tab.name) {
+                        pageContent(tab, periodFocus)
+                    }
                 }
             }
             composable<Screen.StudentInfo>(

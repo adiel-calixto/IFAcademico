@@ -25,8 +25,9 @@ Retrofit/OkHttp, and Preferences DataStore.
 ## Setup and commands
 
 Run commands from the repository root with the checked-in Gradle wrapper.
-The wrapper uses Gradle 9.4.1; daemon JVM criteria request Java 21. The Android
-configuration uses compile SDK 36.1, target SDK 36, and minimum SDK 33.
+The wrapper uses Gradle 9.7.0; daemon JVM criteria request Java 21. The Android
+configuration uses compile SDK 37, target SDK 36, and minimum SDK 33.
+Java and Kotlin bytecode targets are both 11, as required by Compose inline APIs.
 Configure the local Android SDK via `local.properties` or the environment;
 `local.properties` is machine-specific and ignored by Git.
 

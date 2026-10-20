@@ -2,7 +2,9 @@ package com.adielcalixto.ifacademico.presentation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +30,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.espresso.Espresso
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.components.IFButton
 import com.adielcalixto.ifacademico.presentation.components.IFSlidingSheet
@@ -81,6 +84,10 @@ class SignedInShellInteractionTest {
                     }
                     if (tab == MainTab.Diaries && sheetOpen.value) {
                         IFSlidingSheet("Academic period", { sheetOpen.value = false }, returnFocus = focus) {
+                            Spacer(
+                                Modifier.fillMaxWidth().height(64.dp)
+                                    .testTag("period-sheet-swipe-area")
+                            )
                             IFButton({ period.value = "2026/2"; sheetOpen.value = false }) {
                                 Text("Choose 2026/2")
                             }
@@ -159,17 +166,26 @@ class SignedInShellInteractionTest {
         compose.setContent { Host(dark = true) }
         page(MainTab.Today).performScrollToNode(hasText("Today record 15"))
         val before = compose.onNodeWithText("Today record 15").fetchSemanticsNode().boundsInRoot.top
+        val beforeScroll = page(MainTab.Today).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange].value()
         tab(R.string.calendar).performClick()
         page(MainTab.Calendar).performScrollToNode(hasText("Calendar record 15"))
         compose.onNodeWithContentDescription(label(R.string.open_profile)).performClick()
         compose.onNodeWithText("Profile content").assertIsDisplayed()
         tab(R.string.calendar).assertIsNotSelected()
         indicator().assertDoesNotExist()
-        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        Espresso.pressBack()
         tab(R.string.calendar).assertIsSelected()
         indicator().assertExists()
         compose.onNodeWithText("Calendar record 15").assertIsDisplayed()
-        tab(R.string.today_label).performClick()
+        tab(R.string.today_label).performClick().assertIsSelected()
+        assertEquals(
+            "Today scroll position after returning from Profile",
+            beforeScroll,
+            page(MainTab.Today).fetchSemanticsNode()
+                .config[SemanticsProperties.VerticalScrollAxisRange].value(),
+            1f,
+        )
         compose.onNodeWithText("Today record 15").assertIsDisplayed()
         assertEquals(before, compose.onNodeWithText("Today record 15").fetchSemanticsNode().boundsInRoot.top, 1f)
     }
@@ -177,8 +193,8 @@ class SignedInShellInteractionTest {
     @Test
     fun backReturnsToTodayAndTabTapLeavesProfile() {
         compose.setContent { Host() }
-        tab(R.string.calendar).performClick()
-        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        tab(R.string.calendar).performClick().assertIsSelected()
+        Espresso.pressBack()
         tab(R.string.today_label).assertIsSelected()
         compose.onNodeWithContentDescription(label(R.string.open_profile)).performClick()
         compose.onNodeWithText("Profile content").assertIsDisplayed()
@@ -193,7 +209,7 @@ class SignedInShellInteractionTest {
         tab(R.string.grades_label).performClick()
         compose.onNodeWithText("2026/1").performClick()
         compose.onNodeWithText("Academic period").assertIsDisplayed()
-        compose.onNodeWithText("Choose 2026/2").performTouchInput { swipeLeft() }
+        compose.onNodeWithTag("period-sheet-swipe-area").performTouchInput { swipeLeft() }
         compose.onNodeWithText("Academic period").assertIsDisplayed()
         compose.onNodeWithText("Choose 2026/2").performClick()
         compose.onNodeWithText("2026/2").assertIsDisplayed()

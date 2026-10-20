@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @Serializable
-private data class SerializableSession(
+internal data class SerializableSession(
     val cookies: Set<String>,
     val expiresAt: Long,
     val registration: String,
