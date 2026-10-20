@@ -145,7 +145,7 @@ and 360dp enlarged-text variants at 160% and 200%. Sample data is local and neve
 institutional account. Switch to interactive preview for control behavior.
 
 Home now follows the prototype: server date, charcoal coefficient panel, and flat
-class rows. Timetable opens a weekday sheet capped at 65% of the window height,
+class rows. Today’s class items omit the teacher name; timetable rows and class details retain it. Timetable opens a weekday sheet capped at 65% of the window height,
 with a fixed header and scrolling body, static class rows and no detail action or
 chevron. Class details open from Today, with focus restoration on dismissal. Timetable
 loading/retry is independent of Home. Server time always uses 24-hour `HH:mm`

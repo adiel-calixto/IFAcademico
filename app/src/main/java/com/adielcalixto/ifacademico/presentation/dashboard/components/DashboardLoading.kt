@@ -66,7 +66,7 @@ internal fun DashboardLoading(modifier: Modifier = Modifier) {
                 androidx.compose.material3.Icon(IFIcon.Arrow.vector, null, Modifier.size(IFSize.icon))
             }
         }
-        repeat(3) { ClassRowSkeleton() }
+        repeat(3) { ClassRowSkeleton(showTeacher = false) }
     }
 }
 
@@ -88,7 +88,7 @@ internal fun TimetableLoading(period: String?) {
 }
 
 @Composable
-private fun ClassRowSkeleton() {
+private fun ClassRowSkeleton(showTeacher: Boolean = true) {
     Row(
         Modifier.fillMaxWidth().padding(vertical = IFSpacing.md),
         horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm),
@@ -101,7 +101,7 @@ private fun ClassRowSkeleton() {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(IFSpacing.micro)) {
             IFSkeletonLine(.85f, style = IFTheme.typography.detailTitle)
             IFSkeletonLine(.5f)
-            IFSkeletonLine(.7f)
+            if (showTeacher) IFSkeletonLine(.7f)
         }
     }
     HorizontalDivider(color = IFTheme.colors.outline)

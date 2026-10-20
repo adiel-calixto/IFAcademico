@@ -99,7 +99,7 @@ internal fun DashboardContent(
             sortedClasses(state.timeTable.classes).forEach { course ->
                 val focus = remember(course) { FocusRequester() }
                 IFClassRow(
-                    course.displayRecord(locale),
+                    course.displayRecord(locale).copy(teacher = null),
                     onClick = {
                         homeOpener = focus
                         onAction(DashboardAction.ShowClass(course))

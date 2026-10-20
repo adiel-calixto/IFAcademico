@@ -16,8 +16,8 @@ private val SampleClass = IFClassRecord(
 internal fun AcademicRowsPreview() = Catalog {
     IFCoefficientPanel("8.72", "7.94")
     IFSectionTitle("Today’s classes")
-    IFClassRow(SampleClass, {})
-    IFClassRow(SampleClass.copy(subject = "Databases", finished = false), {})
+    IFClassRow(SampleClass.copy(teacher = null), {})
+    IFClassRow(SampleClass.copy(subject = "Databases", teacher = null, finished = false), {})
     IFClassDetail(SampleClass)
     IFTimetableContent("2026 · 2", listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"), 2, listOf(SampleClass), {})
 }
