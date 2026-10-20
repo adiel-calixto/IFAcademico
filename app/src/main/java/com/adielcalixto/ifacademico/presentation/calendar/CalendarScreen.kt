@@ -26,7 +26,11 @@ import java.time.YearMonth
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel) {
     val state by viewModel.state.collectAsState()
-    CalendarContent(state, viewModel::onAction)
+    val revision = com.adielcalixto.ifacademico.presentation.LocalAcademicRevision.current
+    val visible = com.adielcalixto.ifacademico.presentation.LocalAcademicVisible.current
+    LaunchedEffect(visible, revision) { if (visible) viewModel.refreshIfStale(revision) }
+    val sessionError = com.adielcalixto.ifacademico.presentation.LocalAcademicError.current
+    CalendarContent(state.copy(error = state.error ?: sessionError), viewModel::onAction)
 }
 
 @Composable

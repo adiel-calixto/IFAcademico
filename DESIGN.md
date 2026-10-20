@@ -405,7 +405,28 @@ or pulsing. Decorative shapes expose no actions or academic values; each loading
 region has one localized accessible indeterminate status. Keep Calendar navigation,
 sheet dismissal, and already loaded attendance available during loading.
 
-Use actionable retry messages for failures and descriptive empty states. Maintain readable contrast in each theme independently: at least 4.5:1 for ordinary text and 3:1 for large text and essential graphics.
+Failures replace the region whose data could not be loaded, including previous values
+after a failed refresh. Do not insert an error before a list of stale records or add
+a global error above the signed-in page. Successful unrelated regions remain visible.
+Today owns independent coefficient and class states; timetable failures stay inside
+their sheet. Calendar keeps month controls and the unmarked grid while replacing the
+event list and hiding stale counts and markers. Diary list failures preserve period
+context and selection; assessment failures replace assessments while attendance stays
+available. A warm profile failure replaces identity content while settings and logout
+remain accessible. An account-wide session failure uses one placeholder per visible
+page or modal region, without duplicate feedback behind an open sheet.
+
+Error placeholders use a rounded neutral inset surface, an outlined warning icon in
+the theme error color, a short Manrope heading, centered supporting text, and an
+outlined Retry button. Text wraps fully and the action has a minimum 48dp touch
+target. Announce each new message once through a polite live region. Callers own outer
+page/section insets. Whole-page startup errors are centered in the content viewport,
+limited to a 480dp reading width, and scroll when text enlargement requires it.
+Retry replaces the failed region with its loading placeholder, recovers authentication
+if necessary, and reloads that region without reloading unrelated successful content.
+Keep navigation, academic selections, and sheet dismissal available.
+
+Use descriptive empty states. Maintain readable contrast in each theme independently: at least 4.5:1 for ordinary text and 3:1 for large text and essential graphics.
 
 ## Do's and Don'ts
 

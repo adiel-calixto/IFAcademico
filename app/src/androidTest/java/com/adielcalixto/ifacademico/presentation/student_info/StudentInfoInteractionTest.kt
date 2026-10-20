@@ -33,7 +33,14 @@ class StudentInfoInteractionTest {
                 logout = stringResource(R.string.logout)
                 cancel = stringResource(R.string.cancel)
                 Surface {
-                    StudentInfoContent(student, Theme.SYSTEM, {}, true, {}, { loggedOut = true }, {})
+                    StudentInfoContent(
+                        student,
+                        Theme.SYSTEM,
+                        {},
+                        true,
+                        {},
+                        { loggedOut = true },
+                        {})
                 }
             }
         }
@@ -92,11 +99,44 @@ class StudentInfoInteractionTest {
         compose.onNodeWithText("AM").performScrollTo().assertIsDisplayed()
         compose.onNode(isToggleable()).performScrollTo().assertIsOn().performClick().assertIsOff()
         compose.onNode(hasText(light, substring = true)).assertDoesNotExist()
-        compose.onNode(hasText(system, substring = true) and hasClickAction()).performScrollTo().performClick()
+        compose.onNode(hasText(system, substring = true) and hasClickAction()).performScrollTo()
+            .performClick()
         compose.onNodeWithText(light).performClick()
         compose.onNode(hasText(light, substring = true)).assertExists()
         compose.onNodeWithText(project).performScrollTo().performClick()
         compose.runOnIdle { assertEquals(1, projectCount) }
+    }
+
+
+    @Test
+    fun identityFailureReplacesOldIdentityAndKeepsPreferencesAndLogout() {
+        var retried = false
+        lateinit var retry: String
+        lateinit var preferences: String
+        lateinit var logout: String
+        compose.setContent {
+            IFTheme {
+                retry = stringResource(R.string.retry)
+                preferences = stringResource(R.string.preferences)
+                logout = stringResource(R.string.logout)
+                StudentInfoContent(
+                    student,
+                    Theme.SYSTEM,
+                    {},
+                    true,
+                    {},
+                    {},
+                    {},
+                    error = com.adielcalixto.ifacademico.domain.IOError,
+                    onRetry = { retried = true })
+            }
+        }
+        compose.onNodeWithText(student.name).assertDoesNotExist()
+        compose.onNodeWithText(student.courseName).assertDoesNotExist()
+        compose.onNodeWithText(retry).performScrollTo().performClick()
+        compose.onNodeWithText(preferences).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(logout).performScrollTo().assertHasClickAction()
+        compose.runOnIdle { org.junit.Assert.assertTrue(retried) }
     }
 
     private val student = Student("Ana Maria de Oliveira", 42, 1, "Ciência da Computação")

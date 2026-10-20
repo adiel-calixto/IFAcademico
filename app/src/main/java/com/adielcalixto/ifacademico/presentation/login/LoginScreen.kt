@@ -36,7 +36,7 @@ import com.adielcalixto.ifacademico.presentation.components.IFOutlinedTextField 
 import com.adielcalixto.ifacademico.presentation.components.IFTextButton as TextButton
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () -> Unit) {
+fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val isDark = IFTheme.isDark
 
@@ -102,7 +102,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), onLoginSuccess: () 
         Button(
             onClick = {
                 if (state.registration.isNotEmpty() && state.password.isNotEmpty()) {
-                    viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess))
+                    viewModel.onAction(LoginAction.LoginClicked)
                 }
             },
             modifier = Modifier

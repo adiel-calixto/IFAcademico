@@ -130,4 +130,71 @@ class CalendarViewModelTest {
             assertNull(model.state.value.error)
             assertFalse(model.state.value.isLoading)
         }
+
+    @Test
+    fun `foreground refresh retains month events during failure and retry updates current month`() =
+        runTest(dispatcher) {
+            val month = LocalDate.of(2024, 2, 1)
+            val event = calendarEvent("2024-02-10")
+            coEvery { dates.execute(month, any()) } returns Result.Success(listOf(event))
+            val model = CalendarViewModel(dates)
+            model.onAction(CalendarAction.OnMonthChanged(month))
+            runCurrent()
+            coEvery { dates.execute(month, any()) } returns Result.Error(IOError)
+            model.refreshIfStale(1)
+            assertEquals(listOf(event), model.state.value.specialDates)
+            runCurrent()
+            assertEquals(month, model.state.value.selectedDate)
+            assertEquals(listOf(event), model.state.value.specialDates)
+            assertEquals(IOError, model.state.value.error)
+            assertFalse(model.state.value.isLoading)
+            coEvery { dates.execute(month, any()) } returns Result.Success(emptyList())
+            model.onAction(CalendarAction.Retry)
+            runCurrent()
+            assertNull(model.state.value.error)
+            assertTrue(model.state.value.specialDates.isEmpty())
+        }
+
+    @Test
+    fun `failed Retry calls the same data operation again and finishes loading`() =
+        runTest(dispatcher) {
+            coEvery { dates.execute(any(), any()) } returns Result.Error(IOError)
+            val model = CalendarViewModel(dates)
+            runCurrent()
+            model.onAction(CalendarAction.Retry)
+            runCurrent()
+            assertEquals(IOError, model.state.value.error)
+            assertFalse(model.state.value.isLoading)
+            coVerify(exactly = 2) { dates.execute(any(), any()) }
+        }
+
+    @Test
+    fun `late data retry failure cannot overwrite a newly selected month`() =
+        runTest(dispatcher) {
+            val release = CompletableDeferred<Unit>()
+            var januaryCalls = 0
+            coEvery { dates.execute(LocalDate.of(2024, 1, 1), any()) } coAnswers {
+                if (++januaryCalls > 1) withContext(NonCancellable) { release.await() }
+                Result.Error(IOError)
+            }
+            val event = calendarEvent("2024-02-10")
+            coEvery {
+                dates.execute(
+                    LocalDate.of(2024, 2, 1),
+                    any()
+                )
+            } returns Result.Success(listOf(event))
+            val model = CalendarViewModel(dates)
+            model.onAction(CalendarAction.OnMonthChanged(LocalDate.of(2024, 1, 1)))
+            runCurrent()
+            model.onAction(CalendarAction.Retry)
+            runCurrent()
+            model.onAction(CalendarAction.OnMonthChanged(LocalDate.of(2024, 2, 1)))
+            runCurrent()
+            release.complete(Unit)
+            runCurrent()
+            assertEquals(listOf(event), model.state.value.specialDates)
+            assertNull(model.state.value.error)
+            assertFalse(model.state.value.isLoading)
+        }
 }

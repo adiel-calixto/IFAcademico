@@ -39,9 +39,12 @@ import com.adielcalixto.ifacademico.presentation.diary_list.components.SubjectsL
 @Composable
 fun GradesPeriodControl(state: DiaryListState, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val description = stringResource(R.string.choose_academic_period)
-    IFTextButton(onClick, modifier.semantics { contentDescription = description },
-        enabled = state.periods.isNotEmpty()) {
-        Text(state.selectedPeriod?.let { "${it.year}/${it.number}" } ?: stringResource(R.string.period))
+    IFTextButton(
+        onClick, modifier.semantics { contentDescription = description },
+        enabled = state.periods.isNotEmpty()
+    ) {
+        Text(state.selectedPeriod?.let { "${it.year}/${it.number}" }
+            ?: stringResource(R.string.period))
         Icon(IFIcon.Down.vector, null, Modifier.size(IFSize.icon))
     }
 }
@@ -49,7 +52,15 @@ fun GradesPeriodControl(state: DiaryListState, onClick: () -> Unit, modifier: Mo
 @Composable
 fun DiaryListScreen(viewModel: DiaryListViewModel, periodFocus: FocusRequester) {
     val state by viewModel.state.collectAsState()
-    DiaryListContent(state, viewModel::onAction, periodFocus = periodFocus)
+    val revision = com.adielcalixto.ifacademico.presentation.LocalAcademicRevision.current
+    val visible = com.adielcalixto.ifacademico.presentation.LocalAcademicVisible.current
+    LaunchedEffect(visible, revision) { if (visible) viewModel.refreshIfStale(revision) }
+    val sessionError = com.adielcalixto.ifacademico.presentation.LocalAcademicError.current
+    DiaryListContent(
+        state.copy(error = state.error ?: sessionError),
+        viewModel::onAction,
+        periodFocus = periodFocus
+    )
 }
 
 @Composable
@@ -78,19 +89,37 @@ internal fun DiaryListContent(
     ) {
         when {
             state.isLoading -> item { SubjectsLoading(periodKey) }
+            state.error != null && state.sheet is GradesSheet.Subject -> item { Spacer(Modifier.fillParentMaxHeight()) }
             state.error != null -> item {
-                IFErrorState(state.error.asUiText().asString(), { onAction(DiaryListAction.LoadViewModelData) })
+                Column(
+                    Modifier.fillParentMaxHeight().fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    periodKey?.let { IFSectionTitle(it, Modifier.padding(bottom = IFSpacing.sm)) }
+                    IFErrorState(
+                        state.error.asUiText().asString(),
+                        { onAction(DiaryListAction.LoadViewModelData) })
+                }
             }
+
             state.selectedPeriod == null -> item { IFEmptyState(stringResource(R.string.no_academic_periods)) }
             else -> {
                 item(key = "period") {
-                    FlowRow(Modifier.fillMaxWidth().padding(bottom = IFSpacing.xs),
+                    FlowRow(
+                        Modifier.fillMaxWidth().padding(bottom = IFSpacing.xs),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
-                        itemVerticalAlignment = Alignment.CenterVertically) {
+                        itemVerticalAlignment = Alignment.CenterVertically
+                    ) {
                         IFSectionTitle("${state.selectedPeriod.year}/${state.selectedPeriod.number}")
-                        Text(pluralStringResource(R.plurals.subject_count, state.diaries.size, state.diaries.size),
-                            style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary)
+                        Text(
+                            pluralStringResource(
+                                R.plurals.subject_count,
+                                state.diaries.size,
+                                state.diaries.size
+                            ),
+                            style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
+                        )
                     }
                 }
                 if (state.diaries.isEmpty()) item { IFEmptyState(stringResource(R.string.no_subjects)) }
@@ -99,8 +128,10 @@ internal fun DiaryListContent(
                     val assessments = state.assessments[diary.id]
                     IFSubjectRow(
                         IFSubjectRecord(
-                            diary.name, diary.professor.ifBlank { stringResource(R.string.teacher_not_supplied) },
-                            assessments?.takeIf { !it.isLoading && it.error == null }?.exams?.size, diary.hours
+                            diary.name,
+                            diary.professor.ifBlank { stringResource(R.string.teacher_not_supplied) },
+                            assessments?.takeIf { !it.isLoading && it.error == null }?.exams?.size,
+                            diary.hours
                         ),
                         onClick = {
                             subjectOpener = focus
@@ -119,11 +150,36 @@ internal fun DiaryListContent(
             val diary = state.diaries.firstOrNull { it.id == sheet.diaryId }
             val period = state.selectedPeriod
             if (diary != null && period != null) key(diary.id, period) {
-                IFSlidingSheet(diary.name, onDismiss = { onAction(DiaryListAction.CloseSheet) },
+                IFSlidingSheet(
+                    diary.name, onDismiss = { onAction(DiaryListAction.CloseSheet) },
                     returnFocus = subjectOpener, titleStyle = IFTheme.typography.titleSm,
-                    maxHeightFraction = .65f, showScrollIndicator = true) {
-                    DiaryDetailContent(diary, period, state.assessments[diary.id] ?: SubjectAssessments(), locale,
-                        onRetryAssessments = { onAction(DiaryListAction.RetryAssessments(diary.id)) })
+                    maxHeightFraction = .65f, showScrollIndicator = true
+                ) {
+                    when {
+                        state.isLoading -> IFLoadingRegion(stringResource(R.string.loading_subjects)) {
+                            IFSkeletonLine(.6f)
+                            IFSkeletonLine(.8f)
+                        }
+
+                        state.error != null -> IFErrorState(
+                            state.error.asUiText().asString(),
+                            { onAction(DiaryListAction.LoadViewModelData) })
+
+                        else -> {
+                            DiaryDetailContent(
+                                diary,
+                                period,
+                                state.assessments[diary.id] ?: SubjectAssessments(),
+                                locale,
+                                onRetryAssessments = {
+                                    onAction(
+                                        DiaryListAction.RetryAssessments(
+                                            diary.id
+                                        )
+                                    )
+                                })
+                        }
+                    }
                 }
             }
         }
@@ -131,31 +187,48 @@ internal fun DiaryListContent(
 }
 
 @Composable
-private fun PeriodPickerSheet(state: DiaryListState, onAction: (DiaryListAction) -> Unit, periodFocus: FocusRequester?) {
+private fun PeriodPickerSheet(
+    state: DiaryListState,
+    onAction: (DiaryListAction) -> Unit,
+    periodFocus: FocusRequester?
+) {
     var pendingPeriod by remember { mutableStateOf<Period?>(null) }
     IFSlidingSheet(
         stringResource(R.string.choose_academic_period),
         onDismiss = {
-            onAction(pendingPeriod?.let { DiaryListAction.SelectPeriod(it) } ?: DiaryListAction.CloseSheet)
+            onAction(pendingPeriod?.let { DiaryListAction.SelectPeriod(it) }
+                ?: DiaryListAction.CloseSheet)
         }, returnFocus = periodFocus, dismissRequested = pendingPeriod != null
     ) {
-        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
+        Column(
+            Modifier.selectableGroup(),
+            verticalArrangement = Arrangement.spacedBy(IFSpacing.sm)
+        ) {
             state.periods.forEach { period ->
                 val selected = period == state.selectedPeriod
                 Surface(
                     modifier = Modifier.fillMaxWidth(), shape = IFShapes.md,
                     color = if (selected) IFTheme.colors.primaryContainer else IFTheme.colors.surface,
-                    border = BorderStroke(1.dp, if (selected) IFTheme.colors.primary else IFTheme.colors.outline)
+                    border = BorderStroke(
+                        1.dp,
+                        if (selected) IFTheme.colors.primary else IFTheme.colors.outline
+                    )
                 ) {
-                    Row(Modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton) {
-                        pendingPeriod = period
-                    }.heightIn(min = IFSize.touchTarget).padding(IFSpacing.md),
+                    Row(
+                        Modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton) {
+                            pendingPeriod = period
+                        }.heightIn(min = IFSize.touchTarget).padding(IFSpacing.md),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)) {
-                        Text("${period.year}/${period.number}", Modifier.weight(1f),
-                            style = IFTheme.typography.labelMd)
-                        Icon(if (selected) IFIcon.Check.vector else IFIcon.Chevron.vector, null,
-                            Modifier.size(IFSize.icon), tint = IFTheme.colors.primary)
+                        horizontalArrangement = Arrangement.spacedBy(IFSpacing.sm)
+                    ) {
+                        Text(
+                            "${period.year}/${period.number}", Modifier.weight(1f),
+                            style = IFTheme.typography.labelMd
+                        )
+                        Icon(
+                            if (selected) IFIcon.Check.vector else IFIcon.Chevron.vector, null,
+                            Modifier.size(IFSize.icon), tint = IFTheme.colors.primary
+                        )
                     }
                 }
             }

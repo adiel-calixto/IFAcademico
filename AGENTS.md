@@ -16,7 +16,8 @@ Retrofit/OkHttp, and Preferences DataStore.
 - `di/`: Hilt providers in `AppModule` and interface bindings in `UseCasesModule`.
 - `presentation/`: feature screens, view models, state/action types, shared UI,
   theme configuration at its root, shared `components/`, and feature-owned UI.
-- `observers/`: unauthorized-response notifications used by session handling.
+- `data/session/`: session coordinator, account lifetimes, academic freshness, and
+  foreground lifecycle tracking. See `docs/session-handling.md` for the contracts.
 - `MainActivity.kt`: app composition, typed `Screen` routes, and navigation wiring.
 - `DESIGN.md`: visual specification. `design-system/README.md` explains the native
   implementation and migration status; `design-system/` is documentation, not a
@@ -67,9 +68,16 @@ No automated publishing or release-signing workflow is configured in the build f
   `asUiText` / `UiText` at the presentation boundary.
 - Retrofit uses Gson for HTTP payloads. Cached DTOs and session data also use
   kotlinx.serialization; preserve both annotation schemes where applicable.
-- Cookie interceptors persist and attach session cookies. HTTP 401 responses
-  notify `UnauthorizedApiErrorObserver` and clear the cache; `MainViewModel`
-  participates in session verification/refresh and lifecycle handling.
+- `SessionCoordinator` is the sole session writer. `SessionAcademicoAPI` gates
+  protected requests and shares one recovery/retry on HTTP 401. Cookie attachment
+  uses request ownership tickets; login bypasses the protected gate. `MainViewModel`
+  observes session state and waits for current-account student identity before
+  opening academic screens. Temporary failures retain credentials; failed UI regions
+  replace stale values with scoped error placeholders and Retry.
+- Academic cache keys include account generation, freshness revision, and query
+  parameters. Foreground returns invalidate freshness; visible and subsequently
+  opened tabs and detail sheets refresh. Failures replace only their affected regions;
+  unrelated successful content, navigation, and academic selections remain available.
 - Session data includes credentials and cookies and is encrypted through
   `EncryptionUtil` before DataStore persistence. Preserve this storage boundary.
   The LRU cache is process-local, stores JSON strings, and returns `""` on a miss.

@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.adielcalixto.ifacademico.domain.Error
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.TimeTableClass
 import com.adielcalixto.ifacademico.presentation.asUiText
@@ -22,7 +23,8 @@ import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.IFEmptyState
 import com.adielcalixto.ifacademico.presentation.components.IFErrorState
 import com.adielcalixto.ifacademico.presentation.components.IFIcon
-import com.adielcalixto.ifacademico.presentation.dashboard.components.DashboardLoading
+import com.adielcalixto.ifacademico.presentation.dashboard.components.CoefficientsLoading
+import com.adielcalixto.ifacademico.presentation.dashboard.components.ClassesLoading
 import com.adielcalixto.ifacademico.presentation.dashboard.components.TimetableLoading
 import com.adielcalixto.ifacademico.presentation.components.IFSectionTitle
 import com.adielcalixto.ifacademico.presentation.components.IFSlidingSheet
@@ -39,14 +41,19 @@ import java.util.Locale
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel) {
     val state by viewModel.state.collectAsState()
-    DashboardContent(state, viewModel::onAction)
+    val revision = com.adielcalixto.ifacademico.presentation.LocalAcademicRevision.current
+    val visible = com.adielcalixto.ifacademico.presentation.LocalAcademicVisible.current
+    LaunchedEffect(visible, revision) { if (visible) viewModel.refreshIfStale(revision) }
+    val sessionError = com.adielcalixto.ifacademico.presentation.LocalAcademicError.current
+    DashboardContent(state, viewModel::onAction, sessionError = sessionError)
 }
 
 @Composable
 internal fun DashboardContent(
     state: DashboardState,
     onAction: (DashboardAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sessionError: Error.DataError? = null,
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val homeScroll = rememberScrollState()
@@ -55,66 +62,107 @@ internal fun DashboardContent(
     val timetableFocus = remember { FocusRequester() }
     var homeOpener by remember { mutableStateOf(timetableFocus) }
 
-    when {
-        state.isLoading -> DashboardLoading(modifier)
-        state.error != null -> ErrorComponent(state.error) {
-            onAction(DashboardAction.LoadViewModelData)
+    if (sessionError != null) {
+        when {
+            state.sheet != DashboardSheet.Closed -> Spacer(modifier.fillMaxSize())
+            state.coefficientsLoading || state.classesLoading -> Column(
+                modifier.fillMaxSize().verticalScroll(homeScroll)
+                    .padding(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
+            ) {
+                CoefficientsLoading()
+                Spacer(Modifier.height(IFSpacing.lg))
+                IFSectionTitle(stringResource(R.string.today_classes))
+                ClassesLoading()
+            }
+
+            else -> Box(modifier.fillMaxSize()) {
+                ErrorComponent(sessionError) { onAction(DashboardAction.RetryHome) }
+            }
         }
-        else -> Column(
-            modifier.fillMaxSize().verticalScroll(homeScroll)
-                .padding(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
-        ) {
+    } else Column(
+        modifier.fillMaxSize().verticalScroll(homeScroll)
+            .padding(horizontal = IFTheme.pageInset, vertical = IFSpacing.lg)
+    ) {
+        if (!state.classesLoading && state.classesError == null) {
             Text(
-                dateLabel(state.timeTable.today, locale) ?: stringResource(R.string.date_not_supplied),
+                dateLabel(state.timeTable.today, locale)
+                    ?: stringResource(R.string.date_not_supplied),
                 style = IFTheme.typography.labelSm,
                 color = IFTheme.colors.primary
             )
             Spacer(Modifier.height(IFSpacing.lg))
-            IFCoefficientPanel(
-                coefficientLabel(state.performanceCoefficients.studentPerformance, locale),
-                coefficientLabel(state.performanceCoefficients.classPerformance, locale)
+        }
+        when {
+            state.coefficientsLoading -> CoefficientsLoading()
+            state.coefficientsError != null -> IFErrorState(
+                state.coefficientsError.asUiText()
+                    .asString(),
+                { onAction(DashboardAction.RetryCoefficients) },
+                title = stringResource(R.string.coefficients_load_error)
             )
-            Spacer(Modifier.height(IFSpacing.lg))
-            FlowRow(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
-                itemVerticalAlignment = Alignment.CenterVertically
+
+            else -> {
+                IFCoefficientPanel(
+                    coefficientLabel(state.performanceCoefficients.studentPerformance, locale),
+                    coefficientLabel(state.performanceCoefficients.classPerformance, locale)
+                )
+            }
+        }
+        Spacer(Modifier.height(IFSpacing.lg))
+        FlowRow(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.spacedBy(IFSpacing.xs),
+            itemVerticalAlignment = Alignment.CenterVertically
+        ) {
+            IFSectionTitle(stringResource(R.string.today_classes))
+            IFTextButton(
+                onClick = {
+                    homeOpener = timetableFocus
+                    onAction(DashboardAction.ShowIndividualTimeTable)
+                },
+                modifier = Modifier.focusRequester(timetableFocus)
             ) {
-                IFSectionTitle(stringResource(R.string.today_classes))
-                IFTextButton(
-                    onClick = {
-                        homeOpener = timetableFocus
-                        onAction(DashboardAction.ShowIndividualTimeTable)
-                    },
-                    modifier = Modifier.focusRequester(timetableFocus)
-                ) {
-                    Text(stringResource(R.string.timetable))
-                    androidx.compose.material3.Icon(IFIcon.Arrow.vector, null, Modifier.size(IFSize.icon))
+                Text(stringResource(R.string.timetable))
+                androidx.compose.material3.Icon(
+                    IFIcon.Arrow.vector,
+                    null,
+                    Modifier.size(IFSize.icon)
+                )
+            }
+        }
+        when {
+            state.classesLoading -> ClassesLoading()
+            state.classesError != null -> {
+                if (state.sheet !is DashboardSheet.ClassDetail) IFErrorState(
+                    state.classesError.asUiText().asString(),
+                    { onAction(DashboardAction.RetryClasses) })
+            }
+
+            else -> {
+                if (state.timeTable.classes.isEmpty()) {
+                    IFEmptyState(stringResource(R.string.no_classes_today))
                 }
-            }
-            if (state.timeTable.classes.isEmpty()) {
-                IFEmptyState(stringResource(R.string.no_classes_today))
-            }
-            sortedClasses(state.timeTable.classes).forEach { course ->
-                val focus = remember(course) { FocusRequester() }
-                IFClassRow(
-                    course.displayRecord(locale).copy(teacher = null),
-                    onClick = {
-                        homeOpener = focus
-                        onAction(DashboardAction.ShowClass(course))
-                    },
-                    modifier = Modifier.focusRequester(focus)
-                )
-            }
-            serverTimeLabel(state.timeTable.serverTime, locale)?.let {
-                Text(
-                    stringResource(R.string.server_time, it),
-                    Modifier.fillMaxWidth().padding(top = IFSpacing.lg),
-                    style = IFTheme.typography.caption,
-                    color = IFTheme.colors.secondary,
-                    textAlign = TextAlign.Right
-                )
+                sortedClasses(state.timeTable.classes).forEach { course ->
+                    val focus = remember(course) { FocusRequester() }
+                    IFClassRow(
+                        course.displayRecord(locale).copy(teacher = null),
+                        onClick = {
+                            homeOpener = focus
+                            onAction(DashboardAction.ShowClass(course))
+                        },
+                        modifier = Modifier.focusRequester(focus)
+                    )
+                }
+                serverTimeLabel(state.timeTable.serverTime, locale)?.let {
+                    Text(
+                        stringResource(R.string.server_time, it),
+                        Modifier.fillMaxWidth().padding(top = IFSpacing.lg),
+                        style = IFTheme.typography.caption,
+                        color = IFTheme.colors.secondary,
+                        textAlign = TextAlign.Right
+                    )
+                }
             }
         }
     }
@@ -131,32 +179,65 @@ internal fun DashboardContent(
             maxHeightFraction = if (detail == null) .65f else .9f,
             showScrollIndicator = detail == null,
         ) {
-            if (detail != null) {
-                LaunchedEffect(detail.course) { detailScroll.scrollTo(0) }
-                IFClassDetail(detail.course.displayRecord(locale))
-            } else {
+            if (sessionError != null) {
                 when {
-                    state.timetableLoading -> TimetableLoading(state.currentPeriod?.let {
+                    detail == null && state.timetableLoading -> TimetableLoading(state.currentPeriod?.let {
                         stringResource(R.string.timetable_period, it.year, it.number)
                     })
+
+                    detail != null && state.classesLoading -> ClassesLoading()
+                    else -> IFErrorState(sessionError.asUiText().asString(), {
+                        onAction(if (detail == null) DashboardAction.RetryTimetable else DashboardAction.RetryClasses)
+                    })
+                }
+            } else if (detail != null) {
+                LaunchedEffect(detail.course) { detailScroll.scrollTo(0) }
+                when {
+                    state.classesLoading -> ClassesLoading()
+                    state.classesError != null -> IFErrorState(
+                        state.classesError.asUiText().asString(),
+                        { onAction(DashboardAction.RetryClasses) })
+
+                    else -> IFClassDetail(detail.course.displayRecord(locale))
+                }
+            } else {
+                when {
+                    state.timetableLoading -> TimetableLoading(
+                        state.currentPeriod?.let {
+                            stringResource(R.string.timetable_period, it.year, it.number)
+                        })
+
                     state.timetableError != null -> IFErrorState(
                         state.timetableError.asUiText().asString(),
                         { onAction(DashboardAction.RetryTimetable) }
                     )
+
                     state.currentPeriod == null -> IFEmptyState(stringResource(R.string.no_academic_periods))
                     else -> {
                         Text(
-                            stringResource(R.string.timetable_period, state.currentPeriod.year, state.currentPeriod.number),
+                            stringResource(
+                                R.string.timetable_period,
+                                state.currentPeriod.year,
+                                state.currentPeriod.number
+                            ),
                             style = IFTheme.typography.bodySm,
                             color = IFTheme.colors.secondary
                         )
                         Spacer(Modifier.height(IFSpacing.md))
                         IFWeekdaySelector(
-                            timetableWeekdays.map { day -> weekdayLabel(day, locale, TextStyle.SHORT) },
+                            timetableWeekdays.map { day ->
+                                weekdayLabel(
+                                    day,
+                                    locale,
+                                    TextStyle.SHORT
+                                )
+                            },
                             timetableWeekdays.indexOf(state.selectedWeekday),
                             { index -> onAction(DashboardAction.SelectWeekday(timetableWeekdays[index])) }
                         )
-                        val classes = sortedClasses(state.individualTimeTable?.classes?.get(state.selectedWeekday).orEmpty())
+                        val classes = sortedClasses(
+                            state.individualTimeTable?.classes?.get(state.selectedWeekday).orEmpty()
+                        )
                         if (classes.isEmpty()) IFEmptyState(stringResource(R.string.empty_timetable_classes))
                         classes.forEach { course ->
                             IFClassRow(course.displayRecord(locale))
@@ -177,7 +258,8 @@ private fun TimeTableClass.displayRecord(locale: Locale) = IFClassRecord(
     start = startTime,
     end = endTime,
     room = classRoomName.takeIf { it.isNotBlank() } ?: stringResource(R.string.room_not_supplied),
-    teacher = professorName.takeIf { it.isNotBlank() } ?: stringResource(R.string.teacher_not_supplied),
+    teacher = professorName.takeIf { it.isNotBlank() }
+        ?: stringResource(R.string.teacher_not_supplied),
     finished = finished,
     period = academicPeriod.toString(),
     weekday = weekDay?.takeIf { it in 1..7 }?.let { weekdayLabel(it, locale, TextStyle.FULL) }

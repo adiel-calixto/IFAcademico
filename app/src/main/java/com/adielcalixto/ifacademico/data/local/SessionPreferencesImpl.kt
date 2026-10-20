@@ -2,86 +2,90 @@ package com.adielcalixto.ifacademico.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.adielcalixto.ifacademico.domain.entities.Session
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import javax.inject.Inject
+
+private val Context.sessionDataStore by preferencesDataStore(
+    name = "session",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 @Serializable
 internal data class SerializableSession(
-    val cookies: Set<String>,
-    val expiresAt: Long,
-    val registration: String,
-    val password: String
+    val cookies: Set<String> = emptySet(),
+    val expiresAt: Long = 0,
+    val registration: String = "",
+    val password: String = "",
+    val loggedInAt: Long? = null,
+    val schemaVersion: Int = 1,
 ) {
-    fun toDomain() = Session(cookies, expiresAt, registration, password)
+    fun toDomain() = if (schemaVersion == 2) {
+        Session(cookies, 0, registration, password, loggedInAt)
+    } else {
+        // Legacy expiry used local time as UTC and was reset by arbitrary cookies.
+        Session(registration = registration, password = password)
+    }
 
     companion object {
         fun fromDomain(session: Session) = SerializableSession(
-            session.cookies,
-            session.expiresAt,
-            session.registration,
-            session.password
+            cookies = session.cookies, registration = session.registration,
+            password = session.password, loggedInAt = session.loggedInAt, schemaVersion = 2,
         )
     }
-};
+}
 
-class SessionPreferencesImpl @Inject constructor(
-    private val context: Context,
-    private val encryptionUtil: EncryptionUtil
+class SessionPreferencesImpl internal constructor(
+    private val dataStore: DataStore<Preferences>,
+    private val encryptionUtil: EncryptionUtil,
 ) : SessionPreferences {
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "session")
+    @Inject
+    constructor(context: Context, encryptionUtil: EncryptionUtil) : this(
+        context.sessionDataStore,
+        encryptionUtil
+    )
 
-    override suspend fun saveCookies(expiresAt: Long, cookies: Set<String>) {
-        val currentSession = getSession().first()
-        saveSession(currentSession.copy(cookies = cookies, expiresAt = expiresAt))
+    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    override fun getSession(): Flow<Session> = flow {
+        // I/O errors are recoverable. Corrupt ciphertext/JSON must be removed, not retried forever.
+        val data = dataStore.data.first()[DATA_KEY]
+        val session = if (data == null) Session() else try {
+            val plaintext = encryptionUtil.decrypt(
+                data.split("|").map { it.toByte() }.toByteArray(), ENCRYPTION_KEY_ALIAS,
+            )
+            json.decodeFromString<SerializableSession>(plaintext).toDomain()
+        } catch (e: IOException) {
+            throw e
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            clearSession()
+            Session()
+        }
+        emit(session)
     }
 
-    override suspend fun saveUser(registration: String, password: String) {
-        val currentSession = getSession().first()
-        saveSession(currentSession.copy(registration = registration, password = password))
-    }
-
-    private suspend fun saveSession(session: Session) {
-        val encodedSession = Json.encodeToString(SerializableSession.fromDomain(session))
-        context.dataStore.edit { preferences ->
+    override suspend fun replaceSession(session: Session) {
+        dataStore.edit { preferences ->
+            val plaintext = json.encodeToString(SerializableSession.fromDomain(session))
             preferences[DATA_KEY] =
-                encryptionUtil.encrypt(encodedSession, ENCRYPTION_KEY_ALIAS).joinToString("|")
-        }
-    }
-
-    override fun getSession(): Flow<Session> {
-        val encryptedData = context.dataStore.data.map { preferences ->
-            preferences[DATA_KEY] ?: ""
-        }
-
-        return flow {
-            val data = encryptedData.first()
-
-            if (data.isEmpty()) {
-                emit(Session(emptySet(), 0, "", ""))
-            } else {
-                val decryptedString = encryptionUtil.decrypt(
-                    data.split("|").map { it.toByte() }.toByteArray(),
-                    ENCRYPTION_KEY_ALIAS
-                )
-                emit(Json.decodeFromString<SerializableSession>(decryptedString).toDomain())
-            }
+                encryptionUtil.encrypt(plaintext, ENCRYPTION_KEY_ALIAS).joinToString("|")
         }
     }
 
     override suspend fun clearSession() {
-        context.dataStore.edit { preferences ->
-            preferences.clear()
-        }
+        dataStore.edit { it.remove(DATA_KEY) }
     }
 
     companion object {

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.adielcalixto.ifacademico.domain.Error
 import com.adielcalixto.ifacademico.Screen
 import com.adielcalixto.ifacademico.presentation.components.BottomNavigationBar
 import com.adielcalixto.ifacademico.presentation.components.TopBar
@@ -36,6 +39,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** Tab order is also the pager order; swipes never add entries to navigation history. */
+internal val LocalAcademicRevision = staticCompositionLocalOf { 0L }
+internal val LocalAcademicError = staticCompositionLocalOf<Error.DataError?> { null }
+internal val LocalAcademicVisible = staticCompositionLocalOf { true }
+
 enum class MainTab { Today, Diaries, Calendar }
 
 @Composable
@@ -43,6 +50,8 @@ internal fun SignedInShell(
     periodControl: @Composable (FocusRequester) -> Unit,
     pageContent: @Composable (MainTab, FocusRequester) -> Unit,
     profileContent: @Composable () -> Unit,
+    refreshRevision: Long = 0,
+    sessionError: Error.DataError? = null,
 ) {
     val navController = rememberNavController()
     val entry by navController.currentBackStackEntryAsState()
@@ -108,7 +117,7 @@ internal fun SignedInShell(
         NavHost(
             navController = navController,
             startDestination = Screen.Tabs,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.padding(padding).fillMaxSize(),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
@@ -117,11 +126,11 @@ internal fun SignedInShell(
             composable<Screen.Tabs>(
                 exitTransition = {
                     fadeOut(tween(IFMotion.profileMillis)) +
-                        slideOutHorizontally(tween(IFMotion.profileMillis)) { -travel }
+                            slideOutHorizontally(tween(IFMotion.profileMillis)) { -travel }
                 },
                 popEnterTransition = {
                     fadeIn(tween(IFMotion.profileMillis)) +
-                        slideInHorizontally(tween(IFMotion.profileMillis)) { -travel }
+                            slideInHorizontally(tween(IFMotion.profileMillis)) { -travel }
                 },
             ) {
                 HorizontalPager(
@@ -131,18 +140,22 @@ internal fun SignedInShell(
                 ) { index ->
                     val tab = MainTab.entries[index]
                     tabState.SaveableStateProvider(tab.name) {
-                        pageContent(tab, periodFocus)
+                        CompositionLocalProvider(
+                            LocalAcademicRevision provides refreshRevision,
+                            LocalAcademicError provides sessionError,
+                            LocalAcademicVisible provides (!showingProfile && tab == settledTab),
+                        ) { pageContent(tab, periodFocus) }
                     }
                 }
             }
             composable<Screen.StudentInfo>(
                 enterTransition = {
                     fadeIn(tween(IFMotion.profileMillis)) +
-                        slideInHorizontally(tween(IFMotion.profileMillis)) { travel }
+                            slideInHorizontally(tween(IFMotion.profileMillis)) { travel }
                 },
                 popExitTransition = {
                     fadeOut(tween(IFMotion.profileMillis)) +
-                        slideOutHorizontally(tween(IFMotion.profileMillis)) { travel }
+                            slideOutHorizontally(tween(IFMotion.profileMillis)) { travel }
                 },
             ) {
                 profileContent()

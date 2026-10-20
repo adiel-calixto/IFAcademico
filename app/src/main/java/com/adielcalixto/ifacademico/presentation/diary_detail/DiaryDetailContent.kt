@@ -24,7 +24,11 @@ import java.util.Locale
 internal fun hasLowAllowance(absences: Int, maximum: Int): Boolean =
     maximum > 0 && absences.toLong() * 5 >= maximum.toLong() * 4
 
-internal fun assessmentStages(exams: List<Exam>, locale: Locale, stageLabel: (String) -> String): List<IFAssessmentStage> {
+internal fun assessmentStages(
+    exams: List<Exam>,
+    locale: Locale,
+    stageLabel: (String) -> String
+): List<IFAssessmentStage> {
     val number = NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 2 }
     val date = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale)
     return exams.sortedBy { it.order }.groupBy { it.stepId }.map { (stage, records) ->
@@ -47,29 +51,46 @@ internal fun DiaryDetailContent(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.lg)) {
         Text(
-            stringResource(R.string.subject_context,
-                diary.professor.ifBlank { stringResource(R.string.teacher_not_supplied) }, period.year, period.number),
+            stringResource(
+                R.string.subject_context,
+                diary.professor.ifBlank { stringResource(R.string.teacher_not_supplied) },
+                period.year,
+                period.number
+            ),
             style = IFTheme.typography.bodySm, color = IFTheme.colors.secondary
         )
-        IFAttendanceSummary(IFAttendanceRecord(
-            absences = diary.absences,
-            maximum = diary.maxAbsences,
-            excused = diary.excusedAbsences,
-            lowAllowance = hasLowAllowance(diary.absences, diary.maxAbsences),
-            plannedClasses = diary.plannedClasses,
-            taughtClasses = diary.taughtClasses,
-            pendingClasses = diary.pendingClasses,
-        ))
+        IFAttendanceSummary(
+            IFAttendanceRecord(
+                absences = diary.absences,
+                maximum = diary.maxAbsences,
+                excused = diary.excusedAbsences,
+                lowAllowance = hasLowAllowance(diary.absences, diary.maxAbsences),
+                plannedClasses = diary.plannedClasses,
+                taughtClasses = diary.taughtClasses,
+                pendingClasses = diary.pendingClasses,
+            )
+        )
         when {
             assessments.isLoading -> AssessmentsLoading()
-            assessments.error != null -> Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-                IFSectionTitle(stringResource(R.string.exams), Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            assessments.error != null -> Column(
+                verticalArrangement = Arrangement.spacedBy(
+                    IFSpacing.md
+                )
+            ) {
+                IFSectionTitle(
+                    stringResource(R.string.exams),
+                    Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
                 IFErrorState(assessments.error.asUiText().asString(), onRetryAssessments)
             }
+
             else -> {
                 IFAssessments(assessmentStages(assessments.exams, locale) { it }.map { stage ->
-                    stage.copy(label = if (stage.label.isBlank()) stringResource(R.string.stage_not_supplied)
-                        else stringResource(R.string.assessment_stage, stage.label))
+                    stage.copy(
+                        label = if (stage.label.isBlank()) stringResource(R.string.stage_not_supplied)
+                        else stringResource(R.string.assessment_stage, stage.label)
+                    )
                 })
             }
         }
