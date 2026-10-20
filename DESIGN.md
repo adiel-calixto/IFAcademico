@@ -278,6 +278,21 @@ Depth comes mainly from tonal separation, fine borders, and whitespace. Subject 
 
 Modal panels are distinguished by a translucent scrim and rounded top edge. A toast may use a soft shadow to separate temporary feedback from content. The presentation handset and its hardware shadows are not part of the product's visual system.
 
+The three bottom pages form a horizontal pager in Today, Diaries, Calendar order.
+Pages follow the finger and snap one page at a time without wrapping. Tab taps slide
+through the same order over 240ms; selected navigation and the Diaries period control
+update when movement settles. Header and bottom navigation remain stationary.
+Vertical page scrolling remains independent. Back returns from Diaries or Calendar to
+Today before leaving the app; Profile and modal panels close first.
+
+Profile is outside the pager. It opens with a separate 220ms fade and 24dp horizontal
+translation, reversed on return, preserving the prior tab and scroll position. Bottom
+navigation remains available on Profile without a selected item; tapping a tab returns
+to that page. Calendar month arrows animate the date cells with a 200ms fade and 24dp
+directional translation. Arrows and weekday labels remain stationary. Horizontal
+swipes on Calendar change pages; month changes use the arrows. Data arriving for the
+same month does not replay the animation.
+
 A sliding panel enters with a restrained 220ms ease-out translation and opacity change. Toggle feedback takes approximately 180ms. Reduce or remove movement when reduced motion is requested; motion must communicate a state change rather than decorate the screen.
 
 ## Shapes

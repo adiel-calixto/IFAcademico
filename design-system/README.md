@@ -91,6 +91,28 @@ to System; persisted Purple migrates to Dark, Yellow/Blue to Light. Existing upd
 preferences are preserved. The update switch controls checking for releases; it
 does not install updates or prove that an update occurred.
 
+## Page motion and state
+
+`SignedInShell` owns the stationary header/bottom navigation, a saveable
+`HorizontalPager` in `MainTab` order, and separate Profile navigation. Tab taps use
+`IFMotion.tabMillis` (240ms), cancel earlier tab animations, and slide through
+intermediate pages. Swipes use standard pager snapping. Selection and the Diaries
+period control follow `settledPage`; page switches do not build a back stack.
+Back returns to Today before leaving the app. Sheets retain modal gesture and Back
+handling. Profile uses a 220ms fade and 24dp translation, reversed when closing.
+
+The outer signed-in route owns feature view models. The page and header share the
+Diaries model; lazy page disposal and Profile visits preserve model data and saveable
+scroll positions. Logout removes this owner; a new login starts on Today. The pager
+selection survives configuration changes, while academic-data restoration after
+process death follows the existing feature behavior.
+
+`IFMonthGrid` animates date cells with a 200ms fade and directional 24dp movement.
+Weekday labels and arrow controls remain stationary. Each outgoing grid retains its
+month/marker snapshot and is excluded from accessibility semantics; marker or loading
+changes within a month do not restart motion. Android animator duration scale applies
+to programmatic transitions, including zero; direct finger dragging remains enabled.
+
 ## Reviewing and extending
 
 Open the feature and shared `*Preview.kt` files in Android Studio. Preview groups have light, dark,

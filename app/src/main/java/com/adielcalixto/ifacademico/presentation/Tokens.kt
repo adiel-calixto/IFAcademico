@@ -83,6 +83,10 @@ object IFSize {
 }
 
 object IFMotion {
+    const val tabMillis = 240
+    const val profileMillis = 220
+    const val calendarMonthMillis = 200
+    val pageTravel = 24.dp
     const val sheetMillis = 220
     const val toggleMillis = 180
 }

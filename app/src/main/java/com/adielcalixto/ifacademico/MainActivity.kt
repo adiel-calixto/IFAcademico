@@ -7,44 +7,39 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.adielcalixto.ifacademico.domain.usecases.SessionState
 import com.adielcalixto.ifacademico.presentation.AppTheme
-import com.adielcalixto.ifacademico.presentation.MainState
+import com.adielcalixto.ifacademico.presentation.MainTab
 import com.adielcalixto.ifacademico.presentation.MainViewModel
+import com.adielcalixto.ifacademico.presentation.SignedInShell
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarScreen
 import com.adielcalixto.ifacademico.presentation.calendar.CalendarViewModel
-import com.adielcalixto.ifacademico.presentation.components.BottomNavigationBar
 import com.adielcalixto.ifacademico.presentation.components.ErrorComponent
 import com.adielcalixto.ifacademico.presentation.components.LoadingComponent
-import com.adielcalixto.ifacademico.presentation.components.TopBar
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardScreen
 import com.adielcalixto.ifacademico.presentation.dashboard.DashboardViewModel
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListAction
-import com.adielcalixto.ifacademico.presentation.diary_list.GradesPeriodControl
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListScreen
 import com.adielcalixto.ifacademico.presentation.diary_list.DiaryListViewModel
+import com.adielcalixto.ifacademico.presentation.diary_list.GradesPeriodControl
 import com.adielcalixto.ifacademico.presentation.login.LoginScreen
 import com.adielcalixto.ifacademico.presentation.login.LoginViewModel
 import com.adielcalixto.ifacademico.presentation.student_info.StudentInfoScreen
@@ -59,8 +54,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme() {
-                Surface(modifier = Modifier.fillMaxHeight(), color = androidx.compose.material3.MaterialTheme.colorScheme.background) {
+            AppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxHeight(),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.background,
+                ) {
                     App()
                 }
             }
@@ -80,17 +78,11 @@ sealed class Screen {
     data object StudentInfo : Screen()
 
     @Serializable
-    data object Calendar : Screen()
+    data object SignedIn : Screen()
 
     @Serializable
-    data object Dashboard : Screen()
-
-    @Serializable
-    data object DiaryList : Screen()
-
+    data object Tabs : Screen()
 }
-
-private fun MainState.isLoggedIn() = this.sessionState == SessionState.Valid
 
 @Composable
 fun App(
@@ -101,15 +93,6 @@ fun App(
     val state by viewModel.state.collectAsState()
     val updateState by updateViewModel.state.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val currentEntry by navController.currentBackStackEntryAsState()
-    val gradesEntry = currentEntry?.takeIf { it.destination.hasRoute<Screen.DiaryList>() }
-    val gradesViewModel = gradesEntry?.let { hiltViewModel<DiaryListViewModel>(it) }
-    val periodFocus = remember(gradesEntry) { FocusRequester() }
-
-    LaunchedEffect(gradesViewModel, state.student?.registrationId) {
-        state.student?.registrationId?.let { gradesViewModel?.setRegistrationId(it) }
-    }
-
     DisposableEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(viewModel)
         onDispose {
@@ -136,95 +119,83 @@ fun App(
         )
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-            .statusBarsPadding(),
-        bottomBar = {
-            if (state.isLoggedIn()) BottomNavigationBar(navController)
-        },
-        topBar = {
-            if (state.isLoggedIn()) {
-                val periodControl: (@Composable () -> Unit)? = gradesViewModel?.let { model ->
-                    {
-                        val gradesState by model.state.collectAsState()
-                        GradesPeriodControl(gradesState, { model.onAction(DiaryListAction.ShowPeriods) },
-                            Modifier.focusRequester(periodFocus))
-                    }
-                }
-                TopBar(navController, periodControl)
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Splash,
-            modifier = Modifier.padding(innerPadding)
+    // Session invalidation also removes the shell's pager and session-scoped view models.
+    val currentEntry by navController.currentBackStackEntryAsState()
+    LaunchedEffect(state.sessionState, currentEntry) {
+        if (state.sessionState == SessionState.Invalid &&
+            currentEntry?.destination?.hasRoute<Screen.SignedIn>() == true
         ) {
-            composable<Screen.Splash> {
-                LaunchedEffect(state.sessionState) {
-                    when (state.sessionState) {
-                        SessionState.Invalid -> {
-                            navController.navigate(Screen.Login) { popUpTo(0) }
+            navController.navigate(Screen.Login) { popUpTo(0) }
+        } else if (state.sessionState == SessionState.Valid &&
+            currentEntry?.destination?.hasRoute<Screen.Login>() == true
+        ) {
+            navController.navigate(Screen.SignedIn) { popUpTo(0) }
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Splash,
+        modifier = Modifier.fillMaxSize().navigationBarsPadding().statusBarsPadding(),
+    ) {
+        composable<Screen.Splash> {
+            LaunchedEffect(state.sessionState) {
+                when (state.sessionState) {
+                    SessionState.Invalid -> navController.navigate(Screen.Login) { popUpTo(0) }
+                    SessionState.Valid -> navController.navigate(Screen.SignedIn) { popUpTo(0) }
+                    else -> Unit
+                }
+            }
+            LoadingComponent()
+        }
+        composable<Screen.Login> {
+            val loginViewModel: LoginViewModel = hiltViewModel()
+            LoginScreen(
+                loginViewModel,
+                onLoginSuccess = viewModel::onLogin,
+            )
+        }
+        composable<Screen.SignedIn> { shellEntry ->
+            SignedInShell(
+                periodControl = { focus ->
+                    val model: DiaryListViewModel = hiltViewModel(shellEntry)
+                    val gradesState by model.state.collectAsState()
+                    GradesPeriodControl(
+                        gradesState,
+                        { model.onAction(DiaryListAction.ShowPeriods) },
+                        Modifier.focusRequester(focus),
+                    )
+                },
+                pageContent = { tab, periodFocus ->
+                    when (tab) {
+                        MainTab.Today -> DashboardScreen(hiltViewModel<DashboardViewModel>(shellEntry))
+                        MainTab.Calendar -> CalendarScreen(hiltViewModel<CalendarViewModel>(shellEntry))
+                        MainTab.Diaries -> {
+                            val model: DiaryListViewModel = hiltViewModel(shellEntry)
+                            LaunchedEffect(state.student?.registrationId) {
+                                state.student?.registrationId?.let(model::setRegistrationId)
+                            }
+                            DiaryListScreen(model, periodFocus)
                         }
-
-                        SessionState.Valid -> {
-                            navController.navigate(Screen.Dashboard) { popUpTo(0) }
-                        }
-
-                        else -> {}
                     }
-                }
-
-                LoadingComponent()
-            }
-
-            composable<Screen.Login> {
-                val loginViewModel: LoginViewModel = hiltViewModel()
-                LoginScreen(
-                    loginViewModel,
-                    onLoginSuccess = {
-                        navController.navigate(Screen.Dashboard) { popUpTo(0) }
-                        viewModel.onLogin()
-                    })
-            }
-
-            composable<Screen.Dashboard> {
-                val dashboardViewModel = hiltViewModel<DashboardViewModel>()
-                DashboardScreen(dashboardViewModel)
-            }
-
-            composable<Screen.StudentInfo> {
-                if (state.student == null) {
-                    LoadingComponent()
-                    return@composable
-                }
-
-                StudentInfoScreen(
-                    student = state.student!!,
-                    isUpdateCheckEnabled = updateState.isUpdateCheckEnabled,
-                    onUpdateCheckEnabledChange = updateViewModel::setUpdateCheckEnabled,
-                    onLogout = {
-                        viewModel.onLogout()
-                        navController.navigate(Screen.Login) { popUpTo(0) }
+                },
+                profileContent = {
+                    val student = state.student
+                    if (student == null) {
+                        LoadingComponent()
+                    } else {
+                        StudentInfoScreen(
+                            student = student,
+                            isUpdateCheckEnabled = updateState.isUpdateCheckEnabled,
+                            onUpdateCheckEnabledChange = updateViewModel::setUpdateCheckEnabled,
+                            onLogout = {
+                                viewModel.onLogout()
+                                navController.navigate(Screen.Login) { popUpTo(0) }
+                            },
+                        )
                     }
-                )
-            }
-
-            composable<Screen.Calendar> {
-                val calendarViewModel = hiltViewModel<CalendarViewModel>()
-                CalendarScreen(calendarViewModel)
-            }
-
-            composable<Screen.DiaryList> {
-                if (state.student == null) {
-                    LoadingComponent()
-                    return@composable
-                }
-                val diariesViewModel = hiltViewModel<DiaryListViewModel>()
-                DiaryListScreen(diariesViewModel, periodFocus)
-            }
+                },
+            )
         }
     }
 }
