@@ -55,13 +55,13 @@ fun IFUpdateSwitch(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(IFSpacing.xs),
     ) {
+        Text(stringResource(if (checked) R.string.setting_on else R.string.setting_off),
+            style = IFTheme.typography.labelMd, color = IFTheme.colors.onSurface)
         Box(Modifier.size(IFSize.switchWidth, IFSize.switchHeight).clip(IFShapes.full)
             .background(if (checked && enabled) IFTheme.colors.primary else IFTheme.colors.inputOutline)) {
             Box(Modifier.offset { IntOffset(thumbOffset.roundToPx(), 2.dp.roundToPx()) }.size(20.dp).clip(IFShapes.full)
                 .background(if (checked && enabled) IFTheme.colors.onPrimary else IFTheme.colors.surface))
         }
-        Text(stringResource(if (checked) R.string.setting_on else R.string.setting_off),
-            style = IFTheme.typography.labelMd, color = IFTheme.colors.onSurface)
     }
 }
 
@@ -100,7 +100,6 @@ fun IFThemeSelector(
                 DropdownMenuItem(
                     text = { Text(option.asUiText().asString()) },
                     onClick = { expanded = false; onThemeChange(option) },
-                    leadingIcon = if (option == theme) {{ Icon(IFIcon.Check.vector, null) }} else null,
                     modifier = Modifier.semantics { this.selected = option == theme },
                 )
             }
