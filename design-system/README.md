@@ -103,8 +103,11 @@ does not install updates or prove that an update occurred.
 `SignedInShell` owns the stationary header/bottom navigation, a saveable
 `HorizontalPager` in `MainTab` order, and separate Profile navigation. Tab taps use
 `IFMotion.tabMillis` (240ms), cancel earlier tab animations, and slide through
-intermediate pages. Swipes use standard pager snapping. Selection and the Diaries
-period control follow `settledPage`; page switches do not build a back stack.
+intermediate pages. Swipes use standard pager snapping. The navigation highlight
+follows `currentPage + currentPageOffsetFraction` directly, without another animation;
+icon and label colors blend with page progress. Accessible selection follows
+`currentPage`, while the Diaries period control follows `settledPage`. Profile hides
+the highlight. Page switches do not build a back stack.
 Back returns to Today before leaving the app. Sheets retain modal gesture and Back
 handling. Profile uses a 220ms fade and 24dp translation, reversed when closing.
 

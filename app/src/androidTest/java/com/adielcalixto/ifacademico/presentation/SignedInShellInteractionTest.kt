@@ -46,6 +46,16 @@ class SignedInShellInteractionTest {
     private val tabRole = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
     private fun tab(id: Int) = compose.onNode(tabRole and hasText(label(id)))
     private fun page(tab: MainTab) = compose.onNodeWithTag("page-${tab.name}")
+    private fun indicator() = compose.onNodeWithTag("bottom-navigation-indicator", useUnmergedTree = true)
+
+    private fun assertIndicatorFollowsPage(origin: MainTab) {
+        val pageNode = page(origin).fetchSemanticsNode()
+        val todayBounds = tab(R.string.today_label).fetchSemanticsNode().boundsInRoot
+        val diariesBounds = tab(R.string.grades_label).fetchSemanticsNode().boundsInRoot
+        val progress = origin.ordinal - pageNode.positionInRoot.x / pageNode.size.width
+        val expected = todayBounds.left + progress * (diariesBounds.left - todayBounds.left)
+        assertEquals(expected, indicator().fetchSemanticsNode().boundsInRoot.left, 2f)
+    }
 
     @Composable
     private fun Host(dark: Boolean = false) {
@@ -112,6 +122,14 @@ class SignedInShellInteractionTest {
         val position = page(MainTab.Today).fetchSemanticsNode().positionInRoot
         assertTrue(position.x < 0f)
         tab(R.string.today_label).assertIsSelected()
+        assertIndicatorFollowsPage(MainTab.Today)
+        val draggedLeft = indicator().fetchSemanticsNode().boundsInRoot.left
+        page(MainTab.Today).performTouchInput {
+            moveBy(androidx.compose.ui.geometry.Offset(width * .1f, 0f), 300)
+        }
+        compose.mainClock.advanceTimeByFrame()
+        assertIndicatorFollowsPage(MainTab.Today)
+        assertTrue(indicator().fetchSemanticsNode().boundsInRoot.left < draggedLeft)
         page(MainTab.Today).performTouchInput { cancel() }
         compose.mainClock.autoAdvance = true
         tab(R.string.today_label).assertIsSelected()
@@ -124,9 +142,13 @@ class SignedInShellInteractionTest {
         compose.mainClock.autoAdvance = false
         tab(R.string.calendar).performClick()
         compose.mainClock.advanceTimeBy(112)
-        // The target tab is not selected until the pager finishes its movement.
-        tab(R.string.today_label).assertIsSelected()
         page(MainTab.Diaries).assertExists()
+        assertIndicatorFollowsPage(MainTab.Diaries)
+        assertTrue(
+            indicator().fetchSemanticsNode().boundsInRoot.left >
+                tab(R.string.today_label).fetchSemanticsNode().boundsInRoot.left,
+        )
+        tab(R.string.today_label).assertIsNotSelected()
         tab(R.string.grades_label).performClick()
         compose.mainClock.autoAdvance = true
         tab(R.string.grades_label).assertIsSelected()
@@ -142,8 +164,10 @@ class SignedInShellInteractionTest {
         compose.onNodeWithContentDescription(label(R.string.open_profile)).performClick()
         compose.onNodeWithText("Profile content").assertIsDisplayed()
         tab(R.string.calendar).assertIsNotSelected()
+        indicator().assertDoesNotExist()
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         tab(R.string.calendar).assertIsSelected()
+        indicator().assertExists()
         compose.onNodeWithText("Calendar record 15").assertIsDisplayed()
         tab(R.string.today_label).performClick()
         compose.onNodeWithText("Today record 15").assertIsDisplayed()

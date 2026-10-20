@@ -286,8 +286,10 @@ Modal panels are distinguished by a translucent scrim and rounded top edge. A to
 
 The three bottom pages form a horizontal pager in Today, Diaries, Calendar order.
 Pages follow the finger and snap one page at a time without wrapping. Tab taps slide
-through the same order over 240ms; selected navigation and the Diaries period control
-update when movement settles. Header and bottom navigation remain stationary.
+through the same order over 240ms. The bottom navigation highlight tracks fractional
+page progress during taps and swipes, with icon and label colors blending between
+tabs. Accessible selection follows the nearest page; the Diaries period control
+updates when movement settles. Header and bottom navigation remain stationary.
 Vertical page scrolling remains independent. Back returns from Diaries or Calendar to
 Today before leaving the app; Profile and modal panels close first.
 

@@ -6,7 +6,11 @@ import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.presentation.MainTab
 
 @Composable
-fun BottomNavigationBar(selectedTab: MainTab?, onSelect: (MainTab) -> Unit) {
+fun BottomNavigationBar(
+    selectedTab: MainTab?,
+    onSelect: (MainTab) -> Unit,
+    indicatorPosition: Float? = selectedTab?.ordinal?.toFloat(),
+) {
     IFBottomNavigation(
         items = listOf(
             IFNavigationItem(stringResource(R.string.today_label), IFIcon.Home),
@@ -15,5 +19,6 @@ fun BottomNavigationBar(selectedTab: MainTab?, onSelect: (MainTab) -> Unit) {
         ),
         selectedIndex = selectedTab?.ordinal ?: -1,
         onSelect = { onSelect(MainTab.entries[it]) },
+        indicatorPosition = indicatorPosition,
     )
 }

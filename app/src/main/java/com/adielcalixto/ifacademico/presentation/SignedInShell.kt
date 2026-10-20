@@ -93,7 +93,13 @@ internal fun SignedInShell(
             )
         },
         bottomBar = {
-            BottomNavigationBar(if (showingProfile) null else settledTab, ::selectTab)
+            BottomNavigationBar(
+                selectedTab = if (showingProfile) null else MainTab.entries[pager.currentPage],
+                onSelect = ::selectTab,
+                indicatorPosition = if (showingProfile) null else {
+                    pager.currentPage + pager.currentPageOffsetFraction
+                },
+            )
         },
     ) { padding ->
         NavHost(

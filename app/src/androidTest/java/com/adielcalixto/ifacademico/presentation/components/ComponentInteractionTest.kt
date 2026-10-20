@@ -3,6 +3,7 @@
 package com.adielcalixto.ifacademico.presentation.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,7 +12,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.*
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.adielcalixto.ifacademico.R
@@ -41,6 +47,47 @@ class ComponentInteractionTest {
         compose.onNodeWithText("Disabled action").assertIsNotEnabled().performTouchInput { click() }
         compose.runOnIdle { assertEquals(0, invocations) }
         compose.onNodeWithContentDescription("Updates").assertIsOff().performClick().assertIsOn()
+    }
+
+    @Test
+    fun fractionalNavigationIndicatorFitsWrappedLabelsInBothDirectionsAndThemes() {
+        var rtl by mutableStateOf(false)
+        var dark by mutableStateOf(false)
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalDensity provides Density(density.density, 2f),
+                LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            ) {
+                IFTheme(darkTheme = dark) {
+                    IFBottomNavigation(
+                        items = listOf(
+                            IFNavigationItem("Today", IFIcon.Home),
+                            IFNavigationItem("Academic diaries", IFIcon.Grades),
+                            IFNavigationItem("Calendar", IFIcon.Calendar),
+                        ),
+                        selectedIndex = 1,
+                        onSelect = {},
+                        modifier = Modifier.width(320.dp),
+                        indicatorPosition = .5f,
+                    )
+                }
+            }
+        }
+        for (isDark in listOf(false, true)) {
+            for (isRtl in listOf(false, true)) {
+                compose.runOnIdle { dark = isDark; rtl = isRtl }
+                val today = compose.onNodeWithText("Today").fetchSemanticsNode().boundsInRoot
+                val diaries = compose.onNodeWithText("Academic diaries").fetchSemanticsNode().boundsInRoot
+                val indicator = compose.onNodeWithTag(
+                    "bottom-navigation-indicator", useUnmergedTree = true,
+                ).fetchSemanticsNode().boundsInRoot
+                assertEquals((today.center.x + diaries.center.x) / 2f, indicator.center.x, 2f)
+                assertEquals(today.width, indicator.width, 2f)
+                assertEquals(maxOf(today.height, diaries.height), indicator.height, 1f)
+                compose.onNodeWithText("Academic diaries").assertIsSelected()
+            }
+        }
     }
 
     @Test
