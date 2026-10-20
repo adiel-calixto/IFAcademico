@@ -8,7 +8,10 @@ import java.time.YearMonth
 
 internal fun calendarEventMarker(type: String, colors: IFColors): IFCalendarDayMarker {
     val (background, foreground) = when (type) {
-        "Feriado Nacional", "Feriado Municipal", "Férias", "Recesso Escolar" ->
+        "Feriado Nacional", "Feriado Municipal", "Recesso Escolar" ->
+            colors.calendarHolidaySurface to colors.onCalendarHoliday
+
+        "Férias" ->
             colors.notice to colors.onNotice
 
         "Etapa Letiva", "Início/fim de Período Letivo", "Reajuste de Matrícula",

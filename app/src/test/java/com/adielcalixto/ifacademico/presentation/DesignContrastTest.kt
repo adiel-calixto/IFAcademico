@@ -18,6 +18,7 @@ class DesignContrastTest {
             listOf(
                 colors.primaryContainer to colors.primary,
                 colors.notice to colors.onNotice,
+                colors.calendarHolidaySurface to colors.onCalendarHoliday,
                 colors.calendarEventSurface to colors.onCalendarEvent,
                 colors.calendarAssessmentSurface to colors.onCalendarAssessment,
                 colors.surfaceSubtle to colors.secondary,

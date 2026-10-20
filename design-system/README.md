@@ -188,7 +188,8 @@ Calendar now uses a Sunday-first, non-interactive month grid with square date
 cells sized from the available column width, matching 4dp gutters, centered
 numerals, and previous/next
 controls, passive category-colored highlights and underlines, and a today outline.
-There are no event dots or explanatory legend below the grid. Holiday/break dates use amber notice tokens; academic dates use green;
+There are no event dots or explanatory legend below the grid. National and municipal holidays and school breaks use red `calendarHolidaySurface`/`onCalendarHoliday` tokens;
+vacations use amber notice tokens; academic dates use green;
 events use blue `calendarEventSurface`/`onCalendarEvent`; final assessments use
 plum `calendarAssessmentSurface`/`onCalendarAssessment`; administrative and unknown
 types use neutral tokens. Every appearance has paired readable foregrounds.

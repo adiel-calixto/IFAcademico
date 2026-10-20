@@ -8,11 +8,15 @@ import java.time.YearMonth
 
 class CalendarMarkersTest {
     @Test
-    fun `known API event types use five distinct semantic palettes in each theme`() {
+    fun `known API event types use six distinct semantic palettes in each theme`() {
         listOf(LightColors, DarkColors).forEach { colors ->
             val groups = listOf(
                 Triple(
-                    listOf("Feriado Nacional", "Feriado Municipal", "Férias", "Recesso Escolar"),
+                    listOf("Feriado Nacional", "Feriado Municipal", "Recesso Escolar"),
+                    colors.calendarHolidaySurface, colors.onCalendarHoliday
+                ),
+                Triple(
+                    listOf("Férias"),
                     colors.notice, colors.onNotice
                 ),
                 Triple(
@@ -39,7 +43,7 @@ class CalendarMarkersTest {
                     colors.secondary
                 ),
             )
-            assertEquals(5, groups.map { it.second }.distinct().size)
+            assertEquals(6, groups.map { it.second }.distinct().size)
             groups.forEach { (types, background, foreground) ->
                 types.forEach { type ->
                     val marker = calendarEventMarker(type, colors)
