@@ -26,4 +26,12 @@ internal fun AcademicDetailsPreview() = Catalog {
         )),
         IFAssessmentStage("Stage 2", listOf(SampleAssessment.copy(grade = null, date = null, formula = null))),
     ))
+    AssessmentRowContent(
+        SampleAssessment.copy(description = "Stage average", acronym = "M1", date = null),
+        expanded = true, onToggle = {}
+    )
+    AssessmentRowContent(
+        SampleAssessment.copy(description = "Ungraded assignment", acronym = "", grade = null, formula = null),
+        expanded = true, onToggle = {}
+    )
 }

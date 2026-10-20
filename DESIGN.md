@@ -342,15 +342,34 @@ The panel uses a wrapping 16sp/600 `title-sm` subject heading, followed by teach
 The details panel is capped at 65% of the window height, with a fixed heading and close control above a scrolling body.
 
 Workload hours remain in the subject list. Grade details omit a separate class-progress section.
+Center the Attendance and Assessments section headings, including wrapped text and
+the Assessments loading and error states.
 
-Assessments are grouped by stage in API display order, with calculated averages
-included within their stage. Compact flat rows show the 16sp description on the left and a
-16sp semibold system-font labeled grade (`Grade: 8.5`) on the right, with a smaller
-`Maximum: 10` below it. Acronym and date share a
-14sp secondary metadata line. Ungraded records show “Not graded” with the maximum
-below it. Rows stack the score below the description and metadata when available width
-is below 280dp multiplied by the font scale; otherwise the score occupies at most 40%
-of the row. Text wraps without truncation. Formula text sits in a subtle inset block when present. Missing results read “Not graded”; missing dates read “Date not supplied.” Academic detail remains read-only.
+Assessments are grouped by stage in API display order, with supplied calculated
+results included within their stage. All stages remain visible. The Assessments section
+heading uses 16sp semibold Manrope (`title-sm`), with 14sp semibold stage labels below
+it. Compact flat rows start collapsed and show only the full 14sp system-font
+description, a 14sp semibold system-font labeled grade (`Grade: 8.5`), and a disclosure chevron. Ungraded records show
+“Not graded”; zero remains `Grade: 0`. Do not use fraction notation or show the maximum
+in collapsed rows. Leave supplied descriptions intact; a formula does not establish
+that a record is a stage average.
+
+Tapping anywhere on a row toggles its details in place. Multiple rows may remain
+expanded independently; newly opened diary details start collapsed. Expanded details
+show labeled maximum grade, acronym, date, and formula, all aligned to the trailing
+edge, including wrapped text and the formula block contents. Omit blank acronyms and
+formulas. Missing dates read “Date not supplied.” Formula text uses a subtle inset
+block. Rows have at least a 48dp touch target, descriptive expand/collapse actions,
+and accessible expanded/collapsed state. Keep details read-only and inside the existing
+sheet scroll region.
+
+Reserve room for the chevron, then stack the grade below the description when the
+remaining width is below 280dp multiplied by the font scale; otherwise the grade
+occupies at most 40% of that width. Text wraps without truncation. Use neutral colors,
+quiet 1dp separators at 40% outline opacity only between assessments within a stage.
+Between stages, use a full-opacity 1dp outline divider with 16dp space above and below.
+Do not add a trailing divider to each stage. Assessment loading placeholders match
+the collapsed name-and-grade layout and subdued row separators.
 
 ### Calendar and event rows
 

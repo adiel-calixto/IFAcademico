@@ -3,6 +3,8 @@ package com.adielcalixto.ifacademico.presentation.diary_detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.adielcalixto.ifacademico.R
 import com.adielcalixto.ifacademico.domain.entities.Diary
@@ -61,7 +63,7 @@ internal fun DiaryDetailContent(
         when {
             assessments.isLoading -> AssessmentsLoading()
             assessments.error != null -> Column(verticalArrangement = Arrangement.spacedBy(IFSpacing.md)) {
-                IFSectionTitle(stringResource(R.string.exams), detail = true)
+                IFSectionTitle(stringResource(R.string.exams), Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                 IFErrorState(assessments.error.asUiText().asString(), onRetryAssessments)
             }
             else -> {

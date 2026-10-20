@@ -139,11 +139,27 @@ class GradesInteractionTest {
 
     @Test
     fun zeroGradeAndMissingResultDateAndFormulaRemainDistinct() {
-        compose.setContent { Host(PreviewGrades.copy(sheet = GradesSheet.Subject(1))) {} }
+        var state by mutableStateOf(PreviewGrades.copy(sheet = GradesSheet.Subject(1)))
+        compose.setContent {
+            Host(state) { action ->
+                state = when (action) {
+                    is DiaryListAction.ShowSubject -> state.copy(sheet = GradesSheet.Subject(action.diaryId))
+                    DiaryListAction.CloseSheet -> state.copy(sheet = GradesSheet.Closed)
+                    else -> state
+                }
+            }
+        }
         compose.onNodeWithText(context.getString(R.string.assessment_score, "0")).performScrollTo().assertIsDisplayed()
         compose.onAllNodesWithText(label(R.string.not_graded)).assertCountEquals(2)
-        compose.onAllNodesWithText(label(R.string.date_not_supplied), substring = true).assertCountEquals(3)
+        compose.onAllNodesWithText(label(R.string.date_not_supplied), substring = true).assertCountEquals(0)
+        compose.onNodeWithText("(A1 + A2) / 2").assertDoesNotExist()
+        compose.onNodeWithText("Média da primeira etapa").performScrollTo().performClick()
+        compose.onNodeWithText(label(R.string.date_not_supplied), substring = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("(A1 + A2) / 2").performScrollTo().assertIsDisplayed()
+        Espresso.pressBack()
+        waitForClosedSheet()
+        compose.onNodeWithText(PreviewSubject.name).performClick()
+        compose.onNodeWithText("(A1 + A2) / 2").assertDoesNotExist()
     }
 
     @Test

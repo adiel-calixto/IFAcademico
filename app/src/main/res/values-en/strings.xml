@@ -88,7 +88,7 @@
     <string name="not_graded">Not graded</string>
     <string name="assessment_score">Grade: %1$s</string>
     <string name="assessment_metadata">%1$s · %2$s</string>
-    <string name="maximum_score">Maximum: %1$s</string>
+    <string name="maximum_score">Maximum grade: %1$s</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
     <string name="today_label">Today</string>
@@ -141,4 +141,10 @@
     <string name="loading_profile">Loading profile…</string>
     <string name="class_progress_count">%1$s: %2$s</string>
     <string name="class_progress_description">%1$s classes held, %2$s classes pending, %3$s planned classes</string>
+    <string name="assessment_acronym">Acronym: %1$s</string>
+    <string name="assessment_date">Date: %1$s</string>
+    <string name="assessment_expanded">Expanded</string>
+    <string name="assessment_collapsed">Collapsed</string>
+    <string name="expand_assessment">Show details for %1$s</string>
+    <string name="collapse_assessment">Hide details for %1$s</string>
 </resources>
